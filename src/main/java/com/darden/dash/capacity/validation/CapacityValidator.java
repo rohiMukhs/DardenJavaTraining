@@ -37,8 +37,14 @@ public class CapacityValidator implements DashValidator {
 	}
 	
 	/**
-	* Method is used to validate the CreateCapacityTemplate data
+	* 
+	* Method is used to validate the CreateCapacityTemplate data and throws exception based on the validation
 	*
+	* @param object
+	* @param operation
+	* @param parameters
+	* @throws JsonProcessingException
+	* 
 	* @return ResponseEntity<Object>
 	*/
 	@Override

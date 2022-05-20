@@ -5,7 +5,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
 import lombok.Setter;
-
+/**
+ * 
+ * @author vravian
+ * 
+ * * This Model class is written for the purpose of showing the values of business date
+ *
+ */
 @Getter
 @Setter
 public class BusinessDate {
