@@ -23,10 +23,6 @@ public class DateUtil implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final String YYYY_MM_DD = CapacityConstants.YYYY_MM_DD2;
-	private static final String HH_MM_SS = CapacityConstants.H_MM;
-	private static final String MM_DD_YYYY = CapacityConstants.MM_DD_YYYY2;
-
 /**
  * This method is to convert instant time to string time format
  * 
@@ -34,7 +30,7 @@ public class DateUtil implements Serializable {
  * @return String
  */
 	public static String instantToTime(Instant instant) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(HH_MM_SS).withZone(ZoneId.systemDefault());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CapacityConstants.H_MM).withZone(ZoneId.systemDefault());
 		return formatter.format(instant);
 	}
 	
@@ -45,7 +41,7 @@ public class DateUtil implements Serializable {
 	 * @return String
 	 */
 	public static String instantToDate(Date date) {
-		SimpleDateFormat formatter = new SimpleDateFormat(YYYY_MM_DD);
+		SimpleDateFormat formatter = new SimpleDateFormat(CapacityConstants.YYYY_MM_DD);
 		return formatter.format(date);
 	}
 	
@@ -58,7 +54,7 @@ public class DateUtil implements Serializable {
 	public static Date stringToDate(String string) {
 		Date formatter = null;
 		try {
-			formatter = new SimpleDateFormat(MM_DD_YYYY).parse(string);
+			formatter = new SimpleDateFormat(CapacityConstants.MM_DD_YYYY).parse(string);
 		} catch (ParseException e) {
 			logger.info(e.getMessage());
 		}

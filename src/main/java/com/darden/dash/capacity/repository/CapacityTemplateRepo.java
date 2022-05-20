@@ -31,5 +31,13 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity>
 	 */
 	List<CapacityTemplateEntity> findByConceptId(BigInteger conceptId);
+	
+	/**
+	 * This method is used to get capacity template using capacity Template name.
+	 * 
+	 * @param capacityTemplateNm
+	 * @return
+	 */
+	CapacityTemplateEntity findByCapacityTemplateNm(String capacityTemplateNm);
 
 }

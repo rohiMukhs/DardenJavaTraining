@@ -1,5 +1,7 @@
 package com.darden.dash.capacity.util;
 
+import java.math.BigInteger;
+
 /**
  * @author skashala
  * @date 16-May-2022
@@ -90,7 +92,9 @@ public class CapacityConstants {
 	public static final String EFFECTIVE_DATE = "effective_date";
 	public static final String EXPIRY_DATE = "expiry_date";
 	public static final String CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY = "capacity template loaded successfully";
+	public static final String CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY = "capacity template created successfully";
 	public static final Integer STATUS_CODE_200 = 200;
+	public static final Integer STATUS_CODE_INT_201 = 201;
 
 	public static final String IS_SELECTED_FLG = "is_selected_flg";
 	public static final String BEARER_ACCESS_TOKEN = "Bearer {accessToken}";
@@ -130,6 +134,12 @@ public class CapacityConstants {
 	public static final String MAPPER_FIRENDLY_NM = "firendlyNm";
 
 	public static final String Y = "Y";
+	
+	public static final String N = "N";
+	
+	public static final String DATES = "Dates";
+	
+	public static final String DAYS = "Days";
 
 	public static final String CORRELATION_ID = "Correlation Id";
 
@@ -187,11 +197,25 @@ public class CapacityConstants {
 
 	public static final String YYYY_MM_DD_T_HH_MM_SS_Z = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-	public static final String MM_DD_YYYY2 = "MM/dd/yyyy";
+	public static final String MM_DD_YYYY = "MM/dd/yyyy";
 
-	public static final String H_MM = "h:mm";
+	public static final String H_MM = "h:mm";   
 
-	public static final String YYYY_MM_DD2 = "yyyy-MM-dd";
+	public static final String YYYY_MM_DD = "yyyy-MM-dd";
+	
+	public static final BigInteger BIG_INT_CONSTANT = BigInteger.valueOf(1);
+	
+	public static final String MAP_TO_TEMPLATE_ENTITY = "mapToCapacityTemplateEntity";
+	
+	public static final String MAP_TO_BUSSINESS_DATE = "mapToCapacityTemplateAndBusinessDateEntity";
+	
+	public static final String MAP_TO_SLOT_ENTITY = "mapToCapacitySlotEntity";
+	
+	public static final String MAP_TO_TEMPLATE_CHANNEL_ENTITY = "mapToCapacityTemplateAndCapacityChannelEntity";
+	
+	public static final String MAP_TO_TEMPLATE_RESPONSE = "mapToCreateTemplateResponse";
+	
+	public static final String MAP_TO_SLOT = "mapToSlotDetail";
 	
 	private CapacityConstants() {
 
