@@ -96,7 +96,7 @@ public interface CapacityTemplateMapper {
 		CapacityTemplateEntity templateEntity = new CapacityTemplateEntity();
 		templateEntity.setCapacityTemplateNm(templateRequest.getCapacityTemplateName());
 		templateEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
-		templateEntity.setIsDeletedFlg(templateRequest.getIsDeletedFlag());
+		templateEntity.setIsDeletedFlg(CapacityConstants.N);
 		templateEntity.setCreatedBy(createdBy);
 		templateEntity.setCreatedDatetime(dateTime);
 		templateEntity.setLastModifiedBy(createdBy);
