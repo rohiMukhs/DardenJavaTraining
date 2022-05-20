@@ -17,6 +17,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 
+/**
+* @author vraviran
+*
+* This class {@link CapacityValidator} contains the methods
+* used for validating the data which we get from Request Body and
+* Parameters for Create, Update and Delete Api's of CapacityTemplate.
+*
+*/
 @Component
 public class CapacityValidator implements DashValidator {
 
@@ -27,7 +35,12 @@ public class CapacityValidator implements DashValidator {
 		super();
 		this.templateService = templateService;
 	}
-
+	
+	/**
+	* Method is used to validate the CreateCapacityTemplate data
+	*
+	* @return ResponseEntity<Object>
+	*/
 	@Override
 	public void validate(Object object, String operation, String... parameters) throws JsonProcessingException {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
@@ -41,7 +54,12 @@ public class CapacityValidator implements DashValidator {
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
 	}
-
+/**
+ * This method validates capacity template name if already present in database
+ * 
+ * @param createCapacityTemplateRequest
+ * @param applicationErrors
+ */
 	private void validateInDbForCreate(CreateCapacityTemplateRequest createCapacityTemplateRequest,
 			ApplicationErrors applicationErrors) {
 		if (templateService.validateCapacityTemplateNm(createCapacityTemplateRequest.getCapacityTemplateName())) {
@@ -49,7 +67,13 @@ public class CapacityValidator implements DashValidator {
 					CapacityConstants.CAPACITY_TEMPLATE_NM);
 		}
 	}
-
+/**
+ * This method is for validating the create request
+ * 
+ * @param object
+ * @return
+ * @throws JsonProcessingException
+ */
 	private CreateCapacityTemplateRequest buildObject(Object object) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
 				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);

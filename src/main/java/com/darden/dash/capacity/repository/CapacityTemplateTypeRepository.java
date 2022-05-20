@@ -22,6 +22,5 @@ import com.darden.dash.capacity.entity.CapacityTemplateTypeEntity;
 @Repository
 public interface CapacityTemplateTypeRepository extends JpaRepository<CapacityTemplateTypeEntity, BigInteger> {
 	
-	CapacityTemplateTypeEntity findByCapacityTemplateTypeNm(String capacityTemplateTypeNm);
-	
 }
+

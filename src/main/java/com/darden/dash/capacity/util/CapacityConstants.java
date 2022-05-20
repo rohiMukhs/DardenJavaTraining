@@ -197,11 +197,11 @@ public class CapacityConstants {
 
 	public static final String YYYY_MM_DD_T_HH_MM_SS_Z = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-	public static final String MM_DD_YYYY2 = "MM/dd/yyyy";
+	public static final String MM_DD_YYYY = "MM/dd/yyyy";
 
-	public static final String H_MM = "h:mm";
+	public static final String H_MM = "h:mm";   
 
-	public static final String YYYY_MM_DD2 = "yyyy-MM-dd";
+	public static final String YYYY_MM_DD = "yyyy-MM-dd";
 	
 	public static final BigInteger BIG_INT_CONSTANT = BigInteger.valueOf(1);
 	

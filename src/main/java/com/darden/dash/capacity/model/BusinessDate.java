@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import com.darden.dash.capacity.util.CapacityConstants;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class BusinessDate {
 
-	@JsonFormat(pattern = "MM/dd/yyyy")
+	@JsonFormat(pattern = CapacityConstants.MM_DD_YYYY)
 	private String date;
 	
 }

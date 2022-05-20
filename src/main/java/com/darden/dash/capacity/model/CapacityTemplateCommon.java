@@ -3,19 +3,26 @@ package com.darden.dash.capacity.model;
 import java.math.BigInteger;
 import java.util.List;
 
+import com.darden.dash.capacity.util.CapacityConstants;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
 import lombok.Setter;
-
+/**
+ * This Model class is common across all the model classes
+ * 
+ * @author skashala
+ *
+ */
 @Getter
 @Setter
 public class CapacityTemplateCommon {
 	
-	@JsonFormat(pattern = "MM/dd/yyyy")
+
+	@JsonFormat(pattern = CapacityConstants.MM_DD_YYYY)
 	private String effectiveDate;
 	
-	@JsonFormat(pattern = "MM/dd/yyyy")
+	@JsonFormat(pattern = CapacityConstants.MM_DD_YYYY)
 	private String expiryDate;
 	private BigInteger conceptId;
 	private String isDeletedFlag;

@@ -88,7 +88,7 @@ public interface CapacityTemplateMapper {
 	 * @param templateType
 	 * @param createdBy
 	 * @param dateTime
-	 * @return
+	 * @return CapacityTemplateEntity
 	 */
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_ENTITY)
 	default CapacityTemplateEntity mapToTemplate(CreateCapacityTemplateRequest templateRequest,
@@ -127,7 +127,7 @@ public interface CapacityTemplateMapper {
 	 * @param t
 	 * @param createdBy
 	 * @param dateTime
-	 * @return
+	 * @return CapacityTemplateAndBusinessDateEntity
 	 */
 	@Named(CapacityConstants.MAP_TO_BUSSINESS_DATE)
 	default CapacityTemplateAndBusinessDateEntity mapToBusinessDate(CapacityTemplateEntity createdTemplateEntity,
@@ -155,7 +155,7 @@ public interface CapacityTemplateMapper {
 	 * @param s
 	 * @param createdBy
 	 * @param dateTime
-	 * @return
+	 * @return CapacitySlotEntity
 	 */
 	@Named(CapacityConstants.MAP_TO_SLOT_ENTITY)
 	default CapacitySlotEntity mapToSlot(CapacityTemplateEntity createdTemplateEntity,
@@ -186,7 +186,7 @@ public interface CapacityTemplateMapper {
 	 * @param t
 	 * @param createdBy
 	 * @param dateTime
-	 * @return
+	 * @return CapacityTemplateAndCapacityChannelEntity
 	 */
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_CHANNEL_ENTITY)
 	default CapacityTemplateAndCapacityChannelEntity mapToTemplateAndChannelEntity(
@@ -211,7 +211,7 @@ public interface CapacityTemplateMapper {
 	 * @param createdTemplateEntity
 	 * @param responseDate
 	 * @param responseChannelList
-	 * @return
+	 * @return CreateTemplateResponse
 	 */
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_RESPONSE)
 	default CreateTemplateResponse mapToCreateTemplateResponse(CapacityTemplateEntity createdTemplateEntity,
@@ -248,7 +248,7 @@ public interface CapacityTemplateMapper {
 	 * 
 	 * @param savedSlot
 	 * @param s
-	 * @return
+	 * @return SlotDetail
 	 */
 	@Named(CapacityConstants.MAP_TO_SLOT)
 	default SlotDetail mapToResponseSlot(CapacitySlotEntity savedSlot, SlotDetail s) {
