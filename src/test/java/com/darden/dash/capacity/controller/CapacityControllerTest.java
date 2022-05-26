@@ -29,15 +29,20 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.darden.dash.capacity.model.BusinessDate;
+import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacityTemplate;
+import com.darden.dash.capacity.model.ChannelInformationRequest;
+import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateResponseSlot;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.SlotDetail;
+import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.capacity.validation.CapacityValidator;
+import com.darden.dash.capacity.validation.ChannelValidator;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -56,6 +61,12 @@ public class CapacityControllerTest {
 	
 	@MockBean
 	private JwtUtils jwtUtils;
+	
+	@MockBean
+	private CapacityChannelService capacityChannelService;
+	
+	@MockBean
+	private ChannelValidator channelValidator;
 	
 	@MockBean
 	private CapacityValidator capacityValidator;
@@ -175,9 +186,46 @@ public class CapacityControllerTest {
 		
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityManagementService.createTemplate(Mockito.any(), Mockito.any())).thenReturn(response);
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-templates/").contentType(MediaType.APPLICATION_JSON)
-				.content(mapper.writeValueAsString(request))).andExpect(status().isCreated())
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-templates").contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isCreated());
+		
+	}
+	
+	@Test
+	void shouldUpdateChannels() throws Exception{
+		
+		ChannelListRequest request = new ChannelListRequest();
+		
+		List<ChannelInformationRequest> channelList = new ArrayList<>();
+		ChannelInformationRequest channel = new ChannelInformationRequest();
+		channel.setCapacityChannelId(new BigInteger("1"));
+		channel.setFriendlyName("frnm");
+		channel.setInterval(2);
+		channel.setOperationHourStartTime("01:01:01");
+		channel.setOperationHourEndTime("02:02:02");
+		
+		List<CapacityChannel> responseList = new ArrayList<>();
+		
+		CapacityChannel response = new CapacityChannel();
+		response.setCapacityChannelId(new BigInteger("1"));
+		response.setCapacityChannelName("abc");
+		response.setFirendlyName("frnm");
+		response.setInterval("2");
+		response.setIsCombinedFlg("N");
+		response.setOperationalHoursEndTime("02:02:02");
+		response.setOperationalHoursStartTime("01:01:01");
+		
+		responseList.add(response);
+		
+		channelList.add(channel);
+		
+		request.setChannels(channelList);
+		
+		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
+		Mockito.when(capacityChannelService.editChannelInformation(Mockito.anyList(),Mockito.anyString())).thenReturn(responseList);
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/combine-channels").contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(request))).andExpect(status().isAccepted());
 		
 	}
 

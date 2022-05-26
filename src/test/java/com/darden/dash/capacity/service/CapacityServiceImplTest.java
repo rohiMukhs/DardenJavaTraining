@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
@@ -309,5 +310,32 @@ class CapacityServiceImplTest {
 		Mockito.when(capacitySlotRepository.save(Mockito.any())).thenReturn(capacitySlotEntity);
 		CreateTemplateResponse res = capacityManagementServiceImpl.createTemplate(request, CapacityServiceImplTest.ACCESS_TOKEN);
 		assertNotNull(res);
+	}
+	
+	@Test
+	void testValidateCapacityTemplateNm() {
+		
+		RequestContext.setConcept("1");
+		
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
+		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
+		capacityTemplateEntity.setEffectiveDate(new Date());
+		capacityTemplateEntity.setExpiryDate(new Date());
+		capacityTemplateEntity.setMonFlg("Y");
+		capacityTemplateEntity.setTueFlg("Y");
+		capacityTemplateEntity.setWedFlg("Y");
+		capacityTemplateEntity.setThuFlg("N");
+		capacityTemplateEntity.setFriFlg("N");
+		capacityTemplateEntity.setSatFlg("Y");
+		capacityTemplateEntity.setSunFlg("Y");
+		capacityTemplateEntity.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		capacityTemplateEntity.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
+		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
+		
+		Mockito.when(capacityTemplateRepo.findByCapacityTemplateNm(Mockito.anyString())).thenReturn(capacityTemplateEntity);
+		boolean res = capacityManagementServiceImpl.validateCapacityTemplateNm("Lorum Ipsum");
+		assertEquals(true, res);
 	}
 }
