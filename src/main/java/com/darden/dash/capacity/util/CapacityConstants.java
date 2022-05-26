@@ -227,6 +227,18 @@ public class CapacityConstants {
 	
 	public static final String CHANNEL_UPDATED = "Channel updated successfully";
 	
+	public static final String CAPACITYCHANNELID = "capacityChannelId";
+	
+	public static final String FRIENDLYNAME = "friendlyName";
+	
+	public static final String INTERVAL_MIN = "Interval should be Minimum value is 5";
+	
+	public static final String INTERVAL_MAX = "Interval should be Maximum value is 1440";
+	
+	public static final String INT_EXAMPLE = "123";
+	
+	public static final String TIME_EXAMPLE = "HH:mm:ss";
+	
 	private CapacityConstants() {
 
 	}
