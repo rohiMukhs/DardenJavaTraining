@@ -60,6 +60,7 @@ public interface CapacityChannelMapper {
 				Channel channel = new Channel();
 				channel.setCapacityChannelId(t.getCapacityChannel2().getCapacityChannelId());
 				channel.setCapacityChannelName(t.getCapacityChannel2().getCapacityChannelNm());
+				channel.setIsSelectedFlag(CapacityConstants.Y);
 				combinedChannels.add(channel);
 			});
 			capacityChannel.setCombinedChannels(combinedChannels);

@@ -12,6 +12,7 @@ import java.math.BigInteger;
 public class CapacityConstants {
 
 	public static final String EC_4421 = "4421";
+	public static final String EC_4500 = "4500";
 	public static final String COM_DARDEN_DASH_CAPACITY_CONTROLLER = "com.darden.dash.capacity.controller";
 	public static final String SCAN_PACKAGE = "com.darden.dash";
 	public static final String ENTITY_PACKAGE = "com.darden.dash.common.entity";
@@ -95,6 +96,7 @@ public class CapacityConstants {
 	public static final String CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY = "capacity template created successfully";
 	public static final Integer STATUS_CODE_200 = 200;
 	public static final Integer STATUS_CODE_INT_201 = 201;
+	public static final Integer STATUS_CODE_202 = 202;
 
 	public static final String IS_SELECTED_FLG = "is_selected_flg";
 	public static final String BEARER_ACCESS_TOKEN = "Bearer {accessToken}";
@@ -113,7 +115,11 @@ public class CapacityConstants {
 	
 	public static final String STATUS_CODE_SUCCESS = "200";
 
-	public static final String API_V1_CAPACITY_TEMPLATES = "api/v1/capacity-templates";
+	public static final String API_V1 = "api/v1";
+	
+	public static final String CAPACITY_TEMPLATES = "/capacity-templates";
+	
+	public static final String COMBINED_CHANNELS = "/combine-channels";
 	
 	public static final String SLASH = "/";
 
@@ -216,6 +222,22 @@ public class CapacityConstants {
 	public static final String MAP_TO_TEMPLATE_RESPONSE = "mapToCreateTemplateResponse";
 	
 	public static final String MAP_TO_SLOT = "mapToSlotDetail";
+	
+	public static final String PATTERN_CHAR_Y_AND_CHAR_N = "^[YN]$";
+	
+	public static final String CHANNEL_UPDATED = "Channel updated successfully";
+	
+	public static final String CAPACITYCHANNELID = "capacityChannelId";
+	
+	public static final String FRIENDLYNAME = "friendlyName";
+	
+	public static final String INTERVAL_MIN = "Interval should be Minimum value is 5";
+	
+	public static final String INTERVAL_MAX = "Interval should be Maximum value is 1440";
+	
+	public static final String INT_EXAMPLE = "123";
+	
+	public static final String TIME_EXAMPLE = "HH:mm:ss";
 	
 	private CapacityConstants() {
 
