@@ -226,6 +226,7 @@ public interface CapacityTemplateMapper {
 		createTemplateResponse.setExpiryDate(createdTemplateEntity.getExpiryDate().toString());
 		createTemplateResponse.setTemplateTypeId(templateRequest.getTemplateTypeId());
 		createTemplateResponse.setTemplateTypeName(templateRequest.getTemplateTypeName());
+		createTemplateResponse.setSunDay(createdTemplateEntity.getSunFlg());
 		createTemplateResponse.setMonDay(createdTemplateEntity.getMonFlg());
 		createTemplateResponse.setTueDay(createdTemplateEntity.getTueFlg());
 		createTemplateResponse.setWedDay(createdTemplateEntity.getWedFlg());

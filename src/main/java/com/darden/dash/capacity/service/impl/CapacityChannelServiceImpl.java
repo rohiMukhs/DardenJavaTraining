@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,11 @@ import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
 import com.darden.dash.capacity.service.CapacityChannelService;
+import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.enums.AuditActionValues;
+import com.darden.dash.common.service.AuditService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * 
@@ -35,16 +41,20 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	
 	private CapacityChannelRepo  capacityChannelRepository;
 	
+	private AuditService auditService;
+	
 	private CapacityChannelMapper capacityChannelMapper = Mappers.getMapper(CapacityChannelMapper.class);
 	/**
 	 * Autowiring required properties
 	 * 
 	 * @param capacityChannelRepository
+	 * @param auditService
 	 */
 	@Autowired
-	public CapacityChannelServiceImpl(CapacityChannelRepo capacityChannelRepository) {
+	public CapacityChannelServiceImpl(CapacityChannelRepo capacityChannelRepository, AuditService auditService) {
 		super();
 		this.capacityChannelRepository = capacityChannelRepository;
+		this.auditService = auditService;
 	}
 
 	/**
@@ -63,7 +73,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * @return List<ChannelInformationRequest>
 	 */
 	@Override
-	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user) {
+	@Transactional
+	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user) throws JsonProcessingException{
 		Map<BigInteger,ChannelInformationRequest> editChannelsMap=editChannelInformationRequest.stream().collect(Collectors.toMap(ChannelInformationRequest::getCapacityChannelId,o->o));
 		List<BigInteger> allCapacityChannelIdList=editChannelInformationRequest.stream().map(ChannelInformationRequest::getCapacityChannelId).collect(Collectors.toList());
 		List<CapacityChannelEntity> capacityChannelEntityList=capacityChannelRepository.findAllByCapacityChannelIdInAndConceptId(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()));
@@ -82,6 +93,9 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		capacityChannelRepository.saveAll(capacityChannelEntityList);
 		List<CapacityChannelEntity> updatedCapacityChannelEntityList=capacityChannelRepository.findAllByCapacityChannelIdInAndConceptId(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()));
 		List<CapacityChannel> response = capacityChannelMapper.mapChannels(updatedCapacityChannelEntityList);
+		if(!capacityChannelEntityList.isEmpty()) {
+			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.UPDATE, null, capacityChannelEntityList, user);
+		}
 		return response;
 	}
 
@@ -94,9 +108,12 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * @return boolean
 	 */
 	@Override
-	public boolean friendlyNmValidation(String friendlyName) {
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByFirendlyNmAndConceptId(friendlyName, new BigInteger(RequestContext.getConcept()));
-		return capacityChannelEntity != null;
+	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel) {
+		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByFirendlyNmAndConceptId(validateChannel.getFriendlyName(), new BigInteger(RequestContext.getConcept()));
+		if(capacityChannelEntity != null && capacityChannelEntity.getCapacityChannelId().equals(validateChannel.getCapacityChannelId()))
+			return CapacityConstants.FALSE;
+		else
+			return capacityChannelEntity != null;
 	}
 
 }

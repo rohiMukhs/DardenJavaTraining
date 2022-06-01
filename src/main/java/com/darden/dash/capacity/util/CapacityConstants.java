@@ -96,7 +96,7 @@ public class CapacityConstants {
 	public static final String CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY = "capacity template created successfully";
 	public static final Integer STATUS_CODE_200 = 200;
 	public static final Integer STATUS_CODE_INT_201 = 201;
-	public static final Integer STATUS_CODE_202 = 202;
+	public static final Integer STATUS_CODE_INT_202 = 202;
 
 	public static final String IS_SELECTED_FLG = "is_selected_flg";
 	public static final String BEARER_ACCESS_TOKEN = "Bearer {accessToken}";
@@ -108,10 +108,14 @@ public class CapacityConstants {
 	public static final String BAD_REQUEST = "Bad Request";
 
 	public static final String STATUS_CODE_405 = "405";
+	
+	public static final String STATUS_CODE_401 = "401";
 
 	public static final String STATUS_CODE_400 = "400";
 
 	public static final String STATUS_CODE_201 = "201";
+	
+	public static final String STATUS_CODE_202 = "202";
 	
 	public static final String STATUS_CODE_SUCCESS = "200";
 
@@ -238,6 +242,18 @@ public class CapacityConstants {
 	public static final String INT_EXAMPLE = "123";
 	
 	public static final String TIME_EXAMPLE = "HH:mm:ss";
+	
+	public static final String CAPACITY_SOFT_DELETE = "CAPACITY_SOFT_DELETE";
+	
+	public static final boolean FALSE = false;
+	
+	public static final String CAPACITY_TEMPLATE_WITH_TEMPLATEID = "/capacity-templates/{templateId}";
+	
+	public static final String CAPACITY_TEMPLATE_DELETED = "Capacity Template deleted successfully";
+	
+	public static final String APP_PARAMETER_SERVICE = "appParameterService";
+	
+	public static final String EC_4501 = "4501";
 	
 	private CapacityConstants() {
 

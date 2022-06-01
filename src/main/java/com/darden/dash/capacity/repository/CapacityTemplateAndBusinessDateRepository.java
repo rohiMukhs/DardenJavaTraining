@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.darden.dash.capacity.entity.CapacityTemplateAndBusinessDateEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndBusinessDatePK;
+import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 
 /**
  * 
@@ -20,5 +21,13 @@ import com.darden.dash.capacity.entity.CapacityTemplateAndBusinessDatePK;
 @Transactional
 @Repository
 public interface CapacityTemplateAndBusinessDateRepository extends JpaRepository<CapacityTemplateAndBusinessDateEntity, CapacityTemplateAndBusinessDatePK>{
-
+	
+	/**
+	 * This method is used to delete a CapacityTemplateAndBusinessDateEntity value of 
+	 * based on the value of CapacityTemplateEntity.
+	 * 
+	 * @param capacityTemplate
+	 */
+	void deleteAllBycapacityTemplate(CapacityTemplateEntity capacityTemplate);
+	
 }

@@ -115,7 +115,7 @@ public class ChannelValidator implements DashValidator {
 	private void validateInDbForUpdate(ChannelListRequest buildObject, ApplicationErrors applicationErrors) {
 		
 		buildObject.getChannels().stream().forEach(c -> {
-			if(channelService.friendlyNmValidation(c.getFriendlyName())) {
+			if(channelService.friendlyNmValidation(c)) {
 				applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 						c.getFriendlyName());
 			}

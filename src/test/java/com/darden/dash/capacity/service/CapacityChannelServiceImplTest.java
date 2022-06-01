@@ -17,16 +17,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
 import com.darden.dash.capacity.mapper.CapacityChannelMapper;
-import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
 import com.darden.dash.capacity.service.impl.CapacityChannelServiceImpl;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.service.AuditService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @ExtendWith({ MockitoExtension.class })
 class CapacityChannelServiceImplTest {
@@ -36,6 +36,9 @@ class CapacityChannelServiceImplTest {
 	
 	@Mock
 	private CapacityChannelRepo  capacityChannelRepository;
+	
+	@Mock
+	private AuditService auditService;
 	
 	public static List<CapacityChannelEntity> channelList = new ArrayList<>();
 	
@@ -68,7 +71,7 @@ class CapacityChannelServiceImplTest {
 	}
 
 	@Test
-	void testEditChannelInformation() {
+	void testEditChannelInformation() throws JsonProcessingException{
 		
 		List<ChannelInformationRequest> requestList = new ArrayList<>();
 		ChannelInformationRequest request = new ChannelInformationRequest();
@@ -105,9 +108,15 @@ class CapacityChannelServiceImplTest {
 	
 	@Test
 	void testFriendlyNmValidation() {
+		ChannelInformationRequest request = new ChannelInformationRequest();
+		request.setCapacityChannelId(new BigInteger("2"));
+		request.setFriendlyName("fname");
+		request.setInterval(5);
+		request.setOperationHourStartTime("30:30:30");
+		request.setOperationHourEndTime("30:30:30");
 		RequestContext.setConcept("1");
 		Mockito.when(capacityChannelRepository.findByFirendlyNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
-		boolean res = capacityChannelServiceImpl.friendlyNmValidation("fname");
+		boolean res = capacityChannelServiceImpl.friendlyNmValidation(request);
 		assertEquals(true, res);
 	}
 	
