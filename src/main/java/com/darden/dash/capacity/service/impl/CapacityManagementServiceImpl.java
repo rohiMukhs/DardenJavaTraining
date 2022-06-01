@@ -485,6 +485,13 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	public boolean validateCapacityTemplateId(String templateId) {
 
 		Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo.findById(new BigInteger(templateId));
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		if(dbTemplateValue.isEmpty()) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
+					CapacityConstants.CAPACITY_TEMPLATE_ID);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		
 		CapacityModelAndCapacityTemplateEntity dbModelAndTemplate = new CapacityModelAndCapacityTemplateEntity();
 		if(dbTemplateValue.isPresent()) {
 			dbModelAndTemplate = capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(dbTemplateValue.get());
