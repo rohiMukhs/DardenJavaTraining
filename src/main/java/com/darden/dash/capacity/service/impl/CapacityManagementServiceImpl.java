@@ -488,7 +488,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		if(dbTemplateValue.isEmpty()) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
-					CapacityConstants.CAPACITY_TEMPLATE_NM);
+					CapacityConstants.CAPACITY_TEMPLATE_ID);
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		
