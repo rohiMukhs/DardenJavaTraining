@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
 import java.sql.Time;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -28,6 +30,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
+import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
+import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplatePK;
 import com.darden.dash.capacity.entity.CapacitySlotEntity;
 import com.darden.dash.capacity.entity.CapacitySlotTypeEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndBusinessDateEntity;
@@ -44,6 +48,7 @@ import com.darden.dash.capacity.model.CreateResponseSlot;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
+import com.darden.dash.capacity.repository.CapacityModelAndCapacityTemplateRepository;
 import com.darden.dash.capacity.repository.CapacitySlotRepository;
 import com.darden.dash.capacity.repository.CapacitySlotTypeRepository;
 import com.darden.dash.capacity.repository.CapacityTemplateAndBusinessDateRepository;
@@ -53,8 +58,12 @@ import com.darden.dash.capacity.repository.CapacityTemplateTypeRepository;
 import com.darden.dash.capacity.repository.ReferenceRepository;
 import com.darden.dash.capacity.service.impl.CapacityManagementServiceImpl;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.entity.AppParameterEntity;
 import com.darden.dash.common.exception.ApplicationException;
+import com.darden.dash.common.service.AppParameterService;
+import com.darden.dash.common.service.AuditService;
 import com.darden.dash.common.util.JwtUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @ExtendWith({ MockitoExtension.class })
 class CapacityServiceImplTest {
@@ -88,6 +97,15 @@ class CapacityServiceImplTest {
 	
 	@Mock
 	private CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepository;
+	
+	@Mock
+	private CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository;
+
+	@Mock
+	private AppParameterService appParameterService;
+	
+	@Mock
+	private AuditService auditService;
 	
 	public static final String ACCESS_TOKEN = "7TeL7QMI9tSbvx38:k20boY/U/dAEM13LBKgS+oaT0v3gTSxnMmfVudUPFbnkLG+YgOIQ8i49iT1ooTzS55gZUdqW2XajNbhkDtq40rJh9jVltkBfhY/JTpwAIRJW4Ebn+M6X9xjXwNub0U4wz4nUHK7VIHNoF61xrLiAMdUcxb1GrHaDvXEzPtcWNG/ngoz5L9KOJFwwdBvS/c76k7rVO1Rn3Y0MJHY9I6wQAGa3MHmcuIxCmmkQEI59sYVsoazwRfFd5s2KYxccqWG+EJK3zJ4yTueQstPGcsJ/wPXG0jPtVwgy7Ms61Ww3ydm1R4SjUIYemITvXr/v3uVBs5qizR7PWEBSZNKPBsNctMN1PoKrAs7PEkqh791fnfK4Txjg6/jSazZYCELAD/EjR/1pkn6cEKLH2L7cLA/n8WzkPg6bD3UwRp6MgTL9PhuE+juJu3mc0pR7LI7l6A9TYwnStsGiJm+R0JOZzIn/xjCCPDpTBXvC9rPMvg2rF1MWV78jVYSMWugQnhU3tP5HjMF3fK5NXFwZyRPt9Hm4MPNHLiY0/fKcoP/e2cPAcTxuJeOBM6BmIVPYu10kMLBzIMkCbcYTptv2WNgTVPJOi4W/Rl76+HJS62szMY4DPcf3fTqVnuXTj4R7vfuzS2RZOKCYER3JF1H80KAUa4VFTv2xIAVMALMuQesjobfz6r9o0qaWFbZDXLsMQ9denalcKMwDXeBPe1QilEwDbO6gtiRb6lD1w8mJ4mWrH57hAFwN4pE/uFmI/kvqRCjF/ca7hu5i30NAlAEcp9Y45H+Bo6lwx9VUeYrfTWlDTEUuRZ0+PEKGMOjnNj+kzHCOj3Smz4vt4NW+DG0bW/GS9++4lAOtwm3bRpEYYVycjhO7pwYB/qFpfvPkiHXwDRVTty5xiNNYeHxYdBvzeUFzphAAgAFEyRGrLJVO5dWshysu";
 
@@ -197,7 +215,7 @@ class CapacityServiceImplTest {
 	}
 	
 	@Test
-	void testCreateTemplate() {
+	void testCreateTemplate() throws JsonProcessingException{
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
@@ -336,6 +354,80 @@ class CapacityServiceImplTest {
 		
 		Mockito.when(capacityTemplateRepo.findByCapacityTemplateNm(Mockito.anyString())).thenReturn(capacityTemplateEntity);
 		boolean res = capacityManagementServiceImpl.validateCapacityTemplateNm("Lorum Ipsum");
+		assertEquals(true, res);
+	}
+	
+	@Test
+	void shouldSoftCapacityTemplate() throws Exception {
+		AppParameterEntity appParameterEntitynew = new AppParameterEntity().toBuilder().id(1).parameterName("CAPACITY_SOFT_DELETE")
+				.parameterLevel("enterprise").parameterValue("Y").parameterDesc("Y=soft delete , N=Hard Delete")
+				.parameterValue("Y").createdBy("aaa").createdDate(Instant.now()).modifiedBy("bbbb")
+				.modifiedDate(Instant.now()).build();
+		Mockito.when(appParameterService.findByParameterName(Mockito.any())).thenReturn(appParameterEntitynew);
+		final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		CapacityTemplateEntity test = new CapacityTemplateEntity();
+		test.setCapacityTemplateId(new BigInteger("1"));
+		test.setCreatedBy("aa");
+		test.setCreatedDatetime(now);
+		test.setLastModifiedBy("bbb");
+		test.setLastModifiedDatetime(now);
+		test.setIsDeletedFlg("N");
+		test.setConceptId(new BigInteger("1"));
+		
+		Mockito.when(capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
+				.thenReturn(Optional.of(test));
+		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
+
+		assertEquals("Y", test.getIsDeletedFlg());
+
+	}
+	
+	@Test
+	void shouldHardDeleteCapacityTemplate() throws Exception {
+		AppParameterEntity appParameterEntityHard = new AppParameterEntity().toBuilder().id(1).parameterName("MENU_SOFT_DELETE")
+				.parameterLevel("enterprise").parameterValue("N").parameterDesc("Y=soft delete , N=Hard Delete")
+				.parameterValue("N").createdBy("aaa").createdDate(Instant.now()).modifiedBy("aaa")
+				.modifiedDate(Instant.now()).build();
+
+		Mockito.when(appParameterService.findByParameterName(Mockito.any())).thenReturn(appParameterEntityHard);
+		final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		CapacityTemplateEntity test = new CapacityTemplateEntity();
+		test.setCapacityTemplateId(new BigInteger("1"));
+		test.setCreatedBy("aa");
+		test.setCreatedDatetime(now);
+		test.setLastModifiedBy("bbb");
+		test.setLastModifiedDatetime(now);
+		test.setIsDeletedFlg("N");
+		test.setConceptId(new BigInteger("1"));
+		Mockito.lenient().doNothing().when(capacityTemplateRepo).deleteById(Mockito.any());
+		Mockito.when(capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
+				.thenReturn(Optional.of(test));
+		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
+
+		assertEquals("Y", test.getIsDeletedFlg());
+
+	}
+	
+	@Test
+	void testValidateCapacityTemplateId() {
+		RequestContext.setConcept("1");
+		CapacityTemplateEntity test = new CapacityTemplateEntity();
+		test.setCapacityTemplateId(new BigInteger("1"));
+		test.setCreatedBy("aa");
+		test.setCreatedDatetime(Instant.now());
+		test.setLastModifiedBy("bbb");
+		test.setLastModifiedDatetime(Instant.now());
+		test.setIsDeletedFlg("N");
+		test.setConceptId(new BigInteger("1"));
+		CapacityModelAndCapacityTemplateEntity mAndT = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id = new CapacityModelAndCapacityTemplatePK();
+		id.setCapacityModelId(new BigInteger("1"));
+		id.setCapacityTemplateId(new BigInteger("1"));
+		mAndT.setId(id);
+		mAndT.setCapacityTemplate(test);
+		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(test));
+		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test)).thenReturn(mAndT);
+		boolean res = capacityManagementServiceImpl.validateCapacityTemplateId("1");
 		assertEquals(true, res);
 	}
 }

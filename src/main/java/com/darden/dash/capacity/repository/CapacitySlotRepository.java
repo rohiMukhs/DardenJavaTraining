@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.darden.dash.capacity.entity.CapacitySlotEntity;
+import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 
 /**
  * 
@@ -22,4 +23,12 @@ import com.darden.dash.capacity.entity.CapacitySlotEntity;
 @Repository
 public interface CapacitySlotRepository extends JpaRepository<CapacitySlotEntity, BigInteger> {
 
+	/**
+	 * This method is used to delete a CapacitySlotEntity value of based on the value
+	 * of CapacityTemplateEntity.
+	 * 
+	 * @param capacityTemplate
+	 */
+	void deleteAllBycapacityTemplate(CapacityTemplateEntity capacityTemplate);
+	
 }

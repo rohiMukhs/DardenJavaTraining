@@ -21,10 +21,12 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
+import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
 import com.darden.dash.capacity.entity.CapacitySlotEntity;
 import com.darden.dash.capacity.entity.CapacitySlotTypeEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndBusinessDateEntity;
@@ -45,6 +47,7 @@ import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
+import com.darden.dash.capacity.repository.CapacityModelAndCapacityTemplateRepository;
 import com.darden.dash.capacity.repository.CapacitySlotRepository;
 import com.darden.dash.capacity.repository.CapacitySlotTypeRepository;
 import com.darden.dash.capacity.repository.CapacityTemplateAndBusinessDateRepository;
@@ -55,8 +58,15 @@ import com.darden.dash.capacity.repository.ReferenceRepository;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.constant.ErrorCodeConstants;
+import com.darden.dash.common.entity.AppParameterEntity;
+import com.darden.dash.common.enums.AuditActionValues;
+import com.darden.dash.common.enums.CharacterConstants;
 import com.darden.dash.common.error.ApplicationErrors;
+import com.darden.dash.common.service.AppParameterService;
+import com.darden.dash.common.service.AuditService;
 import com.darden.dash.common.util.JwtUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * 
@@ -84,6 +94,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	private CapacitySlotRepository capacitySlotRepository;
 
 	private CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepository;
+	
+	private CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository;
+	
+	private AppParameterService appParameterService;
+	
+	private AuditService auditService;
 
 	private CapacityTemplateMapper capacityTemplateMapper = Mappers.getMapper(CapacityTemplateMapper.class);
 
@@ -100,8 +116,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * @param capacitySlotTypeRepository
 	 * @param referenceRepository
 	 * @param capacitySlotRepository
-	 * @param capacityTemplateAndCapacityChannelRepositorys
 	 * @param capacityTemplateAndCapacityChannelRepository
+	 * @param capacityModelAndCapacityTemplateRepository
+	 * @param appParameterService
+	 * @param auditService
 	 */
 	@Autowired
 	public CapacityManagementServiceImpl(JwtUtils jwtUtils, CapacityTemplateRepo capacityTemplateRepo,
@@ -109,8 +127,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			CapacityTemplateAndBusinessDateRepository capacityTemplateAndBusinessDateRepository,
 			CapacitySlotTypeRepository capacitySlotTypeRepository, ReferenceRepository referenceRepository,
 			CapacitySlotRepository capacitySlotRepository,
-			CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepositorys,
-			CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepository) {
+			CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepository,
+			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository,
+			@Qualifier("appParameterService") AppParameterService appParameterService,
+			AuditService auditService) {
 		super();
 		this.jwtUtils = jwtUtils;
 		this.capacityTemplateRepo = capacityTemplateRepo;
@@ -121,6 +141,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		this.referenceRepository = referenceRepository;
 		this.capacitySlotRepository = capacitySlotRepository;
 		this.capacityTemplateAndCapacityChannelRepository = capacityTemplateAndCapacityChannelRepository;
+		this.capacityModelAndCapacityTemplateRepository = capacityModelAndCapacityTemplateRepository;
+		this.appParameterService = appParameterService;
+		this.auditService = auditService;
 	}
 
 	/**
@@ -290,7 +313,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	@Override
 	@Transactional(rollbackOn = Exception.class)
 	public CreateTemplateResponse createTemplate(@Valid CreateCapacityTemplateRequest templateRequest,
-			String accessToken) {
+			String accessToken) throws JsonProcessingException {
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		Optional<CapacityTemplateTypeEntity> templateType = capacityTemplateTypeRepository
@@ -339,6 +362,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			responseChannel.setSlotDetails(responseDetail);
 			responseChannelList.add(responseChannel);
 		});
+		if(null != createdTemplateEntity && null != createdTemplateEntity.getCapacityTemplateNm()) {
+			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.INSERT, null, createdTemplateEntity, createdBy);
+		}
 		return capacityTemplateMapper.mapToCreateTemplateResponse(createdTemplateEntity, responseDate,
 				responseChannelList, templateRequest);
 	}
@@ -356,5 +382,114 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		CapacityTemplateEntity capacityTemplateEntity = capacityTemplateRepo
 				.findByCapacityTemplateNm(capacityTemplateNm);
 		return capacityTemplateEntity != null;
+	}
+	
+	/**
+	 * This method is used for DELETE operation.In this method the parameter 
+	 * value is retrieved using the appParameter Service based on the value
+	 * of parameter value soft delete or hard delete is performed.If the 
+	 * appParameter entity value is null applicationError is raised.Then
+	 * the capacityTemplate entity value to be deleted is fetched using the
+	 * template Id passed in the parameter then the capacityTemaplate entity
+	 * certain required values are modified.If the value of parameter value 
+	 * of appParameter entity is Y then soft delete is performed the modified 
+	 * capacityTemplate value with isDeletedFlag as Y is saved to database.If 
+	 * the value of parameter of appParameter entity is N then hard delete is 
+	 * performed the CapacityTemplate with related data is deleted from the 
+	 * database.
+	 * 
+	 * @param templateId
+	 * @param deletedFlag
+	 * @param userDetail
+	 */
+	@Override
+	@Transactional
+	public void deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
+			throws JsonProcessingException {
+		
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		
+		AppParameterEntity appParameterEntity = appParameterService
+				.findByParameterName(CapacityConstants.CAPACITY_SOFT_DELETE);
+		if (appParameterEntity == null) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_5000),
+					CapacityConstants.CAPACITY_CHANNEL_NM);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		CapacityTemplateEntity capacityTemplateEntity = getByCapacityTemplateIdAndIsDeletedFlag(new BigInteger(templateId));
+		capacityTemplateEntity.setIsDeletedFlg(CapacityConstants.Y);
+		capacityTemplateEntity.setLastModifiedBy(userDetail);
+		capacityTemplateEntity.setLastModifiedDatetime(Instant.now());
+		if (appParameterEntity != null
+				&& CharacterConstants.Y.getCode().toString().equals(appParameterEntity.getParameterValue())) {
+			capacityTemplateRepo.save(capacityTemplateEntity);
+			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_SOFT, null, capacityTemplateEntity, userDetail);
+		}
+		else if (appParameterEntity != null
+				&& CharacterConstants.N.getCode().toString().equals(appParameterEntity.getParameterValue())) {
+			capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+			capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+			capacitySlotRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+			capacityTemplateRepo.delete(capacityTemplateEntity);
+			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_HARD, null, capacityTemplateEntity, userDetail);
+		}
+		
+	}
+	
+	/**
+	 * This method is used to retrieve CapacityTemplate value using the Capacity
+	 * template Id passed in the delete operation parameter for the value to be deleted
+	 * and concept Id passed in the request header.if the value is not present for the 
+	 * given CapacityTemplateId applicationErrors is raised with certain error code. If
+	 * the retrieved CapacityTempalate value has isDeletedFlg value as Y applicationErrors 
+	 * is raised with certain error code.
+	 * 
+	 * 
+	 * @param templateId
+	 * @return CapacityTemplateEntity
+	 */
+	private CapacityTemplateEntity getByCapacityTemplateIdAndIsDeletedFlag(BigInteger templateId) {
+		
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		Optional<CapacityTemplateEntity> dbTemplateEntityOptional = capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(templateId, new BigInteger(RequestContext.getConcept()));
+		if(dbTemplateEntityOptional.isEmpty()) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
+					CapacityConstants.CAPACITY_TEMPLATE_NM);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		
+		if(dbTemplateEntityOptional.isPresent()) {
+			capacityTemplateEntity = dbTemplateEntityOptional.get();
+		}
+		
+		if (!(CapacityConstants.N.equals(capacityTemplateEntity.getIsDeletedFlg()))) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
+					CapacityConstants.CAPACITY_TEMPLATE_NM);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		
+		return capacityTemplateEntity;
+		
+	}
+
+	/**
+	 * This method is validate if the CapacityTemplate is assigned to the CapacityTemplate Model 
+	 * in the database it checks if there is any templateId is present in capacityModelAndCapacityTemplate
+	 * table for the validation.
+	 * 
+	 * @param templateId
+	 * @return boolean
+	 */
+	@Override
+	public boolean validateCapacityTemplateId(String templateId) {
+
+		Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo.findById(new BigInteger(templateId));
+		CapacityModelAndCapacityTemplateEntity dbModelAndTemplate = new CapacityModelAndCapacityTemplateEntity();
+		if(dbTemplateValue.isPresent()) {
+			dbModelAndTemplate = capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(dbTemplateValue.get());
+		}
+
+		return dbModelAndTemplate != null;
 	}
 }
