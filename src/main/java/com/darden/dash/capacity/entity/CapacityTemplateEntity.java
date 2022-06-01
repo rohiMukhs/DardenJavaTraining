@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -83,10 +84,12 @@ public class CapacityTemplateEntity extends Audit implements Serializable {
 	private String wedFlg;
 
 	//bi-directional many-to-one association to CapacityModelAndCapacityTemplate
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_TEMPLATE2)
 	private List<CapacityModelAndCapacityTemplateEntity> capacityModelAndCapacityTemplates;
 
 	//bi-directional many-to-one association to CapacitySlot
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_TEMPLATE2)
 	private List<CapacitySlotEntity> capacitySlots;
 
@@ -96,10 +99,12 @@ public class CapacityTemplateEntity extends Audit implements Serializable {
 	private CapacityTemplateTypeEntity capacityTemplateType;
 
 	//bi-directional many-to-one association to CapacityTemplateAndBusinessDate
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_TEMPLATE2)
 	private List<CapacityTemplateAndBusinessDateEntity> capacityTemplateAndBusinessDates;
 
 	//bi-directional many-to-one association to CapacityTemplateAndCapacityChannel
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_TEMPLATE2)
 	private List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannels;
 

@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,10 +43,12 @@ public class CapacitySlotTypeEntity extends Audit implements Serializable {
 	private String isDeletedFlg;
 
 	//bi-directional many-to-one association to CapacitySlot
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_SLOT_TYPE2)
 	private List<CapacitySlotEntity> capacitySlots;
 
 	//bi-directional many-to-one association to CapacitySlotCalcParam
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_SLOT_TYPE2)
 	private List<CapacitySlotCalcParamEntity> capacitySlotCalcParams;
 

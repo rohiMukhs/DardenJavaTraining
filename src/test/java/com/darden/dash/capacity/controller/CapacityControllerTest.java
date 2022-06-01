@@ -1,5 +1,10 @@
 package com.darden.dash.capacity.controller;
 
+import static org.mockito.Mockito.doNothing;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.NestedServletException;
 
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityChannel;
@@ -47,7 +53,7 @@ import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(excludeAutoConfiguration = SecurityAutoConfiguration.class)
-@ContextConfiguration(classes = { CapacityManagementController.class })
+@ContextConfiguration(classes = { CapacityManagementController.class, ChannelValidator.class,CapacityValidator.class })
 public class CapacityControllerTest {
 
 	@Autowired
@@ -226,6 +232,18 @@ public class CapacityControllerTest {
 		Mockito.when(capacityChannelService.editChannelInformation(Mockito.anyList(),Mockito.anyString())).thenReturn(responseList);
 		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/combine-channels").contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request))).andExpect(status().isAccepted());
+		
+	}
+	
+	@Test
+	void testShouldDeleteCapacityTemplate() throws Exception{
+		
+		doNothing().when(capacityManagementService).deleteByTemplateId(Mockito.anyString(), Mockito.anyString(),
+				Mockito.anyString());
+		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
+		mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-templates/{templateId}", 1)
+				.param("deletedFlag", "Y").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())
+				.andExpect(jsonPath("status", is(202)));
 		
 	}
 

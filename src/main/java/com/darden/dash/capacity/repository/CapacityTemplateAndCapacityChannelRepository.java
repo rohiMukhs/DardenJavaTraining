@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelPK;
+import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 
 /**
  * 
@@ -20,5 +21,13 @@ import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelPK;
 @Transactional
 @Repository
 public interface CapacityTemplateAndCapacityChannelRepository extends JpaRepository<CapacityTemplateAndCapacityChannelEntity, CapacityTemplateAndCapacityChannelPK>{
-
+	
+	/**
+	 * This method is used to delete a CapacityTemplateAndCapacityChannelEntity value of 
+	 * based on the value of CapacityTemplateEntity.
+	 * 
+	 * @param capacityTemplate
+	 */
+	void deleteAllBycapacityTemplate(CapacityTemplateEntity capacityTemplate);
+	
 }

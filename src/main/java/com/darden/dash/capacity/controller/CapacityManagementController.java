@@ -5,17 +5,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateResponse;
+import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.model.EditChannelResponse;
+import com.darden.dash.capacity.model.ServiceResponse;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
@@ -99,7 +104,7 @@ public class CapacityManagementController {
 	 * 
 	 * @param createCapacityTemplateRequest
 	 * @param accessToken
-	 * @return
+	 * @return ResponseEntity<Object>
 	 * @throws JsonProcessingException
 	 */
 	@PostMapping(value = CapacityConstants.CAPACITY_TEMPLATES ,produces = MediaType.APPLICATION_JSON_VALUE)
@@ -131,7 +136,7 @@ public class CapacityManagementController {
 	 * 
 	 * @param channelListRequest
 	 * @param accessToken
-	 * @return
+	 * @return ResponseEntity<Object>
 	 * @throws JsonProcessingException
 	 */
 	@PutMapping(value = CapacityConstants.COMBINED_CHANNELS , produces = MediaType.APPLICATION_JSON_VALUE)
@@ -145,7 +150,39 @@ public class CapacityManagementController {
 			throws JsonProcessingException {
 		String userDetail = jwtUtils.findUserDetail(accessToken);
 		channelValidator.validate(channelListRequest,OperationConstants.OPERATION_UPDATE.getCode());
-		return new EditChannelResponse(capacityChannelService.editChannelInformation(channelListRequest.getChannels(), userDetail)).build(CapacityConstants.CHANNEL_UPDATED , CapacityConstants.STATUS_CODE_202);
+		return new EditChannelResponse(capacityChannelService.editChannelInformation(channelListRequest.getChannels(), userDetail)).build(CapacityConstants.CHANNEL_UPDATED , CapacityConstants.STATUS_CODE_INT_202);
 
+	}
+	
+	/**
+	 * Method is used for DELETE operation for the respective concept. The
+	 * parameters are sent to CapacityTemplate service. Before sending the parameters,
+	 * those are validated based on the validation if parameter doesn't match validation
+	 * applicationError is thrown with specific error code. After that, @CenterTemplateEntity 
+	 * is fetched form the CapacityTemplate service based on the value of parameter value set in
+	 * appParameter entity Soft delete and Hard delete operation is performed on CapacityTemplate
+	 * Entity. At last the API successful response is built and returned.
+	 * 
+	 * @param templateId
+	 * @param deletedFlag
+	 * @param accessToken
+	 * @return ResponseEntity<Object>
+	 * @throws JsonProcessingException
+	 */
+	@PatchMapping(value = CapacityConstants.CAPACITY_TEMPLATE_WITH_TEMPLATEID, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_202, description = CapacityConstants.CAPACITY_TEMPLATE_DELETED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> deleteTemplate(@PathVariable String templateId, @RequestParam String deletedFlag,
+			@RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
+			throws JsonProcessingException {
+		String userDetail = jwtUtils.findUserDetail(accessToken);
+		
+		capacityValidator.validate(new DeleteCapacityTemplateRequest(templateId, deletedFlag), OperationConstants.OPERATION_DELETE.getCode());
+		
+		capacityManagementService.deleteByTemplateId(templateId, deletedFlag, userDetail);
+		
+		return new ServiceResponse().build(CapacityConstants.CAPACITY_TEMPLATE_DELETED, CapacityConstants.STATUS_CODE_INT_202);
 	}
 }

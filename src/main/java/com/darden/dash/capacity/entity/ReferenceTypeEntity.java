@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,7 @@ public class ReferenceTypeEntity extends Audit implements Serializable {
 	private String referenceTypeNm;
 
 	//bi-directional many-to-one association to Reference
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.REFERENCE_TYPE2)
 	private List<ReferenceEntity> references;
 

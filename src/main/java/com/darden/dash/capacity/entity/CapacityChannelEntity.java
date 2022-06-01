@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -63,22 +64,27 @@ public class CapacityChannelEntity extends Audit implements Serializable {
 	private Time operationalHoursStartTime;
 
 	//bi-directional many-to-one association to CapacityChannelAndCombinedChannel
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL1)
 	private List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannels1;
 
 	//bi-directional many-to-one association to CapacityChannelAndCombinedChannel
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL2)
 	private List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannels2;
 
 	//bi-directional many-to-one association to CapacityChannelAndOrderChannel
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL3)
 	private List<CapacityChannelAndOrderChannelEntity> capacityChannelAndOrderChannels;
 
 	//bi-directional many-to-one association to CapacitySlot
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL3)
 	private List<CapacitySlotEntity> capacitySlots;
 
 	//bi-directional many-to-one association to CapacityTemplateAndCapacityChannel
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL3)
 	private List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannels;
 

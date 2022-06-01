@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 /**
  * 
  * @author vraviran
@@ -24,7 +25,7 @@ public interface CapacityChannelService {
 	 * @param user
 	 * @return List<ChannelInformationRequest>
 	 */
-	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user);
+	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user) throws JsonProcessingException;
 	
 	/**
 	 * This service method is used to return boolean values based on the 
@@ -33,6 +34,7 @@ public interface CapacityChannelService {
 	 * 
 	 * @param friendlyName
 	 * @return boolean
+	 * @throws JsonProcessingException
 	 */
-	public boolean friendlyNmValidation(String friendlyName);
+	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel);
 }

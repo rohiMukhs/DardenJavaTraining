@@ -2,6 +2,7 @@ package com.darden.dash.capacity.repository;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -39,5 +40,15 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return
 	 */
 	CapacityTemplateEntity findByCapacityTemplateNm(String capacityTemplateNm);
+	
+	/**
+	 * This method is used to get capacity template based on value of template Id 
+	 * and concept Id provided in header.
+	 * 
+	 * @param templateId
+	 * @param conceptId
+	 * @return CapacityTemplateEntity
+	 */
+	Optional<CapacityTemplateEntity> findByCapacityTemplateIdAndConceptId(BigInteger templateId, BigInteger conceptId);
 
 }

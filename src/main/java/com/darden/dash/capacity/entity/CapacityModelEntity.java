@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -46,10 +47,12 @@ public class CapacityModelEntity extends Audit implements Serializable {
 	private String isDeletedFlg;
 
 	//bi-directional many-to-one association to CapacityModelAndCapacityTemplate
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_MODEL2)
 	private List<CapacityModelAndCapacityTemplateEntity> capacityModelAndCapacityTemplates;
 
 	//bi-directional many-to-one association to CapacityModelAndLocation
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_MODEL2)
 	private List<CapacityModelAndLocationEntity> capacityModelAndLocations;
 

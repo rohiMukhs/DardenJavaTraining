@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +43,7 @@ public class CapacityTemplateTypeEntity extends Audit implements Serializable {
 	private String isDeletedFlg;
 
 	//bi-directional many-to-one association to CapacityTemplate
+	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_TEMPLATE_TYPE3)
 	private List<CapacityTemplateEntity> capacityTemplates;
 
