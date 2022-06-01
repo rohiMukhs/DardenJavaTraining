@@ -129,7 +129,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			CapacitySlotRepository capacitySlotRepository,
 			CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepository,
 			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository,
-			@Qualifier("appParameterService") AppParameterService appParameterService,
+			@Qualifier(CapacityConstants.APP_PARAMETER_SERVICE) AppParameterService appParameterService,
 			AuditService auditService) {
 		super();
 		this.jwtUtils = jwtUtils;
