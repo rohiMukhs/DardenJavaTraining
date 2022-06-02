@@ -2,7 +2,9 @@ package com.darden.dash.capacity.validator.test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.ChannelListRequest;
+import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.validation.ChannelValidator;
 import com.darden.dash.common.RequestContext;
@@ -59,6 +62,25 @@ class ChannelValidatorTest {
 		requestList.setChannels(list);
 		Mockito.when(service.friendlyNmValidation(Mockito.any())).thenReturn(false);
 		channelValidator.validate(requestList, OperationConstants.OPERATION_UPDATE.getCode());
+	}
+	
+	@Test
+	void testValidateInDBforCreate() throws JsonProcessingException {
+		RequestContext.setConcept("1");
+		RequestContext.setCorrelationId("d64cf01b-ce65-4a57-ac3e-f7fa09e1a87f");
+		CreateCombineChannelRequest request = new CreateCombineChannelRequest();
+		Set<String> s = new HashSet<>();
+		s.add("a");
+		s.add("b");
+		request.setChannels(s);
+		request.setCombinedChannelName("aaa");
+		request.setFriendlyName("a");
+		request.setEndTime("00:11");
+		request.setStartTime("00:00");
+		request.setInterval(9);
+		Mockito.when(service.validateChannelFriendlyNmValidation(Mockito.anyString())).thenReturn(false);
+		Mockito.when(service.validateChannelNmValidation(Mockito.anyString())).thenReturn(false);
+		channelValidator.validate(request, OperationConstants.OPERATION_CREATE.getCode());
 	}
 
 }
