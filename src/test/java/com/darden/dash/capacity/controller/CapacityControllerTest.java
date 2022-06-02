@@ -12,7 +12,9 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +42,9 @@ import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.ChannelListRequest;
+import com.darden.dash.capacity.model.CombineChannel;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
+import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.CreateResponseSlot;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.SlotDetail;
@@ -245,6 +249,49 @@ public class CapacityControllerTest {
 				.param("deletedFlag", "Y").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())
 				.andExpect(jsonPath("status", is(202)));
 		
+	}
+	
+	@Test
+	void testShouldCreateCombineChannel() throws Exception{
+		Set<String> s = new HashSet<>();
+		s.add("a");
+		s.add("b");
+		CombineChannel response = new CombineChannel();
+		response.setChannels(s);
+		response.setCombinedChannelId(new BigInteger("1"));
+		response.setCombinedChannelName("aaa");
+		response.setCombinedFlg("Y");
+		response.setCreatedBy("aaa");
+		response.setCreatedDateTime(Instant.now());
+		response.setFriendlyName("a");
+		response.setInterval(1);
+		response.setLastModifiedBy("aa");
+		response.setLastModifiedDateTime(Instant.now());
+		response.setOperationHourEndTime("00:11");
+		response.setOperationHourStartTime("00:00");
+		response.getChannels();
+		response.getCombinedChannelId();
+		response.getCombinedChannelName();
+		response.getCombinedFlg();
+		response.getCreatedBy();
+		response.getCreatedDateTime();
+		response.getFriendlyName();
+		response.getInterval();
+		response.getLastModifiedBy();
+		response.getLastModifiedDateTime();
+		response.getOperationHourEndTime();
+		response.getOperationHourStartTime();
+		CreateCombineChannelRequest request = new CreateCombineChannelRequest();
+		request.setChannels(s);
+		request.setCombinedChannelName("aaa");
+		request.setFriendlyName("a");
+		request.setEndTime("00:11");
+		request.setStartTime("00:00");
+		request.setInterval(1);
+		Mockito.when(capacityChannelService.addCombinedChannel(Mockito.any(), Mockito.anyString())).thenReturn(response);
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/combine-channels").contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(request)))
+				.andExpect(status().isCreated());
 	}
 
 }

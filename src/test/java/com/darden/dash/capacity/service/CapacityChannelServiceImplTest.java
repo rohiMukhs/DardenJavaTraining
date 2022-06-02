@@ -6,8 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.math.BigInteger;
 import java.sql.Time;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,10 +22,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
+import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelPK;
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
+import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.mapper.CapacityChannelMapper;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
+import com.darden.dash.capacity.model.CombineChannel;
+import com.darden.dash.capacity.model.CreateCombineChannelRequest;
+import com.darden.dash.capacity.repository.CapacityChannelAndCombinedChannelRepository;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
 import com.darden.dash.capacity.service.impl.CapacityChannelServiceImpl;
 import com.darden.dash.common.RequestContext;
@@ -36,6 +46,9 @@ class CapacityChannelServiceImplTest {
 	
 	@Mock
 	private CapacityChannelRepo  capacityChannelRepository;
+	
+	@Mock
+	private CapacityChannelAndCombinedChannelRepository capacityChannelAndCombinedChannelRepository;
 	
 	@Mock
 	private AuditService auditService;
@@ -120,4 +133,52 @@ class CapacityChannelServiceImplTest {
 		assertEquals(true, res);
 	}
 	
+	@Test
+	void testAddCombineChannel() throws JsonProcessingException {
+		channelEntity.setIsCombinedFlg("Y");
+		CapacityChannelEntity channel = new CapacityChannelEntity();
+		channel.setCapacityChannelNm("s");
+		channel.setCapacityChannelId(new BigInteger("1"));
+		channel.setConceptId(new BigInteger("1"));
+		channel.setFirendlyNm("A");
+		channel.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse("00:00")));
+		channel.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse("00:00")));
+		List<CapacityChannelAndCombinedChannelEntity> list = new ArrayList<>();
+		CapacityChannelAndCombinedChannelEntity ch = new CapacityChannelAndCombinedChannelEntity();
+		CapacityChannelAndCombinedChannelPK id = new CapacityChannelAndCombinedChannelPK();
+		id.setCapacityChannelId(new BigInteger("1"));
+		id.setCombinedCapacityChannelId(new BigInteger("1"));
+		ch.setLastModifiedBy("aa");
+		ch.setId(id);
+		ch.setCreatedBy("aaa");
+		Set<String> s = new HashSet<>();
+		s.add("a");
+		s.add("b");
+		CreateCombineChannelRequest request = new CreateCombineChannelRequest();
+		request.setChannels(s);
+		request.setCombinedChannelName("aaa");
+		request.setFriendlyName("a");
+		request.setEndTime("00:11");
+		request.setStartTime("00:00");
+		request.setInterval(1);
+		Mockito.when(capacityChannelRepository.save(Mockito.any())).thenReturn(channelEntity);
+		Mockito.when(capacityChannelRepository.findByCapacityChannelNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(channel));
+		Mockito.when(capacityChannelAndCombinedChannelRepository.saveAll(Mockito.anyIterable())).thenReturn(list);
+		CombineChannel res = capacityChannelServiceImpl.addCombinedChannel(request, "aaa");
+		assertNotNull(res);
+	}
+	
+	@Test
+	void testValidateChannelNmValidation() {
+		Mockito.when(capacityChannelRepository.findByCapacityChannelNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(channelEntity));
+		boolean res = capacityChannelServiceImpl.validateChannelNmValidation("ch");
+		assertEquals(true, res);
+	}
+	
+	@Test
+	void testValidateChannelFriendlyNmValidation() {
+		Mockito.when(capacityChannelRepository.findByFirendlyNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
+		boolean res = capacityChannelServiceImpl.validateChannelFriendlyNmValidation("a");
+		assertEquals(true, res);
+	}
 }

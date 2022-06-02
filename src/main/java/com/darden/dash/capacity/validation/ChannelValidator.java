@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.darden.dash.capacity.model.ChannelListRequest;
+import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.constant.ErrorCodeConstants;
@@ -60,17 +61,6 @@ public class ChannelValidator implements DashValidator {
 		 * min and max value for specific fields ,alphanumeric for specific fields and 
 		 * so on if any of the validation fails certain application error is raised 
 		 * with respect to the failed validation.
-		 * 
-		 */
-		ChannelListRequest channelEditRequest = buildObject(object);
-		if (!applicationErrors.isValidObject(channelEditRequest)) {
-			applicationErrors.raiseExceptionIfHasErrors();
-		}else {
-			validateInRequestBody(buildObject(object), applicationErrors);
-			applicationErrors.raiseExceptionIfHasErrors();
-		}
-		
-		/**
 		 * This validation method is used for the database validation of the
 		 * request body which is used for the UPDATE operation. Based on the 
 		 * requirement of validation on specific field is checked if validation 
@@ -78,11 +68,42 @@ public class ChannelValidator implements DashValidator {
 		 * 
 		 */
 		if (OperationConstants.OPERATION_UPDATE.getCode().equals(operation)) {
+			ChannelListRequest channelEditRequest = buildObject(object);
+			if (!applicationErrors.isValidObject(channelEditRequest)) {
+				applicationErrors.raiseExceptionIfHasErrors();
+			}else {
+				validateInRequestBody(buildObject(object), applicationErrors);
+				applicationErrors.raiseExceptionIfHasErrors();
+			}
 			validateInDbForUpdate(buildObject(object), applicationErrors);
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		
+		/**
+		 * This validation method is used to validate if the values passed in 
+		 * request body are not null, not blank ,min and max value for specific 
+		 * fields ,alphanumeric for specific fields and so on if any of the validation 
+		 * fails certain application error is raised with respect to the failed validation.
+		 * This validation method is used for the database validation of the
+		 * request body which is used for the CREATE operation. Based on the 
+		 * requirement of validation on specific field is checked if validation 
+		 * fails application error is raised.
+		 * 
+		 */
+		if (OperationConstants.OPERATION_CREATE.getCode().equals(operation)) {
+			CreateCombineChannelRequest createCombineChannelRequest = buildCreateObject(object);
+			if(!applicationErrors.isValidObject(createCombineChannelRequest)) {
+				applicationErrors.raiseExceptionIfHasErrors();
+			}else {
+				validateInCreateRequestBody(buildCreateObject(object), applicationErrors);
+				applicationErrors.raiseExceptionIfHasErrors();
+			}
+			validateInDbForCreate(buildCreateObject(object), applicationErrors);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		
 	}
+
 
 	/**
 	 * This validation method is for the purpose of validating friendly name
@@ -101,6 +122,22 @@ public class ChannelValidator implements DashValidator {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * This validation method is for the purpose of validating number of
+	 * channels passed in the request body if the number of channels is 
+	 * less than one then application error is raised.
+	 * 
+	 * @param buildCreateObject
+	 * @param applicationErrors
+	 */
+	private void validateInCreateRequestBody(CreateCombineChannelRequest buildCreateObject,
+			ApplicationErrors applicationErrors) {
+		if(buildCreateObject.getChannels().size() <= 1 ) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.CHANNELS_MUST_BE_MORE_THAN_ONE);
+		}
+		
 	}
 
 	/**
@@ -122,6 +159,28 @@ public class ChannelValidator implements DashValidator {
 		});
 		
 	}
+	
+	/**
+	 * This validation method is for the purpose of validating Channel Id and friendly name
+	 * field to avoid the duplicate value in the database.In this method value of 
+	 * Channel Id and friendly name is checked if present in database using the channel service 
+	 * method if the data is already present application error is raised with respect to the 
+	 * specific field name.
+	 * 
+	 * @param buildCreateObject
+	 * @param applicationErrors
+	 */
+	private void validateInDbForCreate(CreateCombineChannelRequest buildCreateObject,
+			ApplicationErrors applicationErrors) {
+		if(channelService.validateChannelNmValidation(buildCreateObject.getCombinedChannelName())) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
+					CapacityConstants.CAPACITY_CHANNEL_NM);
+		}
+		if(channelService.validateChannelFriendlyNmValidation(buildCreateObject.getFriendlyName())) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
+					CapacityConstants.CAPACITY_CHANNEL_ID);
+		}
+	}
 
 	/**
 	 * This method is used to build object of request body for validation.
@@ -138,5 +197,19 @@ public class ChannelValidator implements DashValidator {
 		return gson.fromJson(json, ChannelListRequest.class);
 	}
 	
+	/**
+	 * This method is used to build object of request body for validation.
+	 * 
+	 * @param object
+	 * @return CreateCombineChannelRequest
+	 * @throws JsonProcessingException
+	 */
+	private CreateCombineChannelRequest buildCreateObject(Object object) throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
+				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
+		String json = mapper.writeValueAsString(object);
+		Gson gson = new Gson();
+		return gson.fromJson(json, CreateCombineChannelRequest.class);
+	}
 	
 }
