@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
+import com.darden.dash.capacity.model.CombineChannel;
+import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 /**
  * 
@@ -37,4 +39,37 @@ public interface CapacityChannelService {
 	 * @throws JsonProcessingException
 	 */
 	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel);
+	
+	/**
+	 * This service method is used to create combine channel based on the 
+	 * data for Combine channel and channel to be assigned to that combine channel
+	 * provided in createCombinedChannelRequest request and user detail passed in
+	 * the parameter of method
+	 * 
+	 * @param createCombinedChannelRequest
+	 * @param userDetail
+	 * @return CombineChannel
+	 * @throws JsonProcessingException
+	 */
+	public CombineChannel addCombinedChannel(CreateCombineChannelRequest createCombinedChannelRequest,String userDetail) throws JsonProcessingException;
+	
+	/**
+	 * This service method is used to return boolean values based on the 
+	 * condition if the passing values capacity Channel name is present in database.
+	 * This method is created for the purpose of validation of request body.
+	 * 
+	 * @param capacityChannelNm
+	 * @return boolean
+	 */
+	public boolean validateChannelNmValidation(String capacityChannelNm);
+	
+	/**
+	 * This service method is used to return boolean values based on the 
+	 * condition if the passing values friendly name is present in database.
+	 * This method is created for the purpose of validation of request body.
+	 * 
+	 * @param friendlyNm
+	 * @return boolean
+	 */
+	public boolean validateChannelFriendlyNmValidation(String friendlyNm);
 }

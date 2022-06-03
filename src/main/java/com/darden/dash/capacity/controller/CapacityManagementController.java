@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateResponse;
+import com.darden.dash.capacity.model.CreateCombineChannelRequest;
+import com.darden.dash.capacity.model.CreateCombineChannelResponse;
 import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.model.EditChannelResponse;
 import com.darden.dash.capacity.model.ServiceResponse;
@@ -129,7 +131,7 @@ public class CapacityManagementController {
 	 * sending the request body @ChannelListRequest is validated for such as validation for not null
 	 * and not blank and to avoid the duplicates among the list of channels.Using the authorization bearer
 	 * token value user name is retrieved.Both channelListRequest and user detail is passed in capacity
-	 * channel service and the edited date is retrieved with additional fields to be displayed in response.
+	 * channel service and the edited data is retrieved with additional fields to be displayed in response.
 	 * At last the API updated successful response is built and returned. 
 	 * 
 	 * 
@@ -184,5 +186,36 @@ public class CapacityManagementController {
 		capacityManagementService.deleteByTemplateId(templateId, deletedFlag, userDetail);
 		
 		return new ServiceResponse().build(CapacityConstants.CAPACITY_TEMPLATE_DELETED, CapacityConstants.STATUS_CODE_INT_202);
+	}
+	
+	/**
+	 *  Method is used for CREATE operation for the respective concept. The request body CreateCombineChannelRequest
+	 * contains the all the data for combineCapacityChannel to be created and all the CapacityChannels to be assigned. 
+	 * Before sending the request body CreateCombineChannelRequest is validated for such as validation for not null
+	 * and not blank and to avoid the duplicates among the list of channels.Using the authorization bearer
+	 * token value user name is retrieved.Both CreateCombineChannelRequest and user detail is passed in capacity
+	 * channel service and the Created data is retrieved with additional fields to be displayed in response.
+	 * At last the API updated successful response is built and returned. 
+	 * 
+	 * 
+	 * @param createCombineChannelRequest
+	 * @param accessToken
+	 * @return ResponseEntity<Object>
+	 * @throws JsonProcessingException
+	 */
+	@PostMapping(value = CapacityConstants.COMBINE_CHANNELS ,produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> createCombineCapacityChannel(@RequestBody CreateCombineChannelRequest createCombineChannelRequest,
+			@Parameter @RequestHeader (name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
+		
+		String userDetail = jwtUtils.findUserDetail(accessToken);
+		
+		channelValidator.validate(createCombineChannelRequest, OperationConstants.OPERATION_CREATE.getCode());
+		
+		return new CreateCombineChannelResponse(capacityChannelService.addCombinedChannel(createCombineChannelRequest, userDetail)).build(CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_201);
+		
 	}
 }
