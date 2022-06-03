@@ -43,7 +43,7 @@ class CapacityChannelServiceImplTest {
 	
 	@InjectMocks
 	CapacityChannelServiceImpl capacityChannelServiceImpl;
-	
+
 	@Mock
 	private CapacityChannelRepo  capacityChannelRepository;
 	

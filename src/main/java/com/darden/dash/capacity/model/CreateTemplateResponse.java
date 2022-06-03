@@ -2,7 +2,11 @@ package com.darden.dash.capacity.model;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +20,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonPropertyOrder({"capacityTemplateId","capacityTemplateName"})
 public class CreateTemplateResponse extends CapacityTemplateCommon {
 	
 	private BigInteger capacityTemplateId;
@@ -24,6 +30,5 @@ public class CreateTemplateResponse extends CapacityTemplateCommon {
 	private Instant createdDateTime;
 	private String lastModifiedBy;
 	private Instant lastModifiedDateTime;
-	private List<CreateResponseSlot> slotChannels;
-	
+	private List<SlotChannel> slotChannels = new ArrayList<>();
 }

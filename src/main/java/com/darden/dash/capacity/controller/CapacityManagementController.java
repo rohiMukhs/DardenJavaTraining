@@ -1,5 +1,7 @@
 package com.darden.dash.capacity.controller;
 
+import java.math.BigInteger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -217,5 +219,41 @@ public class CapacityManagementController {
 		
 		return new CreateCombineChannelResponse(capacityChannelService.addCombinedChannel(createCombineChannelRequest, userDetail)).build(CapacityConstants.CAPACITY_CHANNELS_CREATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_201);
 		
+	}
+	
+	/**
+	 * Method is used for UPDATE operation for the respective concept. The request
+	 * body is sent to CapacityTemplate service. Before sending the request
+	 * body @CreateCapacityTemplateRequest is validated. After that data is mapped
+	 * to the CapacityTemplateEntity
+	 * ,CapacitySlotEntity,CapacityTemplateAndCapacityChannelEntity,
+	 * CapacityTemplateAndBussinessDateEntity, then sent to the CapacityTemplate
+	 * service and returned the saved data. At last the API successful response is
+	 * built and returned.
+	 * 
+	 * 
+	 * 
+	 * @param createCapacityTemplateRequest
+	 * @param accessToken
+	 * @param templateId
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	@PutMapping(value = CapacityConstants.EDIT_TEMPLATES, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_UPDATED, description = CapacityConstants.CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> updateCapacityTemplate(
+			@Schema(type = CapacityConstants.INTEGER) @PathVariable String templateId,
+			@RequestBody CreateCapacityTemplateRequest createCapacityTemplateRequest,
+			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
+			throws JsonProcessingException {
+		jwtUtils.findUserDetail(accessToken);
+		capacityValidator.validate(createCapacityTemplateRequest, OperationConstants.OPERATION_UPDATE.getCode(),templateId);
+		return new CreateCapacityTemplateResponse(
+				capacityManagementService.updateCapacityTemplate(createCapacityTemplateRequest, accessToken,new BigInteger(templateId)))
+				.build(CapacityConstants.CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_202);
+
 	}
 }

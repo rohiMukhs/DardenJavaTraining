@@ -27,8 +27,8 @@ import com.darden.dash.capacity.entity.ReferenceEntity;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
-import com.darden.dash.capacity.model.CreateResponseSlot;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
+import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.capacity.util.DateUtil;
@@ -160,7 +160,7 @@ public interface CapacityTemplateMapper {
 	@Named(CapacityConstants.MAP_TO_SLOT_ENTITY)
 	default CapacitySlotEntity mapToSlot(CapacityTemplateEntity createdTemplateEntity,
 			Optional<ReferenceEntity> reference, Optional<CapacitySlotTypeEntity> slotTypeEntity,
-			Optional<CapacityChannelEntity> channelEntity, CreateResponseSlot t, SlotDetail s, String createdBy) {
+			Optional<CapacityChannelEntity> channelEntity, SlotChannel t, SlotDetail s, String createdBy) {
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacitySlotEntity slotEntity = new CapacitySlotEntity();
 		slotEntity.setCapacityTemplate(createdTemplateEntity);
@@ -191,7 +191,7 @@ public interface CapacityTemplateMapper {
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_CHANNEL_ENTITY)
 	default CapacityTemplateAndCapacityChannelEntity mapToTemplateAndChannelEntity(
 			CapacityTemplateEntity createdTemplateEntity, Optional<CapacityChannelEntity> channelEntity,
-			CreateResponseSlot t, String createdBy, Instant dateTime) {
+			SlotChannel t, String createdBy, Instant dateTime) {
 		CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = new CapacityTemplateAndCapacityChannelEntity();
 		CapacityTemplateAndCapacityChannelPK id = new CapacityTemplateAndCapacityChannelPK();
 		id.setCapacityTemplateId(createdTemplateEntity.getCapacityTemplateId());
@@ -215,31 +215,12 @@ public interface CapacityTemplateMapper {
 	 */
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_RESPONSE)
 	default CreateTemplateResponse mapToCreateTemplateResponse(CapacityTemplateEntity createdTemplateEntity,
-			List<BusinessDate> responseDate, List<CreateResponseSlot> responseChannelList,
+			List<BusinessDate> responseDate, List<SlotChannel> responseChannelList,
 			CreateCapacityTemplateRequest templateRequest) {
-		CreateTemplateResponse createTemplateResponse = new CreateTemplateResponse();
-		createTemplateResponse.setCapacityTemplateId(createdTemplateEntity.getCapacityTemplateId());
-		createTemplateResponse.setCapacityTemplateName(createdTemplateEntity.getCapacityTemplateNm());
-		createTemplateResponse.setConceptId(createdTemplateEntity.getConceptId());
-		createTemplateResponse.setIsDeletedFlag(createdTemplateEntity.getIsDeletedFlg());
-		createTemplateResponse.setEffectiveDate(createdTemplateEntity.getEffectiveDate().toString());
-		createTemplateResponse.setExpiryDate(createdTemplateEntity.getExpiryDate().toString());
+		CreateTemplateResponse createTemplateResponse = mapCreateResponse(createdTemplateEntity);
 		createTemplateResponse.setTemplateTypeId(templateRequest.getTemplateTypeId());
 		createTemplateResponse.setTemplateTypeName(templateRequest.getTemplateTypeName());
-		createTemplateResponse.setSunDay(createdTemplateEntity.getSunFlg());
-		createTemplateResponse.setMonDay(createdTemplateEntity.getMonFlg());
-		createTemplateResponse.setTueDay(createdTemplateEntity.getTueFlg());
-		createTemplateResponse.setWedDay(createdTemplateEntity.getWedFlg());
-		createTemplateResponse.setThuDay(createdTemplateEntity.getThuFlg());
-		createTemplateResponse.setFriDay(createdTemplateEntity.getFriFlg());
-		createTemplateResponse.setSatDay(createdTemplateEntity.getSatFlg());
 		createTemplateResponse.setBusinessDates(responseDate);
-		createTemplateResponse.setSlotStartTime(createdTemplateEntity.getStartTime().toString());
-		createTemplateResponse.setSlotEndTime(createdTemplateEntity.getEndTime().toString());
-		createTemplateResponse.setCreatedBy(createdTemplateEntity.getCreatedBy());
-		createTemplateResponse.setCreatedDateTime(createdTemplateEntity.getCreatedDatetime());
-		createTemplateResponse.setLastModifiedBy(createdTemplateEntity.getLastModifiedBy());
-		createTemplateResponse.setLastModifiedDateTime(createdTemplateEntity.getLastModifiedDatetime());
 		createTemplateResponse.setSlotChannels(responseChannelList);
 		return createTemplateResponse;
 	}
@@ -261,6 +242,36 @@ public interface CapacityTemplateMapper {
 		responseSlot.setSlotTypeId(s.getSlotTypeId());
 		responseSlot.setIsDeletedFlg(savedSlot.getIsDeletedFlg());
 		return responseSlot;
+	}
+	
+	/**
+	 * Method is used to map response for  CapacityTemplate.
+	 * 
+	 * @param createdTemplateEntity
+	 * @return CreateTemplateResponse
+	 */
+	default CreateTemplateResponse mapCreateResponse(CapacityTemplateEntity createdTemplateEntity) {
+		CreateTemplateResponse createTemplateResponse = new CreateTemplateResponse();
+		createTemplateResponse.setCapacityTemplateId(createdTemplateEntity.getCapacityTemplateId());
+		createTemplateResponse.setCapacityTemplateName(createdTemplateEntity.getCapacityTemplateNm());
+		createTemplateResponse.setConceptId(createdTemplateEntity.getConceptId());
+		createTemplateResponse.setIsDeletedFlag(createdTemplateEntity.getIsDeletedFlg());
+		createTemplateResponse.setEffectiveDate(createdTemplateEntity.getEffectiveDate().toString());
+		createTemplateResponse.setExpiryDate(createdTemplateEntity.getExpiryDate().toString());
+		createTemplateResponse.setSunDay(createdTemplateEntity.getSunFlg());
+		createTemplateResponse.setMonDay(createdTemplateEntity.getMonFlg());
+		createTemplateResponse.setTueDay(createdTemplateEntity.getTueFlg());
+		createTemplateResponse.setWedDay(createdTemplateEntity.getWedFlg());
+		createTemplateResponse.setThuDay(createdTemplateEntity.getThuFlg());
+		createTemplateResponse.setFriDay(createdTemplateEntity.getFriFlg());
+		createTemplateResponse.setSatDay(createdTemplateEntity.getSatFlg());
+		createTemplateResponse.setSlotStartTime(createdTemplateEntity.getStartTime().toString());
+		createTemplateResponse.setSlotEndTime(createdTemplateEntity.getEndTime().toString());
+		createTemplateResponse.setCreatedBy(createdTemplateEntity.getCreatedBy());
+		createTemplateResponse.setCreatedDateTime(createdTemplateEntity.getCreatedDatetime());
+		createTemplateResponse.setLastModifiedBy(createdTemplateEntity.getLastModifiedBy());
+		createTemplateResponse.setLastModifiedDateTime(createdTemplateEntity.getLastModifiedDatetime());
+		return createTemplateResponse;
 	}
 
 }

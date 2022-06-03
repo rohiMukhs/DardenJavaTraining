@@ -1,5 +1,7 @@
 package com.darden.dash.capacity.service;
 
+import java.math.BigInteger;
+
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -71,4 +73,36 @@ public interface CapacityManagementService {
 	 * @return boolean
 	 */
 	public boolean validateCapacityTemplateId(String templateId);
+	
+	/**
+	 * This method is to validate the business dates in the database whether the given business dates
+	 * exists or not for other templates in capacity template model 
+	 * @param createCapacityTemplateReques
+	 * @return boolean
+	 */
+	
+	public boolean validateCapacityModelBusinessDates(CreateCapacityTemplateRequest createCapacityTemplateReques);
+
+	
+	/**
+	 * This method is to update capacity template in the database based on template Id and 
+	 * capacity template request
+	 * 
+	 * @param createCapacityTemplateRequest
+	 * @param accessToken
+	 * @param templateId
+	 * @return
+	 */
+	CreateTemplateResponse updateCapacityTemplate(@Valid CreateCapacityTemplateRequest createCapacityTemplateRequest,String accessToken,BigInteger templateId);
+	
+	/**
+	* This method is validate existing CapacityTemplate name in the database for the
+	* validation based on the value of templateNm and template Id.
+	*
+	*
+	* @param capacityTemplateNm
+	* @param templateId
+	* @return boolean
+	*/
+	public boolean validateCapacityTemplateNmForCreate(String capacityTemplateNm, String templateId);
 }
