@@ -2,6 +2,7 @@ package com.darden.dash.capacity.repository;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -44,4 +45,14 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * @return CapacityChannelEntity
 	 */
 	CapacityChannelEntity findByFirendlyNmAndConceptId(String firendlynm, BigInteger conceptId);
+	
+	/**
+	 * This method is used to fetch the value of capacity channel based on the value 
+	 * of capacityChannel name and concept id.
+	 * 
+	 * @param capacityChannelNm
+	 * @param conceptId
+	 * @return Optional<CapacityChannelEntity>
+	 */
+	Optional<CapacityChannelEntity> findByCapacityChannelNmAndConceptId(String capacityChannelNm, BigInteger conceptId);
 }

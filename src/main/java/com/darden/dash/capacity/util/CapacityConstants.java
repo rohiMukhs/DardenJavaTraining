@@ -255,6 +255,16 @@ public class CapacityConstants {
 	
 	public static final String EC_4501 = "4501";
 	
+	public static final String COMBINE_CHANNELS = "/combine-channels";
+	
+	public static final String MAP_TO_CHANNEL_ENTITY = "mapToChannelEntity";
+	
+	public static final String MAP_TO_CHANNEL_AND_COMBINED_CHANNEL_ENTITY = "mapToCapacityChannelAndCombinedChannelEntity";
+	
+	public static final String MAP_TO_COMBINE_CHANNEL_RESPONSE = "maptoCombineChannelResponse";
+	
+	public static final String CHANNELS_MUST_BE_MORE_THAN_ONE = "channel more than 1";
+	
 	private CapacityConstants() {
 
 	}
