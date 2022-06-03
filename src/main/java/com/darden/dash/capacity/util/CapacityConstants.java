@@ -264,6 +264,8 @@ public class CapacityConstants {
 	public static final String MAP_TO_COMBINE_CHANNEL_RESPONSE = "maptoCombineChannelResponse";
 	
 	public static final String CHANNELS_MUST_BE_MORE_THAN_ONE = "channel more than 1";
+
+	public static final String CAPACITY_CHANNELS_CREATED_SUCCESSFULLY = "Combine channel created successfully";
 	
 	private CapacityConstants() {
 
