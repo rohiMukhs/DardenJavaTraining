@@ -95,11 +95,43 @@ public class CapacityValidator implements DashValidator {
 			validateInDbForCreate(buildObject(object), applicationErrors);
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
+		
+		/**
+		 * This validation method is used for the database validation of the
+		 * request body which is used for the UPDATE operation. Based on the 
+		 * requirement of validation on specific field is checked if validation 
+		 * fails application error is raised.
+		 */
+		if (OperationConstants.OPERATION_UPDATE.getCode().equals(operation)) {
+			validateInDbForUpdate(buildObject(object), applicationErrors,parameters);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
 	}
 
 	/**
+	 * This method validates capacity template name if already present in database
+	 * and to validate if the date to be edited are same as other template belonging
+	 * to same Capacity template Model.
+	 *
+	 * @param createCapacityTemplateRequest
+	 * @param applicationErrors
+	 * @param parameters
+	 */
+
+	private void validateInDbForUpdate(CreateCapacityTemplateRequest createCapacityTemplateRequest,
+			ApplicationErrors applicationErrors,String[] parameters) {
+		String templateId=parameters[0];
+		if (capacityManagementService.validateCapacityTemplateNmForCreate(createCapacityTemplateRequest.getCapacityTemplateName(),templateId)) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
+					CapacityConstants.CAPACITY_TEMPLATE_NM);
+		}
+		if(capacityManagementService.validateCapacityModelBusinessDates(createCapacityTemplateRequest)) {
+			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4502));
+		}
+	}
+	/**
 	 * This validation method is used to validate if the CapacityTemplate is 
-	 * assigned to capacityTemplate mode,based on the templateId which is passed
+	 * assigned to capacityTemplate model,based on the templateId which is passed
 	 * in parameter to perform delete operation
 	 * 
 	 * @param buildObject

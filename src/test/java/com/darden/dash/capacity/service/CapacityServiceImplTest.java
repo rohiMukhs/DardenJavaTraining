@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.poi.sl.usermodel.PlaceableShape;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,9 +33,11 @@ import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplatePK;
+import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.entity.CapacitySlotEntity;
 import com.darden.dash.capacity.entity.CapacitySlotTypeEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndBusinessDateEntity;
+import com.darden.dash.capacity.entity.CapacityTemplateAndBusinessDatePK;
 import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelPK;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
@@ -44,8 +47,8 @@ import com.darden.dash.capacity.mapper.CapacityChannelMapper;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
-import com.darden.dash.capacity.model.CreateResponseSlot;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
+import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
 import com.darden.dash.capacity.repository.CapacityModelAndCapacityTemplateRepository;
@@ -57,6 +60,7 @@ import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.repository.CapacityTemplateTypeRepository;
 import com.darden.dash.capacity.repository.ReferenceRepository;
 import com.darden.dash.capacity.service.impl.CapacityManagementServiceImpl;
+import com.darden.dash.capacity.util.DateUtil;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.entity.AppParameterEntity;
 import com.darden.dash.common.exception.ApplicationException;
@@ -182,6 +186,10 @@ class CapacityServiceImplTest {
 	private List<CapacityTemplateAndCapacityChannelEntity> getCapacityTemplateAndChannels() {
 		List<CapacityTemplateAndCapacityChannelEntity> list = new ArrayList<>();
 		CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = new CapacityTemplateAndCapacityChannelEntity();
+		CapacityTemplateAndCapacityChannelPK id = new CapacityTemplateAndCapacityChannelPK();
+		id.setCapacityChannelId(new BigInteger("1"));
+		id.setCapacityTemplateId(new BigInteger("1"));
+		capacityTemplateAndCapacityChannelEntity.setId(id);
 		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag("N");
 		capacityTemplateAndCapacityChannelEntity.setCapacityChannel(getCapacityChannel());
 		list.add(capacityTemplateAndCapacityChannelEntity);
@@ -286,8 +294,8 @@ class CapacityServiceImplTest {
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
 		detailList.add(detail);
-		List<CreateResponseSlot> slotList = new ArrayList<>();
-		CreateResponseSlot slot = new CreateResponseSlot();
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
 		slot.setChannelId(new BigInteger("1"));
 		slot.setIsSelectedFlag("Y");
 		slot.setSlotDetails(detailList);
@@ -318,14 +326,14 @@ class CapacityServiceImplTest {
 		
 		RequestContext.setConcept("1");
 		
-		Mockito.when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
-		Mockito.when(capacityTemplateTypeRepository.findById(Mockito.any())).thenReturn(optType);
+		Mockito.lenient().when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
+		Mockito.lenient().when(capacityTemplateTypeRepository.findById(Mockito.any())).thenReturn(optType);
 		Mockito.lenient().when(capacityTemplateAndBusinessDateRepository.save(Mockito.any())).thenReturn(dateEntity);
-		Mockito.when(referenceRepository.findById(Mockito.any())).thenReturn(optRef);
-		Mockito.when(capacityChannelRepo.findById(Mockito.any())).thenReturn(optChannel);
-		Mockito.when(capacityTemplateAndCapacityChannelRepository.save(Mockito.any())).thenReturn(capacityTemplateAndCapacityChannelEntity);
-		Mockito.when(capacitySlotTypeRepository.findById(Mockito.any())).thenReturn(optSlotType);
-		Mockito.when(capacitySlotRepository.save(Mockito.any())).thenReturn(capacitySlotEntity);
+		Mockito.lenient().when(referenceRepository.findById(Mockito.any())).thenReturn(optRef);
+		Mockito.lenient().when(capacityChannelRepo.findById(Mockito.any())).thenReturn(optChannel);
+		Mockito.lenient().when(capacityTemplateAndCapacityChannelRepository.save(Mockito.any())).thenReturn(capacityTemplateAndCapacityChannelEntity);
+		Mockito.lenient().when(capacitySlotTypeRepository.findById(Mockito.any())).thenReturn(optSlotType);
+		Mockito.lenient().when(capacitySlotRepository.save(Mockito.any())).thenReturn(capacitySlotEntity);
 		CreateTemplateResponse res = capacityManagementServiceImpl.createTemplate(request, CapacityServiceImplTest.ACCESS_TOKEN);
 		assertNotNull(res);
 	}
@@ -429,5 +437,606 @@ class CapacityServiceImplTest {
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test)).thenReturn(mAndT);
 		boolean res = capacityManagementServiceImpl.validateCapacityTemplateId("1");
 		assertEquals(true, res);
+	}
+	
+	@Test
+	void testValidateCapacityTemplateNmForCreate() {
+		RequestContext.setConcept("1");
+		
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
+		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
+		capacityTemplateEntity.setEffectiveDate(new Date());
+		capacityTemplateEntity.setExpiryDate(new Date());
+		capacityTemplateEntity.setMonFlg("Y");
+		capacityTemplateEntity.setTueFlg("Y");
+		capacityTemplateEntity.setWedFlg("Y");
+		capacityTemplateEntity.setThuFlg("N");
+		capacityTemplateEntity.setFriFlg("N");
+		capacityTemplateEntity.setSatFlg("Y");
+		capacityTemplateEntity.setSunFlg("Y");
+		capacityTemplateEntity.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		capacityTemplateEntity.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
+		boolean res = capacityManagementServiceImpl.validateCapacityTemplateNmForCreate("aaa", "1");
+		assertEquals(false, res);
+	}
+	
+	@Test
+	void testUpdateCapacityTemplate() {
+		RequestContext.setConcept("1");
+		
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
+		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
+		capacityTemplateEntity.setEffectiveDate(new Date());
+		capacityTemplateEntity.setExpiryDate(new Date());
+		capacityTemplateEntity.setMonFlg("Y");
+		capacityTemplateEntity.setTueFlg("Y");
+		capacityTemplateEntity.setWedFlg("Y");
+		capacityTemplateEntity.setThuFlg("N");
+		capacityTemplateEntity.setFriFlg("N");
+		capacityTemplateEntity.setSatFlg("Y");
+		capacityTemplateEntity.setSunFlg("Y");
+		capacityTemplateEntity.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		capacityTemplateEntity.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
+		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
+		Mockito.when(jwtUtils.findUserDetail(Mockito.anyString())).thenReturn("user");
+		
+		CapacityTemplateTypeEntity tType = new CapacityTemplateTypeEntity();
+		tType.setCapacityTemplateTypeId(new BigInteger("1"));
+		tType.setCapacityTemplateTypeNm("Dates");
+		tType.setCreatedBy("aa");
+		tType.setCreatedDatetime(Instant.now());
+		tType.setIsDeletedFlg("N");
+		tType.setLastModifiedBy("vv");
+		tType.setLastModifiedDatetime(Instant.now());
+		
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount("1");
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/01/2011");
+		request.setMonDay("Y");
+		request.setTueDay("Y");
+		request.setWedDay("Y");
+		request.setThuDay("N");
+		request.setFriDay("N");
+		request.setSatDay("Y");
+		request.setSunDay("Y");
+		request.setSlotStartTime("01:02");
+		request.setSlotEndTime("02:09");
+		request.setIsDeletedFlag("N");
+		request.setSlotChannels(slotList);
+		
+		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
+		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString())).thenReturn(tType);
+		Mockito.when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
+		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
+		Mockito.lenient().when(capacitySlotRepository.findByCapacityChannel(Mockito.any())).thenReturn(getCapacitySlots());
+		Mockito.lenient().doNothing().when(capacitySlotRepository).delete(Mockito.any());
+		CreateTemplateResponse res = capacityManagementServiceImpl.updateCapacityTemplate(request, ACCESS_TOKEN, new BigInteger("1"));
+		assertNotNull(res);
+	}
+	
+	@Test
+	void testValidateCapacityModelBusinessDates () {
+		
+		CapacityTemplateTypeEntity days = new CapacityTemplateTypeEntity();
+		days.setCapacityTemplateTypeId(BigInteger.valueOf(1));
+		days.setCapacityTemplateTypeNm("Days");
+		
+		CapacityTemplateEntity c1 = new CapacityTemplateEntity();
+		c1.setCapacityTemplateId(BigInteger.valueOf(1));
+		c1.setCapacityTemplateType(days);
+		c1.setCapacityTemplateNm("Lorum Ipsum");
+		c1.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c1.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c1.setMonFlg("Y");
+		c1.setTueFlg("Y");
+		c1.setWedFlg("Y");
+		c1.setThuFlg("N");
+		c1.setFriFlg("N");
+		c1.setSatFlg("Y");
+		c1.setSunFlg("Y");
+		c1.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c1.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		
+		CapacityTemplateEntity c2 = new CapacityTemplateEntity();
+		c2.setCapacityTemplateId(BigInteger.valueOf(2));
+		c2.setCapacityTemplateNm("Lm");
+		c2.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c2.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c2.setCapacityTemplateType(days);
+		c2.setMonFlg("N");
+		c2.setTueFlg("N");
+		c2.setWedFlg("N");
+		c2.setThuFlg("N");
+		c2.setFriFlg("N");
+		c2.setSatFlg("N");
+		c2.setSunFlg("N");
+		c2.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c2.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		
+		CapacityTemplateTypeEntity dates = new CapacityTemplateTypeEntity();
+		dates.setCapacityTemplateTypeId(BigInteger.valueOf(2));
+		dates.setCapacityTemplateTypeNm("Dates");
+		
+		List<CapacityTemplateAndBusinessDateEntity> d1 = new ArrayList<>();
+		CapacityTemplateAndBusinessDateEntity done = new CapacityTemplateAndBusinessDateEntity();
+		CapacityTemplateAndBusinessDatePK id = new CapacityTemplateAndBusinessDatePK();
+		id.setCapacityTemplateId(BigInteger.valueOf(3));
+		id.setBusinessDate(Date.from(Instant.now()));
+		done.setId(id);
+		d1.add(done);
+		
+		CapacityTemplateEntity c3 = new CapacityTemplateEntity();
+		c3.setCapacityTemplateId(BigInteger.valueOf(3));
+		c3.setCapacityTemplateNm("Lm");
+		c3.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c3.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c3.setCapacityTemplateType(dates);
+		c3.setCapacityTemplateAndBusinessDates(d1);
+		c3.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c3.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		
+		List<CapacityTemplateAndBusinessDateEntity> d2 = new ArrayList<>();
+		
+		CapacityTemplateEntity c4 = new CapacityTemplateEntity();
+		c4.setCapacityTemplateId(BigInteger.valueOf(4));
+		c4.setCapacityTemplateNm("Lmg");
+		c4.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c4.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c4.setCapacityTemplateType(dates);
+		c4.setCapacityTemplateAndBusinessDates(d2);
+		c4.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c4.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		
+		CapacityModelEntity model = new CapacityModelEntity();
+		model.setCapacityModelId(new BigInteger("1"));
+		model.setCapacityModelNm("model");
+		
+		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
+		CapacityModelAndCapacityTemplateEntity cmct = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK idct = new CapacityModelAndCapacityTemplatePK();
+		idct.setCapacityModelId(new BigInteger("1"));
+		idct.setCapacityTemplateId(new BigInteger("1"));
+		cmct.setId(idct);
+		cmct.setCapacityTemplate(c1);
+		cmct.setCapacityModel(model);
+		
+		list.add(cmct);
+		
+		CapacityModelAndCapacityTemplateEntity cm2 = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id2 = new CapacityModelAndCapacityTemplatePK();
+		id2.setCapacityModelId(new BigInteger("1"));
+		id2.setCapacityTemplateId(new BigInteger("2"));
+		cm2.setId(id2);
+		cm2.setCapacityTemplate(c2);
+		cm2.setCapacityModel(model);
+		
+		list.add(cm2);
+		
+		CapacityModelAndCapacityTemplateEntity cm3 = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id3 = new CapacityModelAndCapacityTemplatePK();
+		id3.setCapacityModelId(new BigInteger("1"));
+		id3.setCapacityTemplateId(new BigInteger("3"));
+		cm3.setId(id3);
+		cm3.setCapacityTemplate(c3);
+		cm3.setCapacityModel(model);
+		
+		list.add(cm3);
+		
+		CapacityModelAndCapacityTemplateEntity cm4 = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id4 = new CapacityModelAndCapacityTemplatePK();
+		id4.setCapacityModelId(new BigInteger("1"));
+		id4.setCapacityTemplateId(new BigInteger("4"));
+		cm4.setId(id4);
+		cm4.setCapacityTemplate(c4);
+		cm4.setCapacityModel(model);
+		
+		list.add(cm4);
+		
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount("1");
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("Days");
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/10/2011");
+		request.setMonDay("Y");
+		request.setTueDay("Y");
+		request.setWedDay("Y");
+		request.setThuDay("N");
+		request.setFriDay("N");
+		request.setSatDay("Y");
+		request.setSunDay("Y");
+		request.setSlotStartTime("01:02");
+		request.setSlotEndTime("02:09");
+		request.setIsDeletedFlag("N");
+		request.setSlotChannels(slotList);
+		
+		Mockito.when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
+		boolean res = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request);
+		assertEquals(true, res);
+	}
+	
+	@Test
+	void testValidateDate(){
+		
+		CapacityTemplateTypeEntity dates = new CapacityTemplateTypeEntity();
+		dates.setCapacityTemplateTypeId(BigInteger.valueOf(2));
+		dates.setCapacityTemplateTypeNm("Dates");
+		
+		List<CapacityTemplateAndBusinessDateEntity> d1 = new ArrayList<>();
+		CapacityTemplateAndBusinessDateEntity done = new CapacityTemplateAndBusinessDateEntity();
+		CapacityTemplateAndBusinessDatePK id = new CapacityTemplateAndBusinessDatePK();
+		id.setCapacityTemplateId(BigInteger.valueOf(3));
+		id.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
+		done.setId(id);
+		d1.add(done);
+		
+		CapacityTemplateEntity c3 = new CapacityTemplateEntity();
+		c3.setCapacityTemplateId(BigInteger.valueOf(3));
+		c3.setCapacityTemplateNm("Lm");
+		c3.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c3.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c3.setCapacityTemplateType(dates);
+		c3.setCapacityTemplateAndBusinessDates(d1);
+		c3.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c3.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		c3.setCapacityTemplateAndBusinessDates(d1);
+		
+		List<CapacityTemplateAndBusinessDateEntity> d2 = new ArrayList<>();
+		CapacityTemplateAndBusinessDateEntity done1 = new CapacityTemplateAndBusinessDateEntity();
+		CapacityTemplateAndBusinessDatePK id1 = new CapacityTemplateAndBusinessDatePK();
+		id1.setCapacityTemplateId(BigInteger.valueOf(3));
+		id1.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
+		done1.setId(id);
+		d2.add(done);
+		
+		CapacityTemplateEntity c4 = new CapacityTemplateEntity();
+		c4.setCapacityTemplateId(BigInteger.valueOf(4));
+		c4.setCapacityTemplateNm("Lmg");
+		c4.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c4.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c4.setCapacityTemplateType(dates);
+		c4.setCapacityTemplateAndBusinessDates(d2);
+		c4.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c4.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		c4.setCapacityTemplateAndBusinessDates(d2);
+		
+		CapacityModelEntity model = new CapacityModelEntity();
+		model.setCapacityModelId(new BigInteger("1"));
+		model.setCapacityModelNm("model");
+		
+		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
+		CapacityModelAndCapacityTemplateEntity cm3 = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id3 = new CapacityModelAndCapacityTemplatePK();
+		id3.setCapacityModelId(new BigInteger("1"));
+		id3.setCapacityTemplateId(new BigInteger("3"));
+		cm3.setId(id3);
+		cm3.setCapacityTemplate(c3);
+		cm3.setCapacityModel(model);
+		
+		list.add(cm3);
+		
+		CapacityModelAndCapacityTemplateEntity cm4 = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id4 = new CapacityModelAndCapacityTemplatePK();
+		id4.setCapacityModelId(new BigInteger("1"));
+		id4.setCapacityTemplateId(new BigInteger("4"));
+		cm4.setId(id4);
+		cm4.setCapacityTemplate(c4);
+		cm4.setCapacityModel(model);
+		
+		list.add(cm4);
+		
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount("4");
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("Dates");
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/10/2011");
+		List<BusinessDate> dat = new ArrayList<>();
+		BusinessDate date = new BusinessDate();
+		date.setDate("01/01/2011");
+		dat.add(date);
+		request.setCapacityTemplateName("Dates");
+		request.setBusinessDates(dat);
+		when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
+		boolean res2 = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request);
+		assertEquals(true, res2);
+	}
+	
+	@Test
+	void testValidateDays(){
+		
+		CapacityTemplateTypeEntity dates = new CapacityTemplateTypeEntity();
+		dates.setCapacityTemplateTypeId(BigInteger.valueOf(2));
+		dates.setCapacityTemplateTypeNm("Days");
+		
+		List<CapacityTemplateAndBusinessDateEntity> d1 = new ArrayList<>();
+		CapacityTemplateAndBusinessDateEntity done = new CapacityTemplateAndBusinessDateEntity();
+		CapacityTemplateAndBusinessDatePK id = new CapacityTemplateAndBusinessDatePK();
+		id.setCapacityTemplateId(BigInteger.valueOf(3));
+		id.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
+		done.setId(id);
+		d1.add(done);
+		
+		CapacityTemplateEntity c3 = new CapacityTemplateEntity();
+		c3.setCapacityTemplateId(BigInteger.valueOf(3));
+		c3.setCapacityTemplateNm("Lm");
+		c3.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c3.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c3.setCapacityTemplateType(dates);
+		c3.setCapacityTemplateAndBusinessDates(d1);
+		c3.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c3.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		c3.setCapacityTemplateAndBusinessDates(d1);
+		c3.setMonFlg("N");
+		c3.setTueFlg("N");
+		c3.setWedFlg("N");
+		c3.setThuFlg("N");
+		c3.setFriFlg("N");
+		c3.setSatFlg("N");
+		c3.setSunFlg("N");
+		
+		List<CapacityTemplateAndBusinessDateEntity> d2 = new ArrayList<>();
+		CapacityTemplateAndBusinessDateEntity done1 = new CapacityTemplateAndBusinessDateEntity();
+		CapacityTemplateAndBusinessDatePK id1 = new CapacityTemplateAndBusinessDatePK();
+		id1.setCapacityTemplateId(BigInteger.valueOf(3));
+		id1.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
+		done1.setId(id);
+		d2.add(done);
+		
+		CapacityTemplateEntity c4 = new CapacityTemplateEntity();
+		c4.setCapacityTemplateId(BigInteger.valueOf(4));
+		c4.setCapacityTemplateNm("Lmg");
+		c4.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
+		c4.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		c4.setCapacityTemplateType(dates);
+		c4.setCapacityTemplateAndBusinessDates(d2);
+		c4.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		c4.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		c4.setCapacityTemplateAndBusinessDates(d2);
+		c4.setMonFlg("Y");
+		c4.setTueFlg("Y");
+		c4.setWedFlg("Y");
+		c4.setThuFlg("Y");
+		c4.setFriFlg("Y");
+		c4.setSatFlg("Y");
+		c4.setSunFlg("Y");
+		
+		CapacityModelEntity model = new CapacityModelEntity();
+		model.setCapacityModelId(new BigInteger("1"));
+		model.setCapacityModelNm("model");
+		
+		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
+		CapacityModelAndCapacityTemplateEntity cm3 = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id3 = new CapacityModelAndCapacityTemplatePK();
+		id3.setCapacityModelId(new BigInteger("1"));
+		id3.setCapacityTemplateId(new BigInteger("3"));
+		cm3.setId(id3);
+		cm3.setCapacityTemplate(c3);
+		cm3.setCapacityModel(model);
+		
+		list.add(cm3);
+		
+		CapacityModelAndCapacityTemplateEntity cm4 = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK id4 = new CapacityModelAndCapacityTemplatePK();
+		id4.setCapacityModelId(new BigInteger("1"));
+		id4.setCapacityTemplateId(new BigInteger("4"));
+		cm4.setId(id4);
+		cm4.setCapacityTemplate(c4);
+		cm4.setCapacityModel(model);
+		
+		list.add(cm4);
+		
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount("4");
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("Days");
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/10/2011");
+		request.setMonDay("Y");
+		request.setTueDay("Y");
+		request.setWedDay("Y");
+		request.setThuDay("Y");
+		request.setFriDay("Y");
+		request.setSatDay("Y");
+		request.setSunDay("Y");
+		List<BusinessDate> dat = new ArrayList<>();
+		BusinessDate date = new BusinessDate();
+		date.setDate("01/01/2011");
+		dat.add(date);
+		request.setCapacityTemplateName("Days");
+		request.setBusinessDates(dat);
+		when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
+		boolean res2 = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request);
+		assertEquals(true, res2);
+	}
+
+	@Test
+	void testCreateTemplateDates() throws JsonProcessingException{
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
+		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
+		capacityTemplateEntity.setEffectiveDate(new Date());
+		capacityTemplateEntity.setExpiryDate(new Date());
+		capacityTemplateEntity.setMonFlg("Y");
+		capacityTemplateEntity.setTueFlg("Y");
+		capacityTemplateEntity.setWedFlg("Y");
+		capacityTemplateEntity.setThuFlg("N");
+		capacityTemplateEntity.setFriFlg("N");
+		capacityTemplateEntity.setSatFlg("Y");
+		capacityTemplateEntity.setSunFlg("Y");
+		capacityTemplateEntity.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		capacityTemplateEntity.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
+		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
+		CapacityTemplateAndBusinessDateEntity dateEntity = new CapacityTemplateAndBusinessDateEntity();
+		CapacityTemplateAndBusinessDatePK pk=new CapacityTemplateAndBusinessDatePK();
+		pk.setBusinessDate(new Date());
+		pk.setCapacityTemplateId(BigInteger.ONE);
+		dateEntity.setId(pk);
+		
+		ReferenceEntity reference = new ReferenceEntity();
+		reference.setConceptId(new BigInteger("1"));
+		reference.setReferenceId(new BigInteger("1"));
+		reference.setReferenceCd("21212");
+		reference.setReferenceDesc("dnskndnjks");
+		reference.setReferenceNm("refNm");
+		Optional<ReferenceEntity> optRef = Optional.of(reference);
+		
+		CapacityChannelEntity channel = new CapacityChannelEntity();
+		channel.setCapacityChannelId(new BigInteger("1"));
+		channel.setConceptId(new BigInteger("1"));
+		channel.setCapacityChannelNm("pogo");
+		channel.setCapacitySlots(getCapacitySlots());
+		channel.setIsCombinedFlg("N");
+		channel.setOperationalHoursEndTime(Time.valueOf("11:40:55"));
+		channel.setOperationalHoursStartTime(Time.valueOf("11:40:55"));
+		Optional<CapacityChannelEntity> optChannel = Optional.of(channel);
+		
+		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
+		capacitySlotEntity.setCapacityCnt("1");
+		capacitySlotEntity.setCapacitySlotId(BigInteger.valueOf(2));
+		capacitySlotEntity.setStartTime(java.time.LocalTime.parse("11:00:00"));
+		capacitySlotEntity.setEndTime(java.time.LocalTime.parse("11:46:55"));
+		capacitySlotEntity.setCapacitySlotType(getCapacitySlotType());
+		capacitySlotEntity.setCapacityChannel(getCapacityChannel());
+		capacitySlotEntity.setIsDeletedFlg("N");
+		
+		CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = new CapacityTemplateAndCapacityChannelEntity();
+		CapacityTemplateAndCapacityChannelPK id = new CapacityTemplateAndCapacityChannelPK();
+		id.setCapacityChannelId(new BigInteger("1"));
+		id.setCapacityTemplateId(new BigInteger("1"));
+		capacityTemplateAndCapacityChannelEntity.setId(id);
+		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag("N");
+		capacityTemplateAndCapacityChannelEntity.setCapacityChannel(getCapacityChannel());
+		
+		Optional<CapacitySlotTypeEntity> optSlotType = Optional.of(getCapacitySlotType());
+		
+		List<BusinessDate> date = new ArrayList<>();
+		BusinessDate bdate = new BusinessDate();
+		bdate.setDate("01/01/2011");
+		date.add(bdate);
+		
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount("1");
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setBusinessDates(date);
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/01/2011");
+		request.setMonDay("Y");
+		request.setTueDay("Y");
+		request.setWedDay("Y");
+		request.setThuDay("N");
+		request.setFriDay("N");
+		request.setSatDay("Y");
+		request.setSunDay("Y");
+		request.setSlotStartTime("01:02");
+		request.setSlotEndTime("02:09");
+		request.setIsDeletedFlag("N");
+		request.setSlotChannels(slotList);
+		
+		CapacityTemplateTypeEntity type = new CapacityTemplateTypeEntity();
+		type.setCapacityTemplateTypeId(new BigInteger("1"));
+		type.setCapacityTemplateTypeNm("Dates");
+		type.setIsDeletedFlg("N");
+		Optional<CapacityTemplateTypeEntity> optType = Optional.of(type);
+		
+		RequestContext.setConcept("1");
+		
+		Mockito.lenient().when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
+		Mockito.lenient().when(capacityTemplateTypeRepository.findById(Mockito.any())).thenReturn(optType);
+		Mockito.lenient().when(capacityTemplateAndBusinessDateRepository.save(Mockito.any())).thenReturn(dateEntity);
+		Mockito.lenient().when(referenceRepository.findById(Mockito.any())).thenReturn(optRef);
+		Mockito.lenient().when(capacityChannelRepo.findById(Mockito.any())).thenReturn(optChannel);
+		Mockito.lenient().when(capacityTemplateAndCapacityChannelRepository.save(Mockito.any())).thenReturn(capacityTemplateAndCapacityChannelEntity);
+		Mockito.lenient().when(capacitySlotTypeRepository.findById(Mockito.any())).thenReturn(optSlotType);
+		Mockito.lenient().when(capacitySlotRepository.save(Mockito.any())).thenReturn(capacitySlotEntity);
+		CreateTemplateResponse res = capacityManagementServiceImpl.createTemplate(request, CapacityServiceImplTest.ACCESS_TOKEN);
+		assertNotNull(res);
 	}
 }

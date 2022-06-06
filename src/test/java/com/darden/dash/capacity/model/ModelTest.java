@@ -48,7 +48,7 @@ class ModelTest {
 	void testSlotChannel() {
 		List<SlotDetail> slotList = new ArrayList<>();
 		SlotChannel model = new SlotChannel();
-		model.setChannelId("1");
+//		model.setChannelId("1");
 		model.setChannelName("name");
 		model.setSlotDetails(slotList);
 		model.getChannelId();
