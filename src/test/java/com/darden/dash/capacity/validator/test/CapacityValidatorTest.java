@@ -18,6 +18,7 @@ import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.error.ApplicationErrors;
+import com.darden.dash.common.exception.ApplicationException;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -28,7 +29,7 @@ class CapacityValidatorTest {
 	private CapacityValidator capacityValidator;
 	
 	@Mock
-	private CapacityManagementService CapacityManagementService;
+	private CapacityManagementService capacityManagementService;
 	
 	@Mock
 	private JwtUtils jwtUtils;
@@ -41,7 +42,7 @@ class CapacityValidatorTest {
 		RequestContext.setConcept("1");
 		RequestContext.setCorrelationId("d64cf01b-ce65-4a57-ac3e-f7fa09e1a87f");
 		DeleteCapacityTemplateRequest deleteRq = new DeleteCapacityTemplateRequest("99", "Y");
-		Mockito.when(CapacityManagementService.validateCapacityTemplateId(deleteRq.getTemplateId())).thenReturn(false);
+		Mockito.when(capacityManagementService.validateCapacityTemplateId(deleteRq.getTemplateId())).thenReturn(false);
 		capacityValidator.validate(deleteRq, OperationConstants.OPERATION_DELETE.getCode());
 		assertNotNull(deleteRq);
     }
@@ -53,9 +54,23 @@ class CapacityValidatorTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		request.setCapacityTemplateName("aaa");
 		request.setConceptId(new BigInteger("1"));
-		Mockito.when(CapacityManagementService.validateCapacityTemplateNm(request.getCapacityTemplateName())).thenReturn(false);
+		Mockito.when(capacityManagementService.validateCapacityTemplateNm(request.getCapacityTemplateName())).thenReturn(false);
 		capacityValidator.validate(request, OperationConstants.OPERATION_CREATE.getCode());
 		assertNotNull(request);
 	}
+	
+	@Test
+	void validateInDbForUpdateTest() throws JsonProcessingException {
+		RequestContext.setConcept("1");
+		RequestContext.setCorrelationId("d64cf01b-ce65-4a57-ac3e-f7fa09e1a87f");
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		request.setCapacityTemplateName("aaa");
+		request.setConceptId(new BigInteger("1"));
+		Mockito.when(capacityManagementService.validateCapacityTemplateNmForCreate(Mockito.anyString(),Mockito.anyString())).thenReturn(false);
+		Mockito.when(capacityManagementService.validateCapacityModelBusinessDates(Mockito.any())).thenReturn(false);
+		capacityValidator.validate(request, OperationConstants.OPERATION_UPDATE.getCode(),"1");
+		assertNotNull(request);
+	}
+	
 
 }

@@ -47,6 +47,7 @@ import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.CreateResponseSlot;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
+import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
@@ -145,8 +146,8 @@ public class CapacityControllerTest {
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
 		detailList.add(detail);
-		List<CreateResponseSlot> slotList = new ArrayList<>();
-		CreateResponseSlot slot = new CreateResponseSlot();
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
 		slot.setChannelId(new BigInteger("1"));
 		slot.setIsSelectedFlag("Y");
 		slot.setSlotDetails(detailList);
@@ -292,6 +293,77 @@ public class CapacityControllerTest {
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/combine-channels").contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isCreated());
+	}
+	
+	@Test
+	void testShouldUpdateCapacityTemplate() throws Exception {
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		CreateTemplateResponse response = new CreateTemplateResponse();
+		List<BusinessDate> dates = new ArrayList<>();
+		BusinessDate date = new BusinessDate();
+		date.setDate("01/01/2011");
+		dates.add(date);
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount("1");
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setBusinessDates(dates);
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/01/2011");
+		request.setMonDay("Y");
+		request.setTueDay("Y");
+		request.setWedDay("Y");
+		request.setThuDay("N");
+		request.setFriDay("N");
+		request.setSatDay("Y");
+		request.setSunDay("Y");
+		request.setSlotStartTime("01:02");
+		request.setSlotEndTime("02:09");
+		request.setIsDeletedFlag("N");
+		request.setSlotChannels(slotList);
+		
+		response.setCapacityTemplateId(new BigInteger("1"));
+		response.setCapacityTemplateName("name");
+		response.setConceptId(new BigInteger("1"));
+		response.setEffectiveDate("01/01/2011");
+		response.setExpiryDate("01/01/2011");
+		response.setIsDeletedFlag("N");
+		response.setSlotStartTime("01:02");
+		response.setSlotEndTime("02:09");
+		response.setTemplateTypeId(new BigInteger("1"));
+		response.setCapacityTemplateName("Days");
+		response.setMonDay("Y");
+		response.setTueDay("Y");
+		response.setWedDay("Y");
+		response.setThuDay("N");
+		response.setFriDay("N");
+		response.setSatDay("Y");
+		response.setSunDay("Y");
+		response.setBusinessDates(dates);
+		response.setSlotChannels(slotList);
+		response.setCreatedBy("user");
+		response.setCreatedDateTime(Instant.now());
+		response.setLastModifiedBy("user");
+		response.setLastModifiedDateTime(Instant.now());
+		Mockito.when(capacityManagementService.updateCapacityTemplate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(response);
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-templates/{templateId}",1).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(request)))
+				.andExpect(status().isAccepted());
 	}
 
 }

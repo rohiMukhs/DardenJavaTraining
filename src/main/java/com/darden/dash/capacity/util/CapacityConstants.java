@@ -267,6 +267,16 @@ public class CapacityConstants {
 
 	public static final String CAPACITY_CHANNELS_CREATED_SUCCESSFULLY = "Combine channel created successfully";
 	
+	public static final String CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY = "capacity template updated successfully";
+	
+	public static final String EDIT_TEMPLATES = "/capacity-templates/{templateId}";
+	
+	public static final String STATUS_CODE_UPDATED = "202";
+	
+	public static final String INTEGER = "Integer";
+	
+	public static final String EC_4502 = "4502";
+	
 	private CapacityConstants() {
 
 	}

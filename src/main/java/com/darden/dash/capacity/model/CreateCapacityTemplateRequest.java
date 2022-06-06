@@ -29,6 +29,6 @@ public class CreateCapacityTemplateRequest extends CapacityTemplateCommon {
 	@Pattern(regexp = CommonConstants.PATTERN_ALPHANUMERIC, message = ErrorCodeConstants.EC_4003)
 	private String capacityTemplateName;
 	
-	private List<CreateResponseSlot> slotChannels;
+	private List<SlotChannel> slotChannels;
 	
 }

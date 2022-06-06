@@ -22,5 +22,16 @@ import com.darden.dash.capacity.entity.CapacityTemplateTypeEntity;
 @Repository
 public interface CapacityTemplateTypeRepository extends JpaRepository<CapacityTemplateTypeEntity, BigInteger> {
 	
+/**
+*	
+* This method is used to find value of capacity template type entity
+* based on the value of capacity Template type name.
+*
+* @param capacityTemplateTypeNm
+* @return CapacityTemplateTypeEntity
+*/
+	
+	CapacityTemplateTypeEntity findByCapacityTemplateTypeNm(String capacityTemplateTypeNm);
+	
 }
 

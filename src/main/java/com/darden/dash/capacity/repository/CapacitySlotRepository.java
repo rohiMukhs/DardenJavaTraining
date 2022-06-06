@@ -1,11 +1,13 @@
 package com.darden.dash.capacity.repository;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.darden.dash.capacity.entity.CapacityChannelEntity;
 import com.darden.dash.capacity.entity.CapacitySlotEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 
@@ -30,5 +32,15 @@ public interface CapacitySlotRepository extends JpaRepository<CapacitySlotEntity
 	 * @param capacityTemplate
 	 */
 	void deleteAllBycapacityTemplate(CapacityTemplateEntity capacityTemplate);
+	
+/*
+* This method is used to retrieve list of capacityslot entity value based on
+* the value of capacityChannel entity.
+*
+* @param capacityChannel
+* @return List<CapacitySlotEntity>
+*/
+	
+	List<CapacitySlotEntity> findByCapacityChannel(CapacityChannelEntity capacityChannel);
 	
 }
