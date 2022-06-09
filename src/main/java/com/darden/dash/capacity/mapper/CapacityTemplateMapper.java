@@ -48,8 +48,10 @@ public interface CapacityTemplateMapper {
 	 * This method is used to mapping the objects from CapacityTemplateEntity to
 	 * CapacityTemplate
 	 * 
-	 * @param capacityTemplate
-	 * @return CapacityTemplate
+	 * @param CapacityTemplateEntity entity class with information of
+	 *                         Capacity template.
+	 * 
+	 * @return CapacityTemplate mapped model class of Capacity Template.
 	 */
 
 	@Mapping(target = CapacityConstants.CHANNELS, ignore = true)
@@ -72,8 +74,10 @@ public interface CapacityTemplateMapper {
 	 * This method is used to mapping the CapacityTemplateEntity to CapacityTemplate
 	 * and converting the date formatter to String format for the specific fields
 	 * 
-	 * @param capacityEntity
-	 * @param capacityModel
+	 * @param CapacityTemplateEntity entity class with information of
+	 *                         Capacity template.
+	 *                         
+	 * @param CapacityTemplate mapped model class of Capacity Template.
 	 */
 	@AfterMapping
 	default void map(CapacityTemplateEntity capacityEntity, @MappingTarget CapacityTemplate capacityModel) {
@@ -84,15 +88,21 @@ public interface CapacityTemplateMapper {
 	/**
 	 * Method to map data to capacityTemplateEntity
 	 * 
-	 * @param templateRequest
-	 * @param templateType
-	 * @param createdBy
-	 * @param dateTime
-	 * @return CapacityTemplateEntity
+	 * @param templateRequest request class with information of
+	 *                       Capacity template.
+	 * 
+	 * @param capacityTemplateTypeEntity entity class with information of
+	 *                       Capacity template type.
+	 *                       
+	 * @param createdBy String with information of user.
+	 * 
+	 * @param dateTime Instant with information of dateTime.
+	 * 
+	 * @return CapacityTemplateEntity mapped entity class of Capacity Template.
 	 */
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_ENTITY)
 	default CapacityTemplateEntity mapToTemplate(CreateCapacityTemplateRequest templateRequest,
-			Optional<CapacityTemplateTypeEntity> templateType, String createdBy, Instant dateTime) {
+			CapacityTemplateTypeEntity templateType, String createdBy, Instant dateTime) {
 		CapacityTemplateEntity templateEntity = new CapacityTemplateEntity();
 		templateEntity.setCapacityTemplateNm(templateRequest.getCapacityTemplateName());
 		templateEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
@@ -103,12 +113,10 @@ public interface CapacityTemplateMapper {
 		templateEntity.setLastModifiedDatetime(dateTime);
 		templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
 		templateEntity.setEffectiveDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
-		templateType.ifPresent(templateEntity::setCapacityTemplateType);
+		templateEntity.setCapacityTemplateType(templateType);
 		templateEntity.setStartTime(LocalTime.parse(templateRequest.getSlotStartTime()));
 		templateEntity.setEndTime(LocalTime.parse(templateRequest.getSlotEndTime()));
-		String templateName = templateType.map(CapacityTemplateTypeEntity::getCapacityTemplateTypeNm)
-				.orElse(StringUtils.EMPTY);
-		if (CapacityConstants.DAYS.equals(templateName)) {
+		if (null != templateType.getCapacityTemplateTypeNm() && CapacityConstants.DAYS.equals(templateType.getCapacityTemplateTypeNm())) {
 			templateEntity.setSunFlg(templateRequest.getSunDay());
 			templateEntity.setMonFlg(templateRequest.getMonDay());
 			templateEntity.setTueFlg(templateRequest.getTueDay());
@@ -123,11 +131,18 @@ public interface CapacityTemplateMapper {
 	/**
 	 * Method to map data to CapacityTemplateAndBusinessDateEntity
 	 * 
-	 * @param createdTemplateEntity
-	 * @param t
-	 * @param createdBy
-	 * @param dateTime
-	 * @return CapacityTemplateAndBusinessDateEntity
+	 * @param createdTemplateEntity entity class with information of
+	 *                       		Capacity template.
+	 *                       
+	 * @param businessDate model class with information of
+	 *                      Capacity template business date.
+	 *                      
+	 * @param createdBy String with information of user.
+	 * 
+	 * @param dateTime Instant with information of dateTime.
+	 * 
+	 * @return CapacityTemplateAndBusinessDateEntity mapped entity class of Capacity  
+	 * 								and business date.
 	 */
 	@Named(CapacityConstants.MAP_TO_BUSSINESS_DATE)
 	default CapacityTemplateAndBusinessDateEntity mapToBusinessDate(CapacityTemplateEntity createdTemplateEntity,
@@ -147,15 +162,29 @@ public interface CapacityTemplateMapper {
 	/**
 	 * Method to map data to CapacitySlotEntity
 	 * 
-	 * @param createdTemplateEntity
-	 * @param reference
-	 * @param slotTypeEntity
-	 * @param channelEntity
-	 * @param t
-	 * @param s
-	 * @param createdBy
-	 * @param dateTime
-	 * @return CapacitySlotEntity
+	 * @param createdTemplateEntity entity class with information of
+	 *                     Capacity template type detail.
+	 * 
+	 * @param reference entity class with information of
+	 *                     reference type detail.
+	 * 
+	 * @param slotTypeEntity entity class with information of
+	 *                     Capacity slot type detail.
+	 * 
+	 * @param channelEntity entity class with information of
+	 *                     Capacity channel detail.
+	 * 
+	 * @param slotChannel model class with information of
+	 *                     Capacity slot channel.
+	 * 
+	 * @param slotDetail model class with information of
+	 *                     Capacity slot detail.
+	 * 
+	 * @param createdBy String with information of user.
+	 * 
+	 * @param dateTime Instant with information of dateTime.
+	 * 
+	 * @return CapacitySlotEntity mapped entity class of Capacity Slot.
 	 */
 	@Named(CapacityConstants.MAP_TO_SLOT_ENTITY)
 	default CapacitySlotEntity mapToSlot(CapacityTemplateEntity createdTemplateEntity,
@@ -181,12 +210,21 @@ public interface CapacityTemplateMapper {
 	/**
 	 * Method to map data to CapacityTemplateAndCapacityChannelEntity
 	 * 
-	 * @param createdTemplateEntity
-	 * @param channelEntity
-	 * @param t
-	 * @param createdBy
-	 * @param dateTime
-	 * @return CapacityTemplateAndCapacityChannelEntity
+	 * @param createdTemplateEntity entity class with information of
+	 *                     Capacity template detail.
+	 *                     
+	 * @param channelEntity entity class with information of
+	 *                     Capacity channel detail.
+	 *                     
+	 * @param slotChannel  model class with information of
+	 *                     Capacity slot detail.
+	 *                     
+	 * @param createdBy String with information of user.
+	 * 
+	 * @param dateTime Instant with information of dateTime.
+	 * 
+	 * @return CapacityTemplateAndCapacityChannelEntity mapped entity class of 
+	 * 							Capacity Template And Capacity Channel.
 	 */
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_CHANNEL_ENTITY)
 	default CapacityTemplateAndCapacityChannelEntity mapToTemplateAndChannelEntity(
@@ -208,10 +246,17 @@ public interface CapacityTemplateMapper {
 	/**
 	 * Method to map data to CreateTemplateResponse
 	 * 
-	 * @param createdTemplateEntity
-	 * @param responseDate
-	 * @param responseChannelList
-	 * @return CreateTemplateResponse
+	 * @param createdTemplateEntity entity class with information of
+	 *                     Capacity template detail.
+	 *                     
+	 * @param responseDate list of model class with information of
+	 *                     Capacity template detail.
+	 * 
+	 * @param responseChannelList list of model class with information of
+	 *                     Capacity slot and channel detail.
+	 * 
+	 * @return CreateTemplateResponse  mapped model class of 
+	 * 							Capacity Template.
 	 */
 	@Named(CapacityConstants.MAP_TO_TEMPLATE_RESPONSE)
 	default CreateTemplateResponse mapToCreateTemplateResponse(CapacityTemplateEntity createdTemplateEntity,
@@ -228,9 +273,14 @@ public interface CapacityTemplateMapper {
 	/**
 	 * Method to map data to SlotDetail
 	 * 
-	 * @param savedSlot
-	 * @param s
-	 * @return SlotDetail
+	 * @param savedSlot model class with information of
+	 *            saved Capacity slot detail.
+	 * 
+	 * @param s model class with information of
+	 *                Capacity slot detail.
+	 * 
+	 * @return SlotDetail  mapped model class of 
+	 * 							Capacity slot detail.
 	 */
 	@Named(CapacityConstants.MAP_TO_SLOT)
 	default SlotDetail mapToResponseSlot(CapacitySlotEntity savedSlot, SlotDetail s) {
@@ -247,8 +297,11 @@ public interface CapacityTemplateMapper {
 	/**
 	 * Method is used to map response for  CapacityTemplate.
 	 * 
-	 * @param createdTemplateEntity
-	 * @return CreateTemplateResponse
+	 * @param createdTemplateEntity entity class with information of
+	 *            saved Capacity template detail.
+	 * 
+	 * @return CreateTemplateResponse mapped model class of 
+	 * 			Create Template Response detail.
 	 */
 	default CreateTemplateResponse mapCreateResponse(CapacityTemplateEntity createdTemplateEntity) {
 		CreateTemplateResponse createTemplateResponse = new CreateTemplateResponse();

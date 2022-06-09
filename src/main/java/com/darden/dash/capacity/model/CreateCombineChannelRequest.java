@@ -35,19 +35,19 @@ public class CreateCombineChannelRequest {
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Length(max = 40, message = ErrorCodeConstants.EC_4002)
 	@Pattern(regexp = CommonConstants.PATTERN_BEFORE_AFTER_SPACE, message = ErrorCodeConstants.EC_4014)
-	@Pattern(regexp = CommonConstants.PATTERN_ALPHANUMERIC, message = ErrorCodeConstants.EC_4003)
+	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_EXCLUDING, message = ErrorCodeConstants.EC_4003)
 	private String combinedChannelName;
 	
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Length(max = 40, message = ErrorCodeConstants.EC_4002)
 	@Pattern(regexp = CommonConstants.PATTERN_BEFORE_AFTER_SPACE, message = ErrorCodeConstants.EC_4014)
-	@Pattern(regexp = CommonConstants.PATTERN_ALPHANUMERIC, message = ErrorCodeConstants.EC_4003)
+	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS, message = ErrorCodeConstants.EC_4003)
 	private String friendlyName;
 	
-	@NotEmpty
+	@NotEmpty(message = ErrorCodeConstants.EC_4001)
 	private Set<String> channels;
 	
-	@NotNull
+	@NotNull(message = ErrorCodeConstants.EC_4001)
 	@Min(value=5,message= CapacityConstants.INTERVAL_MIN)
 	@Max(value=1440,message= CapacityConstants.INTERVAL_MAX)
 	private Integer interval;

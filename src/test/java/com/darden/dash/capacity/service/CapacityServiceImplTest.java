@@ -303,6 +303,7 @@ class CapacityServiceImplTest {
 		request.setConceptId(new BigInteger("1"));
 		request.setCapacityTemplateName("name");
 		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("Days");
 		request.setBusinessDates(date);
 		request.setEffectiveDate("01/01/2011");
 		request.setExpiryDate("01/01/2011");
@@ -322,12 +323,11 @@ class CapacityServiceImplTest {
 		type.setCapacityTemplateTypeId(new BigInteger("1"));
 		type.setCapacityTemplateTypeNm("Days");
 		type.setIsDeletedFlg("N");
-		Optional<CapacityTemplateTypeEntity> optType = Optional.of(type);
 		
 		RequestContext.setConcept("1");
 		
 		Mockito.lenient().when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
-		Mockito.lenient().when(capacityTemplateTypeRepository.findById(Mockito.any())).thenReturn(optType);
+		Mockito.when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString())).thenReturn(type);
 		Mockito.lenient().when(capacityTemplateAndBusinessDateRepository.save(Mockito.any())).thenReturn(dateEntity);
 		Mockito.lenient().when(referenceRepository.findById(Mockito.any())).thenReturn(optRef);
 		Mockito.lenient().when(capacityChannelRepo.findById(Mockito.any())).thenReturn(optChannel);
@@ -1005,6 +1005,7 @@ class CapacityServiceImplTest {
 		request.setConceptId(new BigInteger("1"));
 		request.setCapacityTemplateName("name");
 		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("Dated");
 		request.setBusinessDates(date);
 		request.setEffectiveDate("01/01/2011");
 		request.setExpiryDate("01/01/2011");
@@ -1024,12 +1025,11 @@ class CapacityServiceImplTest {
 		type.setCapacityTemplateTypeId(new BigInteger("1"));
 		type.setCapacityTemplateTypeNm("Dates");
 		type.setIsDeletedFlg("N");
-		Optional<CapacityTemplateTypeEntity> optType = Optional.of(type);
 		
 		RequestContext.setConcept("1");
 		
 		Mockito.lenient().when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
-		Mockito.lenient().when(capacityTemplateTypeRepository.findById(Mockito.any())).thenReturn(optType);
+		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString())).thenReturn(type);
 		Mockito.lenient().when(capacityTemplateAndBusinessDateRepository.save(Mockito.any())).thenReturn(dateEntity);
 		Mockito.lenient().when(referenceRepository.findById(Mockito.any())).thenReturn(optRef);
 		Mockito.lenient().when(capacityChannelRepo.findById(Mockito.any())).thenReturn(optChannel);

@@ -25,8 +25,11 @@ public interface CapacityModelAndCapacityTemplateRepository extends JpaRepositor
 	 * This method is used to fetch the value of  CapacityModelAndCapacityTemplateEntity 
 	 * based on the value of capacityTemplateEntity.
 	 * 
-	 * @param capacityTemplate
-	 * @return CapacityModelAndCapacityTemplateEntity
+	 * @param capacityTemplate Capacity Template entity of the Capacity Channel
+	 *						   And CapacityTemplate Entity.
+	 * 
+	 * @return CapacityModelAndCapacityTemplateEntity Capacity Channel And Capacity Template  Entity
+	 * 					 class retrieved based on the parameters passed.
 	 */
 	CapacityModelAndCapacityTemplateEntity findByCapacityTemplate(CapacityTemplateEntity capacityTemplate);
 	

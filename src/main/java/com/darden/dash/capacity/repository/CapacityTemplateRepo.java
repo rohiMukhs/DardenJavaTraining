@@ -28,16 +28,20 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	/**
 	 * This method is used to get capacity template using provided concept Id.
 	 * 
-	 * @param conceptId
-	 * @return List<CapacityTemplateEntity>
+	 * @param conceptId ConceptId of the Capacity Template Entity.
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
 	 */
 	List<CapacityTemplateEntity> findByConceptId(BigInteger conceptId);
 	
 	/**
 	 * This method is used to get capacity template using capacity Template name.
 	 * 
-	 * @param capacityTemplateNm
-	 * @return
+	 * @param capacityTemplateNm Capacity Template Name of the Capacity Template Entity.
+	 * 
+	 * @return CapacityTemplateEntity Capacity Template entity class retrieved 
+	 * 							based on the parameters passed.
 	 */
 	CapacityTemplateEntity findByCapacityTemplateNm(String capacityTemplateNm);
 	
@@ -45,9 +49,12 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * This method is used to get capacity template based on value of template Id 
 	 * and concept Id provided in header.
 	 * 
-	 * @param templateId
-	 * @param conceptId
-	 * @return CapacityTemplateEntity
+	 * @param templateId Template Id of the Capacity Template Entity.
+	 * 
+	 * @param conceptId ConceptId of the Capacity Template Entity.
+	 * 
+	 * @return CapacityTemplateEntity Capacity Template entity class retrieved 
+	 * 							based on the parameters passed.
 	 */
 	Optional<CapacityTemplateEntity> findByCapacityTemplateIdAndConceptId(BigInteger templateId, BigInteger conceptId);
 
