@@ -971,6 +971,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			String thuDay = createCapacityTemplateRequest.getThuDay();
 			String friDay = createCapacityTemplateRequest.getFriDay();
 			String satDay = createCapacityTemplateRequest.getSatDay();
+			boolean result = false;
 
 			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, sunDay)
 					&& StringUtils.equalsIgnoreCase(sunDay, template.getSunFlg())) {
@@ -1000,6 +1001,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 					&& StringUtils.equalsIgnoreCase(satDay, template.getSatFlg())) {
 				return true;
 			}
-			return false;
+			else {
+				return result;
+			}
+			
 	}
 }
