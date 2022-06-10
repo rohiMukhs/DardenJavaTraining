@@ -29,17 +29,21 @@ public interface CapacitySlotRepository extends JpaRepository<CapacitySlotEntity
 	 * This method is used to delete a CapacitySlotEntity value of based on the value
 	 * of CapacityTemplateEntity.
 	 * 
-	 * @param capacityTemplate
+	 * @param capacityTemplate Capacity Template Entity of the Capacity 
+	 * 							SlotEntity.
 	 */
 	void deleteAllBycapacityTemplate(CapacityTemplateEntity capacityTemplate);
 	
-/*
-* This method is used to retrieve list of capacityslot entity value based on
-* the value of capacityChannel entity.
-*
-* @param capacityChannel
-* @return List<CapacitySlotEntity>
-*/
+	/**
+	* This method is used to retrieve list of capacityslot entity value based on
+	* the value of capacityChannel entity.
+	*
+	* @param capacityChannel  Capacity Channel Entity of the Capacity 
+	 * 							SlotEntity.
+	 * 
+	* @return List<CapacitySlotEntity> List of Capacity Slot Entity to retrieved based
+	* 									upon the parameters
+	*/
 	
 	List<CapacitySlotEntity> findByCapacityChannel(CapacityChannelEntity capacityChannel);
 	

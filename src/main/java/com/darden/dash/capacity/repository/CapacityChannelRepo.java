@@ -30,9 +30,12 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * This method is used to fetch list of  capacity channels based on the value
 	 * of capacity channel id and concept id.
 	 * 
-	 * @param capacityChannelIdList
-	 * @param conceptId
-	 * @return List<CapacityChannelEntity>
+	 * @param capacityChannelIdList List of Id of the Capacity Channel Entity.
+	 * 
+	 * @param conceptId ConceptId of the capacity channel entity to be retrieved.
+	 * 
+	 * @return List<CapacityChannelEntity> List of Capacity Channel entity class retrieved 
+	 * 									   based on the parameters passed.
 	 */
 	List<CapacityChannelEntity> findAllByCapacityChannelIdInAndConceptId(List<BigInteger> capacityChannelIdList, BigInteger conceptId);
 	
@@ -40,9 +43,12 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * This method is used to fetch the value of capacity channel based on the value 
 	 * of friendly name and concept id.
 	 * 
-	 * @param firendlynm
-	 * @param conceptId
-	 * @return CapacityChannelEntity
+	 * @param friendlynm  Friendly name of the Capacity Channel Entity.
+	 * 
+	 * @param conceptId  ConceptId of the Capacity Channel Entity.
+	 * 
+	 * @return CapacityChannelEntity Capacity Channel entity class retrieved 
+	 * 									   based on the parameters passed. 
 	 */
 	CapacityChannelEntity findByFirendlyNmAndConceptId(String firendlynm, BigInteger conceptId);
 	
@@ -50,9 +56,12 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * This method is used to fetch the value of capacity channel based on the value 
 	 * of capacityChannel name and concept id.
 	 * 
-	 * @param capacityChannelNm
-	 * @param conceptId
-	 * @return Optional<CapacityChannelEntity>
+	 * @param capacityChannelNm Capacity Channel name of the Capacity Channel Entity.
+	 * 
+	 * @param conceptId ConceptId of the Capacity Channel Entity.
+	 * 
+	 * @return Optional<CapacityChannelEntity> Capacity Channel entity class retrieved 
+	 * 									   based on the parameters passed.
 	 */
 	Optional<CapacityChannelEntity> findByCapacityChannelNmAndConceptId(String capacityChannelNm, BigInteger conceptId);
 }

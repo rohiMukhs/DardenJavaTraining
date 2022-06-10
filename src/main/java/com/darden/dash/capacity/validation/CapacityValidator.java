@@ -41,12 +41,17 @@ public class CapacityValidator implements DashValidator {
 	* 
 	* Method is used to validate the CreateCapacityTemplate data and throws exception based on the validation
 	*
-	* @param object
-	* @param operation
-	* @param parameters
-	* @throws JsonProcessingException
+	* @param object request class to be validated.
 	* 
-	* @return ResponseEntity<Object>
+	* @param operation String containing the value of
+	* 				action performed.
+	* 
+	* @param parameters String containing the values of 
+	* 						parameters
+	* 
+	* @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	* 
 	*/
 	@Override
 	public void validate(Object object, String operation, String... parameters) throws JsonProcessingException {
@@ -113,9 +118,14 @@ public class CapacityValidator implements DashValidator {
 	 * and to validate if the date to be edited are same as other template belonging
 	 * to same Capacity template Model.
 	 *
-	 * @param createCapacityTemplateRequest
-	 * @param applicationErrors
-	 * @param parameters
+	 * @param createCapacityTemplateRequest request class containing the value of
+	 * 					capacity template to be updated is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
+	 * 
+	 * @param parameters String containing the values of 
+	* 						parameters 
 	 */
 
 	private void validateInDbForUpdate(CreateCapacityTemplateRequest createCapacityTemplateRequest,
@@ -134,8 +144,11 @@ public class CapacityValidator implements DashValidator {
 	 * assigned to capacityTemplate model,based on the templateId which is passed
 	 * in parameter to perform delete operation
 	 * 
-	 * @param buildObject
-	 * @param applicationErrors
+	 * @param buildObject request class containing the value of capacity template
+	 * 					to be deleted is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
 	 */
 	private void validateInDbForDelete(DeleteCapacityTemplateRequest buildObject, ApplicationErrors applicationErrors) {
 		if(capacityManagementService.validateCapacityTemplateId(buildObject.getTemplateId())) {
@@ -143,12 +156,15 @@ public class CapacityValidator implements DashValidator {
 		}
 	}
 
-/**
- * This method validates capacity template name if already present in database
- * 
- * @param createCapacityTemplateRequest
- * @param applicationErrors
- */
+	/**
+	 * This method validates capacity template name if already present in database
+	 * 
+	 * @param createCapacityTemplateRequest request class containing the value of
+	 * 					capacity template to be created is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
+	 */
 	private void validateInDbForCreate(CreateCapacityTemplateRequest createCapacityTemplateRequest,
 			ApplicationErrors applicationErrors) {
 		if (capacityManagementService.validateCapacityTemplateNm(createCapacityTemplateRequest.getCapacityTemplateName())) {
@@ -156,13 +172,18 @@ public class CapacityValidator implements DashValidator {
 					CapacityConstants.CAPACITY_TEMPLATE_NM);
 		}
 	}
-/**
- * This method is for validating the create request
- * 
- * @param object
- * @return CreateCapacityTemplateRequest
- * @throws JsonProcessingException
- */
+	/**
+	 * This method is for validating the create request
+	 * 
+	 * @param object Class Object is the root of the class hierarchy.
+	 * 
+	 * @return CreateCapacityTemplateRequest returns request class with
+	 * 					after converting it to json and  deserialized into 
+	 * 					the model class. 
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
 	private CreateCapacityTemplateRequest buildObject(Object object) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
 				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
@@ -175,9 +196,14 @@ public class CapacityValidator implements DashValidator {
 	/**
 	 * This method is for validating the delete request
 	 * 
-	 * @param object
-	 * @return DeleteCapacityTemplateRequest
-	 * @throws JsonProcessingException
+	 * @param object Class Object is the root of the class hierarchy.
+	 * 
+	 * @return DeleteCapacityTemplateRequest returns request class with
+	 * 					after converting it to json and  deserialized into 
+	 * 					the model class. 
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 
 	private DeleteCapacityTemplateRequest buildDeleteObject(Object object) throws JsonProcessingException  {
