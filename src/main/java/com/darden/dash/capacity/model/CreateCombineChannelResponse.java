@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = false)
 public class CreateCombineChannelResponse extends ServiceResponse{
 	
 	private CombineChannel response;
