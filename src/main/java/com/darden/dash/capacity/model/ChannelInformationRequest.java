@@ -6,6 +6,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.constant.ErrorCodeConstants;
@@ -30,6 +31,7 @@ public class ChannelInformationRequest {
 	private BigInteger capacityChannelId;
 	
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
+	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS, message = ErrorCodeConstants.EC_4003)
 	@Schema(example = CapacityConstants.FRIENDLYNAME)
 	private String friendlyName;
 

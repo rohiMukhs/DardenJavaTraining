@@ -23,9 +23,15 @@ public interface CapacityChannelService {
 	 * based on the value of list of channels and user detail passed in the 
 	 * parameters
 	 * 
-	 * @param editChannelInformationRequest
-	 * @param user
-	 * @return List<ChannelInformationRequest>
+	 * @param editChannelInformationRequest List of Request class containing information
+	 * 					of list of capacity channels to be edited.
+	 * 
+	 * @param user	information of user operating on the update action.
+	 * 
+	 * @return List<ChannelInformationRequest> List of updated channel information in response.
+	 * 
+	 * @throws JsonProcessingException   if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user) throws JsonProcessingException;
 	
@@ -34,9 +40,10 @@ public interface CapacityChannelService {
 	 * condition if the passing values friendly name is present in database.
 	 * This method is created for the purpose of validation of request body.
 	 * 
-	 * @param friendlyName
-	 * @return boolean
-	 * @throws JsonProcessingException
+	 * @param validateChannel request class containing detail of capacity 
+	 * 						channel to be updated.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel);
 	
@@ -46,10 +53,16 @@ public interface CapacityChannelService {
 	 * provided in createCombinedChannelRequest request and user detail passed in
 	 * the parameter of method
 	 * 
-	 * @param createCombinedChannelRequest
-	 * @param userDetail
-	 * @return CombineChannel
-	 * @throws JsonProcessingException
+	 * @param createCombinedChannelRequest request class containing detail of
+	 * 								capacity combine to be created.
+	 * 
+	 * @param userDetail information of user operating on the create action.
+	 * 
+	 * @return CombineChannel model class containing detail of created 
+	 * 							combined channel.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	public CombineChannel addCombinedChannel(CreateCombineChannelRequest createCombinedChannelRequest,String userDetail) throws JsonProcessingException;
 	
@@ -58,8 +71,9 @@ public interface CapacityChannelService {
 	 * condition if the passing values capacity Channel name is present in database.
 	 * This method is created for the purpose of validation of request body.
 	 * 
-	 * @param capacityChannelNm
-	 * @return boolean
+	 * @param capacityChannelNm Capacity Channel Name to be validated in database.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateChannelNmValidation(String capacityChannelNm);
 	
@@ -68,8 +82,9 @@ public interface CapacityChannelService {
 	 * condition if the passing values friendly name is present in database.
 	 * This method is created for the purpose of validation of request body.
 	 * 
-	 * @param friendlyNm
-	 * @return boolean
+	 * @param friendlyNm friendly Name to be validated in database.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateChannelFriendlyNmValidation(String friendlyNm);
 }

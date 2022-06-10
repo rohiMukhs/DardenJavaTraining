@@ -158,7 +158,8 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * and mapping the capacity channel mapper for reference data Here validating
 	 * the concept Id ,if concept Id is empty then error message is thrown.
 	 * 
-	 * @return ResponseEntity<Object>
+	 * @return ResponseEntity response containing all list of 
+	 * 							capacity Template.
 	 * 
 	 */
 	@Override
@@ -191,9 +192,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * This method is to map the reference data to capacity Response Here by using
 	 * mapstruct channel entities are mapped to capacity channel
 	 * 
-	 * @param channelEntities
-	 * @param capacityTemplates
-	 * @return CapacityResponse
+	 * @param channelEntities list of entity class with capacity channel detail.
+	 * 
+	 * @param capacityTemplates list of model class with capacity template detail.
+	 * 
+	 * @return CapacityResponse response class with detail of list of Capacity Template
+	 * 							and list of Reference Data to display.
 	 */
 	private CapacityResponse mapReferenceData(List<CapacityChannelEntity> channelEntities,
 			List<CapacityTemplate> capacityTemplates) {
@@ -211,10 +215,16 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * model Here by using mapstruct capacity template entities are mapped to
 	 * capacity template
 	 * 
-	 * @param capacityTemplateModels
-	 * @param capacityTemplateEntity
-	 * @param channels
-	 * @param slotChannels
+	 * @param capacityTemplateModels list of model class containing the detail of
+	 * 						Capacity Template models.
+	 * 
+	 * @param capacityTemplateEntity entity class containing the detail of capacity 
+	 * 						template.
+	 * 
+	 * @param channels list of model class containing the detail of channel.
+	 * 
+	 * @param slotChannels list of model class containing the detail of slot
+	 * 							channels.
 	 */
 
 	private void mapCapacityTemplateModel(List<CapacityTemplate> capacityTemplateModels,
@@ -231,8 +241,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * 
 	 * This method is used to map capacity channel from capacity template entity
 	 * 
-	 * @param capacityTemplateEntity
-	 * @return List<Channel>
+	 * @param capacityTemplateEntity entity class containing the detail of capacity 
+	 * 									template.
+	 * 
+	 * @return List<Channel> list of model class containing the detail of channel.
 	 */
 
 	private List<Channel> getCapacityTemplateChannels(CapacityTemplateEntity capacityTemplateEntity) {
@@ -254,10 +266,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * This method is used to map the slots corresponding to this template Id and
 	 * channel Id
 	 * 
-	 * @param capacitySlots
-	 * @param channelSlotDetails
-	 * @param channelIds
-	 * @param channelNames
+	 * @param capacitySlots list of entity class with the detail of capacity slot.
+	 * 
+	 * @param channelSlotDetails model class containing the value of channel
+	 * 							slot details.
+	 * 
+	 * @param channelIds Set of string containing the channel Id.
+	 * 
+	 * @param channelNames String containing value of channel names.
 	 */
 	private void mapCapacitySlots(List<CapacitySlotEntity> capacitySlots,
 			MultiValuedMap<String, SlotDetail> channelSlotDetails, Set<String> channelIds,
@@ -280,10 +296,15 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	/**
 	 * This method is used to group slot channels using channel id
 	 * 
-	 * @param channelSlotDetails
-	 * @param channelIds
-	 * @param channelNames
-	 * @return List<SlotChannel>
+	 * @param channelSlotDetails model class containing the value of channel
+	 * 							slot details.
+	 * 
+	 * @param channelIds Set of string containing the channel Id.
+	 * 
+	 * @param channelNames String containing value of channel names.
+	 * 
+	 * @return List<SlotChannel> returning the list of model class with
+	 * 							mapped values.
 	 */
 	private List<SlotChannel> mapSlotChannels(MultiValuedMap<String, SlotDetail> channelSlotDetails,
 			Set<String> channelIds, Map<String, String> channelNames) {
@@ -311,9 +332,17 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * to channelId, based on the slotList the CapacitySlotEntities are created for
 	 * respective channelTemplateId, ChannelId, CapacitySlotTypeId is created
 	 * 
-	 * @param templateRequest
-	 * @param accessToken
-	 * @return CreateTemplateResponse
+	 * @param createCapacityTemplateRequest request class containing detail of
+	 * 								Capacity Template to be created.
+	 * 
+	 * @param accessToken  Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 * 
+	 * @return CreateTemplateResponse response containing value of Capacity
+	 * 									Template created.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@Override
 	@Transactional(rollbackOn = Exception.class)
@@ -321,15 +350,13 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			String accessToken) throws JsonProcessingException {
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		Optional<CapacityTemplateTypeEntity> templateType = capacityTemplateTypeRepository
-				.findById(templateRequest.getTemplateTypeId());
+		CapacityTemplateTypeEntity templateType = capacityTemplateTypeRepository
+				.findByCapacityTemplateTypeNm(templateRequest.getTemplateTypeName());
 		CapacityTemplateEntity templateEntity = capacityTemplateMapper.mapToTemplate(templateRequest, templateType,
 				createdBy, dateTime);
 		CapacityTemplateEntity createdTemplateEntity = capacityTemplateRepo.save(templateEntity);
 		List<BusinessDate> responseDate = new ArrayList<>();
-		String templateName = templateType.map(CapacityTemplateTypeEntity::getCapacityTemplateTypeNm)
-				.orElse(StringUtils.EMPTY);
-		if (CapacityConstants.DATES.equals(templateName)) {
+		if (CapacityConstants.DATES.equals(templateType.getCapacityTemplateTypeNm())) {
 			List<BusinessDate> dateList = templateRequest.getBusinessDates();
 			dateList.stream().forEach(t -> {
 				CapacityTemplateAndBusinessDateEntity templateDate = capacityTemplateMapper
@@ -378,8 +405,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * Method is used to validate the CapacityTemplate name based the presence of
 	 * name it returns boolean value
 	 * 
-	 * @param CapacityTemplateNm
-	 * @return boolean
+	 * @param CapacityTemplateNm Capacity Template Name to be validated
+	 * 					in database.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 
 	@Override
@@ -403,9 +432,15 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * performed the CapacityTemplate with related data is deleted from the 
 	 * database.
 	 * 
-	 * @param templateId
-	 * @param deletedFlag
-	 * @param userDetail
+	 * @param departmentListId Department List Id of department List to be 
+	 * 							deleted.
+	 * 
+	 * @param deletedFlag Deleted flag detail for the department list entity.
+	 * 
+	 * @param userDetail information of user operating on the delete action.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@Override
 	@Transactional
@@ -450,8 +485,11 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * is raised with certain error code.
 	 * 
 	 * 
-	 * @param templateId
-	 * @return CapacityTemplateEntity
+	 * @param templateId BigInteger containing the value of template Id of the Capacity 
+	 * 									Template Entity.
+	 * 
+	 * @return CapacityTemplateEntity returning entity class containing the detail of
+	 * 						capacity template entity retrieved by template id.
 	 */
 	private CapacityTemplateEntity getByCapacityTemplateIdAndIsDeletedFlag(BigInteger templateId) {
 		
@@ -483,8 +521,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * in the database it checks if there is any templateId is present in capacityModelAndCapacityTemplate
 	 * table for the validation.
 	 * 
-	 * @param templateId
-	 * @return boolean
+	 * @param templateId Template Id of Capacity template to be validated 
+	 * 						in database.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
 	public boolean validateCapacityTemplateId(String templateId) {
@@ -505,6 +545,18 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		return dbModelAndTemplate != null;
 	}
 	
+	/**
+	* This method is validate existing CapacityTemplate name in the database for the
+	* validation based on the value of templateNm and template Id.
+	*
+	*
+	* @param capacityTemplateNm capacity Template Name of capacity template to be
+	* 							validated.
+	* 
+	* @param templateId Template Id of capacity template.
+	* 
+	* @return boolean returns the boolean value based on the condition.
+	*/
 	@Override
 	public boolean validateCapacityTemplateNmForCreate(String capacityTemplateNm, String templateId) {
 		boolean isCapacityTemplateNameExists = true;
@@ -533,9 +585,15 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * to channelId, based on the slotList the CapacitySlotEntities are updated for
 	 * respective channelTemplateId, ChannelId, CapacitySlotTypeId.
 	 * 
-	 * @param templateRequest
-	 * @param accessToken
-	 * @return CreateTemplateResponse
+	 * @param createCapacityTemplateRequest Request class containing the detail of
+	 * 								Capacity Template to be updated.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                      userDetails for this API.
+	 *                      
+	 * @param templateId Template Id of Capacity template to be updated.
+	 * 
+	 * @return CreateTemplateResponse response class containing detail of 
 	 */
 	@Override
 	@Transactional(rollbackOn = Exception.class)
@@ -560,9 +618,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * based on template Id, mapping business dates,slot details,capacity slots,channel slot details 
 	 * based on channel Id
 	 * 
-	 * @param templateRequest
-	 * @param responseCapacityTemplateEntity
-	 * @return
+	 * @param templateRequest request class containing the value of capacity template 
+	 * 									to be created.
+	 * 
+	 * @param responseCapacityTemplateEntity entity class containing the value of
+	 * 									capacity template.
+	 * 
+	 * @return CreateTemplateResponse returning response class containing the 
+	 * 									value of created capacity template.
 	 */
 	public CreateTemplateResponse mapUpdateResponse(CreateCapacityTemplateRequest templateRequest,
 			CapacityTemplateEntity responseCapacityTemplateEntity) {
@@ -592,9 +655,13 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
      * This method is to  retrieve the slot details based on channel Id and constructing the response 
      * based on channel slot details
 	 * 
-	 * @param capacitySlots
-	 * @param channelSlotDetails
-	 * @param channelIds
+	 * @param capacitySlots list of entity class containing the value of capacity
+	 * 							slot details.
+	 * 
+	 * @param channelSlotDetails model class containing the value of channel
+	 * 							slot details.
+	 * 
+	 * @param channelIds set of strings containing the value of channelIds.
 	 */
 	private void mapCapacitySlotsResponseForUpdate(List<CapacitySlotEntity> capacitySlots,
 			MultiValuedMap<String, SlotDetail> channelSlotDetails, Set<String> channelIds) {
@@ -616,10 +683,16 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * This method is to  retrieve the channel slot details and constructing the response based on
 	 * channel slot details 
 	 * 
-	 * @param channelSlotDetails
-	 * @param channelIds
-	 * @param isSeletedFlags
-	 * @return
+	 * @param channelSlotDetails model class containing the value of channel
+	 * 							slot details.
+	 * 
+	 * @param channelIds set of strings containing the value of channelIds.
+	 * 
+	 * @param isSeletedFlags Map of strings containing the value of isSelected
+	 * 							flags.
+	 * 
+	 * @return List<SlotChannel> returning the list of model class containing the
+	 * 							value of slot channel mapped.
 	 */
 	private List<SlotChannel> mapSlotChannelsResponseForUpdate(MultiValuedMap<String, SlotDetail> channelSlotDetails,
 			Set<String> channelIds, Map<String, String> isSeletedFlags) {
@@ -640,8 +713,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 *  This method is to  retrieve the capacity template type and constructing the response based on
 	 *  capacity template type details 
 	 * 
-	 * @param response
-	 * @param test
+	 * @param response model class containing the value of Capacity Template.
+	 * 
+	 * @param test entity class containing the value of Capacity Template.
 	 */
 	public void mapTemplateTypeResponse(CreateTemplateResponse response, CapacityTemplateEntity test) {
 		CapacityTemplateTypeEntity  type=test.getCapacityTemplateType();
@@ -656,10 +730,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * and setting the values to the same and saving into the database, if template type name is DATES then updating 
 	 * the business dates else updating the days
 	 * 
-	 * @param templateRequest
-	 * @param createdBy
-	 * @param dateTime
-	 * @param existingTemplate
+	 * @param templateRequest model class containing the value of Capacity Template
+	 * 								to be updated.
+	 * 
+	 * @param createdBy information of user operating on the update action.
+	 * 
+	 * @param dateTime Instant value containing the value of dateTime.
+	 * 
+	 * @param existingTemplate entity class containing the value of entity
 	 * 
 	 */
 	private void mapExistingTemplateAndUpdate(CreateCapacityTemplateRequest templateRequest, String createdBy,
@@ -696,10 +774,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	/**
 	 * This method is to update the capacity slots details based on capacity channel Ids
 	 * 
-	 * @param templateRequest
-	 * @param createdBy
-	 * @param dateTime
-	 * @param existingTemplate
+	 * @param templateRequest model class containing the value of Capacity Template
+	 * 								to be updated.
+	 * 
+	 * @param createdBy information of user operating on the update action.
+	 * 
+	 * @param dateTime Instant value containing the value of dateTime.
+	 * 
+	 * @param existingTemplate entity class containing the value of entity
 	 */
 	private void updateCapacitySlots(CreateCapacityTemplateRequest templateRequest, String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate) {
@@ -729,12 +811,19 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	/**
 	 * This method is to map the slot entity 
 	 * 
-	 * @param createdBy
-	 * @param dateTime
-	 * @param existingTemplate
-	 * @param channelEntity
-	 * @param slotDetailReq
-	 * @return
+	 * @param createdBy information of user operating on the update action.
+	 * 
+	 * @param dateTime Instant value containing the value of dateTime.
+	 * 
+	 * @param existingTemplate entity class containing the value of entity.
+	 * 
+	 * @param channelEntity entity class containing the value of capacity
+	 * 								channel entity.
+	 * 
+	 * @param slotDetailReq model class containing the value of slot detail.
+	 * 
+	 * @return CapacitySlotEntity returning the value of capacity slot
+	 * 					entity.
 	 */
 	private CapacitySlotEntity mapSlotEntity(String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate, Optional<CapacityChannelEntity> channelEntity,
@@ -762,8 +851,11 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	/**
 	 * This method is to delete existing slots based on channel Id and template Id
 	 * 
-	 * @param templateId
-	 * @param channelEntity
+	 * @param templateId BigInteger containing value of template Id of capacity
+	 * 					slots to be deleted.
+	 * 
+	 * @param channelEntity entity class with value of capacity channel to get the 
+	 * 						capacity slots to be deleted.
 	 */
 	private void deleteExistingSlots(BigInteger templateId, Optional<CapacityChannelEntity> channelEntity) {
 		if(channelEntity.isPresent()) {
@@ -780,10 +872,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * This method is to update the existing business dates based on capacityTemplateAndBusinessDate Id
 	 * and saving new dates
 	 * 
-	 * @param templateRequest
-	 * @param createdBy
-	 * @param dateTime
-	 * @param existingTemplate
+	 * @param templateRequest Request class with value of capacity template to be updated.
+	 * 
+	 * @param createdBy information of user operating on the update action.
+	 * 
+	 * @param dateTime Instant value containing the value of dateTime.
+	 * 
+	 * @param existingTemplate entity class with value of existing capacity
+	 * 							template.
 	 */
 	private void updateBusinessDates(CreateCapacityTemplateRequest templateRequest, String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate) {
@@ -807,8 +903,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * Capacity Template under the same Capacity Model.If present will application Error will 
 	 * be raised.
 	 * 
-	 * @param createCapacityTemplateRequest
-	 * @return boolean
+	 * @param createCapacityTemplateRequest Request class containing the detail of
+	 * 								Capacity Template to be created.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
 	public boolean validateCapacityModelBusinessDates(CreateCapacityTemplateRequest createCapacityTemplateRequest) {
@@ -855,15 +953,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * under the same capacity Model.If same days is present it will raise
 	 * application Error.
 	 * 
+	 * @param createCapacityTemplateRequest request class with value of 
+	 * 				capacity template to be updated contains all day flags 
+	 * 				to be validated.
 	 * 
-	 * @param sunDay
-	 * @param monDay
-	 * @param tueDay
-	 * @param wedDay
-	 * @param thuDay
-	 * @param friDay
-	 * @param satDay
-	 * @param template
+	 * @param template entity class with value of other capacity template 
+	 * 				assigned to same model for comparison.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateDays(CreateCapacityTemplateRequest createCapacityTemplateRequest,
 			CapacityTemplateEntity template) {

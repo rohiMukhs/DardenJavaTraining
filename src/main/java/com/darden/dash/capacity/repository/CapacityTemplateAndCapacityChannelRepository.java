@@ -26,7 +26,8 @@ public interface CapacityTemplateAndCapacityChannelRepository extends JpaReposit
 	 * This method is used to delete a CapacityTemplateAndCapacityChannelEntity value of 
 	 * based on the value of CapacityTemplateEntity.
 	 * 
-	 * @param capacityTemplate
+	 * @param capacityTemplate Capacity Template Entity of the Capacity 
+	 * 							Template And Capacity Channel Entity.
 	 */
 	void deleteAllBycapacityTemplate(CapacityTemplateEntity capacityTemplate);
 	

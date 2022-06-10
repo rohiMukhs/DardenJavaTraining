@@ -37,8 +37,10 @@ public interface CapacityChannelMapper {
 	/**
 	 * This method is used to map the list of CapacityChannelEntity to list of CapacityChannel
 	 * 
-	 * @param capacityChannelEntites
-	 * @return List<CapacityChannel>
+	 * @param capacityChannelEntites entity class with information of
+	 *                                      Capacity Channel.
+	 * 
+	 * @return List<CapacityChannel> List of mapped entity class of Capacity channel.
 	 */
 	List<CapacityChannel> mapChannels(List<CapacityChannelEntity> capacityChannelEntites);
 	
@@ -53,8 +55,10 @@ public interface CapacityChannelMapper {
 	 * This method is to map capacity channel entity to capacity channel for converting 
 	 * date format to string format for specific fields
 	 * 
-	 * @param capacityChannelEntity
-	 * @param capacityChannel
+	 * @param capacityChannelEntity Entity class with information of
+	 *                                      capacity Channel value.
+	 *                                      
+	 * @param capacityChannel mapped model class of capacity Channel information.
 	 */
 	@AfterMapping
 	default void map(CapacityChannelEntity capacityChannelEntity, @MappingTarget CapacityChannel capacityChannel) {
@@ -80,10 +84,15 @@ public interface CapacityChannelMapper {
 	 * This mapper method is used to map the data for creating a combine channel
 	 * to capacityChannelEntity.
 	 * 
-	 * @param createCombinedChannelRequest
-	 * @param userDetail
-	 * @param dateTime
-	 * @return CapacityChannelEntity
+	 * @param createCombinedChannelRequest request class with information of
+	 *                                      Combined Channel to be created.
+	 * 
+	 * @param userDetail information of createdBy String value.
+	 * 
+	 * @param dateTime information of dateTime Instant value
+	 * 
+	 * @return CapacityChannelEntity mapped entity class of Capacity 
+	 * 								 Capacity Channel information.
 	 */
 	@Named(CapacityConstants.MAP_TO_CHANNEL_ENTITY)
 	default CapacityChannelEntity mapToChannelEntity(CreateCombineChannelRequest createCombinedChannelRequest, String userDetail, Instant dateTime) {
@@ -107,10 +116,16 @@ public interface CapacityChannelMapper {
 	 * This mapper method is used to map the data of channel to be assigned to 
 	 * Combine channel to CapacityChannelAndCombinedChannelEntity
 	 * 
-	 * @param savedCombinedCapacityChannel
-	 * @param capacityChannelFromDB
-	 * @param changedBy
-	 * @return CapacityChannelAndCombinedChannelEntity
+	 * @param savedCombinedCapacityChannel Entity class with information of
+	 *                                      Capacity Channel.
+	 *                                      
+	 * @param capacityChannelFromDB Request class with information of
+	 *                                      Capacity Channel Entity.
+	 *                                      
+	 * @param changedBy information of createdBy String value.
+	 * 
+	 * @return CapacityChannelAndCombinedChannelEntity mapped entity class of Capacity 
+	 * 												   Channel And Combined Channel information.
 	 */
 	@Named(CapacityConstants.MAP_TO_CHANNEL_AND_COMBINED_CHANNEL_ENTITY)
 	default CapacityChannelAndCombinedChannelEntity mapToChannelAndCombineChannel(CapacityChannelEntity savedCombinedCapacityChannel, CapacityChannelEntity capacityChannelFromDB, String changedBy) {
@@ -132,9 +147,13 @@ public interface CapacityChannelMapper {
 	 * This mapper method is used to map the data of Create Combine channel 
 	 * along with the channels assigned to CombineChannel for response.
 	 * 
-	 * @param savedCombinedCapacityChannel
-	 * @param createCombinedChannelRequest
-	 * @return CombineChannel
+	 * @param savedCombinedCapacityChannel model class with information of
+	 *                                      saved Combined Capacity Channel.
+	 *                                      
+	 * @param createCombinedChannelRequest Request class with information of
+	 *                                      create Combined Channel.
+	 *                                      
+	 * @return CombineChannel mapped model class of Combine Channel information.
 	 */
 	@Named(CapacityConstants.MAP_TO_COMBINE_CHANNEL_RESPONSE)
 	default CombineChannel mapToChannelResponse(CapacityChannelEntity savedCombinedCapacityChannel, CreateCombineChannelRequest createCombinedChannelRequest) {

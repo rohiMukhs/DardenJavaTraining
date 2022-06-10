@@ -4,6 +4,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
+import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Getter;
@@ -20,7 +23,9 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SlotChannel {
 
+	@NotNull(message = ErrorCodeConstants.EC_4001)
 	private BigInteger channelId;
+	
 	private String channelName;
 	private String isSelectedFlag;
 	private List<SlotDetail> slotDetails = new ArrayList<>();

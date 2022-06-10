@@ -277,6 +277,10 @@ public class CapacityConstants {
 	
 	public static final String EC_4502 = "4502";
 	
+	public static final String PATTERN_ALPHANUMERIC_EXCLUDING= "^[a-zA-Z0-9\\_\\.\\s]+$";
+	
+	public static final String PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS = "^[a-zA-Z0-9\\@\\# \\$ \\! \\& \\- \\_ \\. \\s]+$";
+	
 	private CapacityConstants() {
 
 	}

@@ -111,8 +111,11 @@ public class ChannelValidator implements DashValidator {
 	 * that is passed in the request body.If the duplicate value of friendly 
 	 * name is detected in list application error is raised.
 	 * 
-	 * @param buildObject
-	 * @param applicationErrors
+	 * @param buildObject request class containing the value of
+	 * 					capacity channels to be updated is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
 	 */
 	private void validateInRequestBody(ChannelListRequest buildObject, ApplicationErrors applicationErrors) {
 		for(int i= 0; i < buildObject.getChannels().size(); i++) {
@@ -129,8 +132,11 @@ public class ChannelValidator implements DashValidator {
 	 * channels passed in the request body if the number of channels is 
 	 * less than one then application error is raised.
 	 * 
-	 * @param buildCreateObject
-	 * @param applicationErrors
+	 * @param buildCreateObject request class containing the value of
+	 * 					capacity combine channel to be created is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
 	 */
 	private void validateInCreateRequestBody(CreateCombineChannelRequest buildCreateObject,
 			ApplicationErrors applicationErrors) {
@@ -146,8 +152,11 @@ public class ChannelValidator implements DashValidator {
 	 * friendly name is checked if present in database using the channel service 
 	 * method if the data is already present application error is raised
 	 * 
-	 * @param buildObject
-	 * @param applicationErrors
+	 * @param buildObject request class containing the value of
+	 * 					capacity channels to be updated is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
 	 */
 	private void validateInDbForUpdate(ChannelListRequest buildObject, ApplicationErrors applicationErrors) {
 		
@@ -167,8 +176,11 @@ public class ChannelValidator implements DashValidator {
 	 * method if the data is already present application error is raised with respect to the 
 	 * specific field name.
 	 * 
-	 * @param buildCreateObject
-	 * @param applicationErrors
+	 * @param buildCreateObject request class containing the value of
+	 * 					capacity combine channel to be created is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
 	 */
 	private void validateInDbForCreate(CreateCombineChannelRequest buildCreateObject,
 			ApplicationErrors applicationErrors) {
@@ -185,9 +197,14 @@ public class ChannelValidator implements DashValidator {
 	/**
 	 * This method is used to build object of request body for validation.
 	 * 
-	 * @param object
-	 * @return ChannelListRequest
-	 * @throws JsonProcessingException
+	 * @param object Class Object is the root of the class hierarchy.
+	 * 
+	 * @return ChannelListRequest returns request class with
+	 * 					after converting it to json and  deserialized into 
+	 * 					the model class. 
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	private ChannelListRequest buildObject(Object object) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
@@ -200,9 +217,14 @@ public class ChannelValidator implements DashValidator {
 	/**
 	 * This method is used to build object of request body for validation.
 	 * 
-	 * @param object
-	 * @return CreateCombineChannelRequest
-	 * @throws JsonProcessingException
+	 * @param object Class Object is the root of the class hierarchy.
+	 * 
+	 * @return CreateCombineChannelRequest returns request class with
+	 * 					after converting it to json and  deserialized into 
+	 * 					the model class. 
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	private CreateCombineChannelRequest buildCreateObject(Object object) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())

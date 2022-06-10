@@ -81,9 +81,15 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * in response
 	 * 
 	 * 
-	 * @param editChannelInformationRequest
-	 * @param user
-	 * @return List<ChannelInformationRequest>
+	 * @param editChannelInformationRequest List of Request class containing information
+	 * 					of list of capacity channels to be edited.
+	 * 
+	 * @param user	information of user operating on the update action.
+	 * 
+	 * @return List<ChannelInformationRequest> List of updated channel information in response.
+	 * 
+	 * @throws JsonProcessingException   if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@Override
 	@Transactional
@@ -118,8 +124,10 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * This method is used for the validation of friendly in request body name with some 
 	 * required condition to avoid duplicate values in database.
 	 * 
-	 * @param friendlyName
-	 * @return boolean
+	 * @param validateChannel request class containing detail of capacity 
+	 * 						channel to be updated in database.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
 	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel) {
@@ -140,9 +148,16 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * is saved to capacityChannel And CombinedChannel table. Saved Combine channel entity
 	 * value is mapped to response and the mapped response is returned.
 	 * 
-	 * @param createCombinedChannelRequest
-	 * @param userDetail
-	 * @return CombineChannel
+	 * @param createCombinedChannelRequest request class containing detail of
+	 * 								capacity combine to be created.
+	 * 
+	 * @param userDetail information of user operating on the create action.
+	 * 
+	 * @return CombineChannel model class containing detail of created 
+	 * 							combined channel.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@Override
 	public CombineChannel addCombinedChannel(CreateCombineChannelRequest createCombinedChannelRequest,
@@ -187,10 +202,17 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * and capacity channels that need to be assigned to capacity channel to
 	 * CapacityChannelAndCombinedChannelEntity and value is returned.
 	 * 
-	 * @param savedCombinedCapacityChannel
-	 * @param capacityChannelFromDB
-	 * @param changedBy
-	 * @return CapacityChannelAndCombinedChannelEntity
+	 * @param savedCombinedCapacityChannel entity class with detail of created combine 
+	 * 									channel.
+	 * 
+	 * @param capacityChannelFromDB entity class with detail of capacity channel
+	 * 								 retrieved from database.
+	 * 
+	 * @param changedBy information of user for the created by value of Capacity
+	 * 								Channel And Combined Channel Entity.
+	 * 
+	 * @return CapacityChannelAndCombinedChannelEntity 	entity class containing the 
+	 * 								detail of Capacity Channel And Combined Channel.
 	 */
 	public CapacityChannelAndCombinedChannelEntity addCapacityChannelAndCombinedChannel(CapacityChannelEntity savedCombinedCapacityChannel,
 			CapacityChannelEntity capacityChannelFromDB, String changedBy) {
@@ -206,8 +228,9 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * pair of passing parameter capacityChannel name and concept id is present in the database.
 	 * This method is used for the validation of friendly name in request body. 
 	 * 
-	 * @param capacityChannelNm
-	 * @return boolean
+	 * @param capacityChannelNm Capacity Channel Name to be validated in database.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
 	public boolean validateChannelNmValidation(String capacityChannelNm) {
@@ -220,8 +243,9 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * pair of passing parameter friendly name and concept id is present in the database.
 	 * This method is used for the validation of friendly name in request body.
 	 * 
-	 * @param 
-	 * @return
+	 * @param friendlyNm friendly Name to be validated in database.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
 	public boolean validateChannelFriendlyNmValidation(String friendlyNm) {

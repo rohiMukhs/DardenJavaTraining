@@ -27,8 +27,10 @@ public interface CapacityTemplateTypeRepository extends JpaRepository<CapacityTe
 * This method is used to find value of capacity template type entity
 * based on the value of capacity Template type name.
 *
-* @param capacityTemplateTypeNm
-* @return CapacityTemplateTypeEntity
+* @param capacityTemplateTypeNm capacity Template Type Name of the Capacity Template Type Entity.
+* 
+* @return CapacityTemplateTypeEntity Capacity Template Type entity class retrieved 
+	 * 							based on the parameters passed.
 */
 	
 	CapacityTemplateTypeEntity findByCapacityTemplateTypeNm(String capacityTemplateTypeNm);

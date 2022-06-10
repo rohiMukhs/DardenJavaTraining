@@ -2,11 +2,14 @@ package com.darden.dash.capacity.model;
 
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.constant.CommonConstants;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 
@@ -26,9 +29,11 @@ public class CreateCapacityTemplateRequest extends CapacityTemplateCommon {
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Length(max = 40, message = ErrorCodeConstants.EC_4002)
 	@Pattern(regexp = CommonConstants.PATTERN_BEFORE_AFTER_SPACE, message = ErrorCodeConstants.EC_4014)
-	@Pattern(regexp = CommonConstants.PATTERN_ALPHANUMERIC, message = ErrorCodeConstants.EC_4003)
+	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_EXCLUDING, message = ErrorCodeConstants.EC_4003)
 	private String capacityTemplateName;
 	
+	@Valid
+	@NotEmpty(message = ErrorCodeConstants.EC_4001)
 	private List<SlotChannel> slotChannels;
 	
 }

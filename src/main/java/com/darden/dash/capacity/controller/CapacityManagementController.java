@@ -81,8 +81,11 @@ public class CapacityManagementController {
 	 * list of CapacityTemplateResponse object. At last the API successful response
 	 * is built and returned.
 	 * 
-	 * @param accessToken
-	 * @return ResponseEntity<Object>
+	 * @param accessToken 	Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @return ResponseEntity<Object> Response that contains the list of all Capacity Templates with
+	 * 								  required reference for drop down value.  
 	 */
 	@GetMapping(value = CapacityConstants.CAPACITY_TEMPLATES ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
@@ -105,11 +108,17 @@ public class CapacityManagementController {
 	 * CapacityTemplateAndBussinessDateEntity, then sent to the CapacityTemplate service and 
 	 * returned the saved data. At last the API successful response is built and returned.
 	 * 
+	 * @param accessToken 	Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @param createCapacityTemplateRequest Request class with information to
+	 * 										create capacity Template.
 	 * 
-	 * @param createCapacityTemplateRequest
-	 * @param accessToken
-	 * @return ResponseEntity<Object>
-	 * @throws JsonProcessingException
+	 * @return ResponseEntity<Object> Response class with information of the
+	 *         						  Object containing created/modified Capacity Template detail.
+	 *         
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@PostMapping(value = CapacityConstants.CAPACITY_TEMPLATES ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
@@ -138,10 +147,17 @@ public class CapacityManagementController {
 	 * 
 	 * 
 	 * 
-	 * @param channelListRequest
-	 * @param accessToken
-	 * @return ResponseEntity<Object>
-	 * @throws JsonProcessingException
+	 * @param channelListRequest Request class with information to
+	 * 							 update Capacity Template.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @return EditChannelResponse Response class with information of the
+	 *         					   Object containing created/modified Capacity Template detail.
+	 *         
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@PutMapping(value = CapacityConstants.COMBINED_CHANNELS , produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
@@ -167,11 +183,17 @@ public class CapacityManagementController {
 	 * appParameter entity Soft delete and Hard delete operation is performed on CapacityTemplate
 	 * Entity. At last the API successful response is built and returned.
 	 * 
-	 * @param templateId
-	 * @param deletedFlag
-	 * @param accessToken
-	 * @return ResponseEntity<Object>
-	 * @throws JsonProcessingException
+	 * @param templateId Id of a capacity template that needs to be deleted.
+	 * 
+	 * @param deletedFlag Flag containing deletion information for Capacity Template.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @return ServiceResponse ServiceResponse Response class returned after successful deletion
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@PatchMapping(value = CapacityConstants.CAPACITY_TEMPLATE_WITH_TEMPLATEID, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
@@ -200,10 +222,17 @@ public class CapacityManagementController {
 	 * At last the API updated successful response is built and returned. 
 	 * 
 	 * 
-	 * @param createCombineChannelRequest
-	 * @param accessToken
-	 * @return ResponseEntity<Object>
-	 * @throws JsonProcessingException
+	 * @param createCombineChannelRequest Request class with information to
+	 * 							          create Combine Channel Request.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                    userDetails for this API.
+	 *                      
+	 * @return CreateCombineChannelResponse Response class with information of the
+	 *         					  			Object containing created/modified Combine Channel detail.
+	 *         
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@PostMapping(value = CapacityConstants.COMBINE_CHANNELS ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
@@ -233,11 +262,19 @@ public class CapacityManagementController {
 	 * 
 	 * 
 	 * 
-	 * @param createCapacityTemplateRequest
-	 * @param accessToken
-	 * @param templateId
-	 * @return
-	 * @throws JsonProcessingException
+	 * @param createCapacityTemplateRequest Request class with information to
+	 * 							            edit multiple Combine Channel Request.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                    userDetails for this API.
+	 *                    
+	 * @param templateId Flag containing deletion information for Capacity Template.
+	 * 
+	 * @return CreateCapacityTemplateResponse Response class with information of the
+	 *         					  			  Object containing created/modified Combine Channel detail.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
 	 */
 	@PutMapping(value = CapacityConstants.EDIT_TEMPLATES, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
