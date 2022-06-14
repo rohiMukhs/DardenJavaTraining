@@ -110,8 +110,8 @@ public interface CapacityTemplateMapper {
 		templateEntity.setCreatedDatetime(dateTime);
 		templateEntity.setLastModifiedBy(createdBy);
 		templateEntity.setLastModifiedDatetime(dateTime);
-		templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
-		templateEntity.setEffectiveDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+		templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+		templateEntity.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
 		templateEntity.setCapacityTemplateType(templateType);
 		templateEntity.setStartTime(LocalTime.parse(templateRequest.getSlotStartTime()));
 		templateEntity.setEndTime(LocalTime.parse(templateRequest.getSlotEndTime()));
