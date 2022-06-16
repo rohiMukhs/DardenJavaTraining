@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import lombok.Getter;
@@ -13,7 +14,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SlotDetail {
+public class SlotDetail implements Serializable{
 
 	private BigInteger slotId;
 	private String startTime;

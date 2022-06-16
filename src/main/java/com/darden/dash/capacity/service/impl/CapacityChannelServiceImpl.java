@@ -3,12 +3,15 @@ package com.darden.dash.capacity.service.impl;
 import java.math.BigInteger;
 import java.sql.Time;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -21,9 +24,11 @@ import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
 import com.darden.dash.capacity.mapper.CapacityChannelMapper;
 import com.darden.dash.capacity.model.CapacityChannel;
+import com.darden.dash.capacity.model.Channel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.CombineChannel;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
+import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.repository.CapacityChannelAndCombinedChannelRepository;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
 import com.darden.dash.capacity.service.CapacityChannelService;
@@ -102,8 +107,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			if(channelInformationRequest != null) {
 				capacityChannel.setFirendlyNm(channelInformationRequest.getFriendlyName());
 				capacityChannel.setInterval(channelInformationRequest.getInterval());
-				capacityChannel.setOperationalHoursStartTime(Time.valueOf(channelInformationRequest.getOperationHourStartTime()));
-				capacityChannel.setOperationalHoursEndTime(Time.valueOf(channelInformationRequest.getOperationHourEndTime()));
+				capacityChannel.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse(channelInformationRequest.getOperationHourStartTime())));
+				capacityChannel.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse(channelInformationRequest.getOperationHourEndTime())));
 				capacityChannel.setLastModifiedBy(user);
 				Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 				capacityChannel.setLastModifiedDatetime(dateTime);
@@ -252,5 +257,72 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByFirendlyNmAndConceptId(friendlyNm, new BigInteger(RequestContext.getConcept()));
 		return capacityChannelEntity != null;
 	}
+	
+	/**
+	 * This service method is used to return reference data for capacity
+	 * channels its contains all capacity channel irrespective of basic or
+	 * combine channel.
+	 * 
+	 * @return ReferenceDatum list of model class containing the value of
+	 * reference data.
+	 * 
+	 */
+	@Override
+	public ReferenceDatum getReferenceData() {
+		List<CapacityChannelEntity> channelEntities = capacityChannelRepository.findAll();
+		ReferenceDatum referenceDatum = new ReferenceDatum();
+		List<CapacityChannel> channels = new ArrayList<>();
+		channelEntities.stream().forEach(ce -> {
+			CapacityChannel channel = new CapacityChannel();
+			channel.setCapacityChannelId(ce.getCapacityChannelId());
+			channel.setCapacityChannelName(ce.getCapacityChannelNm());
+			channel.setFirendlyName(ce.getFirendlyNm());
+			channel.setInterval(String.valueOf(ce.getInterval()));
+			channel.setIsCombinedFlg(ce.getIsCombinedFlg());
+			channel.setOperationalHoursEndTime(ce.getOperationalHoursEndTime().toString());
+			channel.setOperationalHoursStartTime(ce.getOperationalHoursStartTime().toString());
+			if(ce.getIsCombinedFlg().equals(CapacityConstants.Y)) {
+				List<Channel> underCombine = new ArrayList<>();
+				List<CapacityChannelAndCombinedChannelEntity> combineChannel = capacityChannelAndCombinedChannelRepository.findByCapacityChannel2(ce);
+				combineChannel.stream().forEach(cc -> {
+					Channel cha = new Channel();
+					cha.setCapacityChannelId(cc.getId().getCapacityChannelId());
+					cha.setCapacityChannelName(cc.getCapacityChannel1().getCapacityChannelNm());
+					underCombine.add(cha);
+				});
+				channel.setCombinedChannels(underCombine);
+			}
+			channels.add(channel);
+		});
+		referenceDatum.setCapacityChannel(channels);
+		return referenceDatum;
+	}
 
+	/**
+	 * This service method is to validate if the combination of selected 
+	 * channels already present in the database.
+	 * 
+	 * @param channelsNames set of selected channel names.
+	 * 
+	 * @return Set<Integer> return the value of set of Integer.Based on 
+	 * 				condition value is set.
+	 */
+	@Override
+	public Set<Integer> validateBaseChannelCombindation(Set<String> channelsNames) {
+		List<CapacityChannelEntity> channelList = capacityChannelRepository.findAll();
+		Set<Integer> value = new HashSet<>();
+		channelList.stream().forEach(cl -> {
+			if(cl.getIsCombinedFlg().equals(CapacityConstants.Y)) {
+				List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannelList = capacityChannelAndCombinedChannelRepository.findByCapacityChannel2(cl);
+				Set<String> dbChannelNames = new HashSet<>();
+				capacityChannelAndCombinedChannelList.stream().forEach(cccl ->
+					dbChannelNames.add(cccl.getCapacityChannel1().getCapacityChannelNm()
+							));
+				if(channelsNames.equals(dbChannelNames)) {
+					value.add(1);
+				}
+			}
+		});
+		return value;
+	}
 }

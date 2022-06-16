@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"capacityTemplateId","capacityTemplateName"})
-public class CreateTemplateResponse extends CapacityTemplateCommon {
+public class CreateTemplateResponse extends CapacityTemplateCommon implements Serializable{
 	
 	private BigInteger capacityTemplateId;
 	private String capacityTemplateName;

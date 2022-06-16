@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.poi.sl.usermodel.PlaceableShape;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
@@ -46,6 +44,7 @@ import com.darden.dash.capacity.entity.ReferenceEntity;
 import com.darden.dash.capacity.mapper.CapacityChannelMapper;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
+import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.SlotChannel;
@@ -83,59 +82,56 @@ class CapacityServiceImplTest {
 
 	@Mock
 	private CapacityChannelRepo capacityChannelRepo;
-	
+
 	@Mock
 	private CapacityTemplateTypeRepository capacityTemplateTypeRepository;
-	
+
 	@Mock
 	private CapacityTemplateAndBusinessDateRepository capacityTemplateAndBusinessDateRepository;
-	
+
 	@Mock
 	private CapacitySlotTypeRepository capacitySlotTypeRepository;
-	
+
 	@Mock
 	private ReferenceRepository referenceRepository;
-	
+
 	@Mock
 	private CapacitySlotRepository capacitySlotRepository;
-	
+
 	@Mock
 	private CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepository;
-	
+
 	@Mock
 	private CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository;
 
 	@Mock
 	private AppParameterService appParameterService;
-	
+
 	@Mock
 	private AuditService auditService;
-	
+
 	public static final String ACCESS_TOKEN = "7TeL7QMI9tSbvx38:k20boY/U/dAEM13LBKgS+oaT0v3gTSxnMmfVudUPFbnkLG+YgOIQ8i49iT1ooTzS55gZUdqW2XajNbhkDtq40rJh9jVltkBfhY/JTpwAIRJW4Ebn+M6X9xjXwNub0U4wz4nUHK7VIHNoF61xrLiAMdUcxb1GrHaDvXEzPtcWNG/ngoz5L9KOJFwwdBvS/c76k7rVO1Rn3Y0MJHY9I6wQAGa3MHmcuIxCmmkQEI59sYVsoazwRfFd5s2KYxccqWG+EJK3zJ4yTueQstPGcsJ/wPXG0jPtVwgy7Ms61Ww3ydm1R4SjUIYemITvXr/v3uVBs5qizR7PWEBSZNKPBsNctMN1PoKrAs7PEkqh791fnfK4Txjg6/jSazZYCELAD/EjR/1pkn6cEKLH2L7cLA/n8WzkPg6bD3UwRp6MgTL9PhuE+juJu3mc0pR7LI7l6A9TYwnStsGiJm+R0JOZzIn/xjCCPDpTBXvC9rPMvg2rF1MWV78jVYSMWugQnhU3tP5HjMF3fK5NXFwZyRPt9Hm4MPNHLiY0/fKcoP/e2cPAcTxuJeOBM6BmIVPYu10kMLBzIMkCbcYTptv2WNgTVPJOi4W/Rl76+HJS62szMY4DPcf3fTqVnuXTj4R7vfuzS2RZOKCYER3JF1H80KAUa4VFTv2xIAVMALMuQesjobfz6r9o0qaWFbZDXLsMQ9denalcKMwDXeBPe1QilEwDbO6gtiRb6lD1w8mJ4mWrH57hAFwN4pE/uFmI/kvqRCjF/ca7hu5i30NAlAEcp9Y45H+Bo6lwx9VUeYrfTWlDTEUuRZ0+PEKGMOjnNj+kzHCOj3Smz4vt4NW+DG0bW/GS9++4lAOtwm3bRpEYYVycjhO7pwYB/qFpfvPkiHXwDRVTty5xiNNYeHxYdBvzeUFzphAAgAFEyRGrLJVO5dWshysu";
 
 	@BeforeEach
 	public void init() {
 		CapacityTemplateMapper capacityTemplateMapper = Mappers.getMapper(CapacityTemplateMapper.class);
 		ReflectionTestUtils.setField(capacityManagementServiceImpl, "capacityTemplateMapper", capacityTemplateMapper);
-		CapacityChannelMapper capacityChannelMapper = Mappers.getMapper(CapacityChannelMapper.class);
-		ReflectionTestUtils.setField(capacityManagementServiceImpl, "capacityChannelMapper", capacityChannelMapper);
 	}
 
 	@Test
 	void testGetAllCapacityTemplates() {
 		RequestContext.setConcept("1");
 		when(capacityTemplateRepo.findByConceptId(BigInteger.ONE)).thenReturn((getAllCapacityTemplates()));
-		when(capacityChannelRepo.findAll()).thenReturn(Collections.singletonList(getCapacityChannel()));
-		ResponseEntity<Object> res = capacityManagementServiceImpl.getAllCapacityTemplates();
+		List<CapacityTemplate> res = capacityManagementServiceImpl.getAllCapacityTemplates();
 		assertNotNull(res);
 	}
-	
+
 	@Test
 	void testGetAllCapacityTemplatesForInvalidConcept() {
 		RequestContext.setConcept(null);
 		Exception exception = assertThrows(RuntimeException.class, () -> {
 			capacityManagementServiceImpl.getAllCapacityTemplates();
-	    });
+		});
 		assertTrue(instanceOf(ApplicationException.class).matches(exception));
 	}
 
@@ -210,7 +206,7 @@ class CapacityServiceImplTest {
 	}
 
 	private List<CapacityChannelAndCombinedChannelEntity> getCombinedCapacityChannel() {
-		CapacityChannelAndCombinedChannelEntity capacityChannelAndCombinedChannelEntity=new CapacityChannelAndCombinedChannelEntity();
+		CapacityChannelAndCombinedChannelEntity capacityChannelAndCombinedChannelEntity = new CapacityChannelAndCombinedChannelEntity();
 		CapacityChannelEntity capacityChannelEntity = new CapacityChannelEntity();
 		capacityChannelEntity.setCapacityChannelId(BigInteger.ONE);
 		capacityChannelEntity.setCapacityChannelNm("Togo");
@@ -221,9 +217,9 @@ class CapacityServiceImplTest {
 		capacityChannelAndCombinedChannelEntity.setCapacityChannel2(capacityChannelEntity);
 		return Collections.singletonList(capacityChannelAndCombinedChannelEntity);
 	}
-	
+
 	@Test
-	void testCreateTemplate() throws JsonProcessingException{
+	void testCreateTemplate() throws JsonProcessingException {
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
@@ -241,7 +237,7 @@ class CapacityServiceImplTest {
 		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
 		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
 		CapacityTemplateAndBusinessDateEntity dateEntity = new CapacityTemplateAndBusinessDateEntity();
-		
+
 		ReferenceEntity reference = new ReferenceEntity();
 		reference.setConceptId(new BigInteger("1"));
 		reference.setReferenceId(new BigInteger("1"));
@@ -249,7 +245,7 @@ class CapacityServiceImplTest {
 		reference.setReferenceDesc("dnskndnjks");
 		reference.setReferenceNm("refNm");
 		Optional<ReferenceEntity> optRef = Optional.of(reference);
-		
+
 		CapacityChannelEntity channel = new CapacityChannelEntity();
 		channel.setCapacityChannelId(new BigInteger("1"));
 		channel.setConceptId(new BigInteger("1"));
@@ -259,7 +255,7 @@ class CapacityServiceImplTest {
 		channel.setOperationalHoursEndTime(Time.valueOf("11:40:55"));
 		channel.setOperationalHoursStartTime(Time.valueOf("11:40:55"));
 		Optional<CapacityChannelEntity> optChannel = Optional.of(channel);
-		
+
 		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
 		capacitySlotEntity.setCapacityCnt("1");
 		capacitySlotEntity.setCapacitySlotId(BigInteger.valueOf(2));
@@ -268,7 +264,7 @@ class CapacityServiceImplTest {
 		capacitySlotEntity.setCapacitySlotType(getCapacitySlotType());
 		capacitySlotEntity.setCapacityChannel(getCapacityChannel());
 		capacitySlotEntity.setIsDeletedFlg("N");
-		
+
 		CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = new CapacityTemplateAndCapacityChannelEntity();
 		CapacityTemplateAndCapacityChannelPK id = new CapacityTemplateAndCapacityChannelPK();
 		id.setCapacityChannelId(new BigInteger("1"));
@@ -276,14 +272,14 @@ class CapacityServiceImplTest {
 		capacityTemplateAndCapacityChannelEntity.setId(id);
 		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag("N");
 		capacityTemplateAndCapacityChannelEntity.setCapacityChannel(getCapacityChannel());
-		
+
 		Optional<CapacitySlotTypeEntity> optSlotType = Optional.of(getCapacitySlotType());
-		
+
 		List<BusinessDate> date = new ArrayList<>();
 		BusinessDate bdate = new BusinessDate();
 		bdate.setDate("01/01/2011");
 		date.add(bdate);
-		
+
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
@@ -318,31 +314,33 @@ class CapacityServiceImplTest {
 		request.setSlotEndTime("02:09");
 		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
-		
+
 		CapacityTemplateTypeEntity type = new CapacityTemplateTypeEntity();
 		type.setCapacityTemplateTypeId(new BigInteger("1"));
 		type.setCapacityTemplateTypeNm("Days");
 		type.setIsDeletedFlg("N");
-		
+
 		RequestContext.setConcept("1");
-		
+
 		Mockito.lenient().when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
 		Mockito.when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString())).thenReturn(type);
 		Mockito.lenient().when(capacityTemplateAndBusinessDateRepository.save(Mockito.any())).thenReturn(dateEntity);
 		Mockito.lenient().when(referenceRepository.findById(Mockito.any())).thenReturn(optRef);
 		Mockito.lenient().when(capacityChannelRepo.findById(Mockito.any())).thenReturn(optChannel);
-		Mockito.lenient().when(capacityTemplateAndCapacityChannelRepository.save(Mockito.any())).thenReturn(capacityTemplateAndCapacityChannelEntity);
+		Mockito.lenient().when(capacityTemplateAndCapacityChannelRepository.save(Mockito.any()))
+				.thenReturn(capacityTemplateAndCapacityChannelEntity);
 		Mockito.lenient().when(capacitySlotTypeRepository.findById(Mockito.any())).thenReturn(optSlotType);
 		Mockito.lenient().when(capacitySlotRepository.save(Mockito.any())).thenReturn(capacitySlotEntity);
-		CreateTemplateResponse res = capacityManagementServiceImpl.createTemplate(request, CapacityServiceImplTest.ACCESS_TOKEN);
+		CreateTemplateResponse res = capacityManagementServiceImpl.createTemplate(request,
+				CapacityServiceImplTest.ACCESS_TOKEN);
 		assertNotNull(res);
 	}
-	
+
 	@Test
 	void testValidateCapacityTemplateNm() {
-		
+
 		RequestContext.setConcept("1");
-		
+
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
@@ -359,18 +357,19 @@ class CapacityServiceImplTest {
 		capacityTemplateEntity.setEndTime(java.time.LocalTime.parse("12:46:55"));
 		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
 		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
-		
-		Mockito.when(capacityTemplateRepo.findByCapacityTemplateNm(Mockito.anyString())).thenReturn(capacityTemplateEntity);
+
+		Mockito.when(capacityTemplateRepo.findByCapacityTemplateNm(Mockito.anyString()))
+				.thenReturn(capacityTemplateEntity);
 		boolean res = capacityManagementServiceImpl.validateCapacityTemplateNm("Lorum Ipsum");
 		assertEquals(true, res);
 	}
-	
+
 	@Test
 	void shouldSoftCapacityTemplate() throws Exception {
-		AppParameterEntity appParameterEntitynew = new AppParameterEntity().toBuilder().id(1).parameterName("CAPACITY_SOFT_DELETE")
-				.parameterLevel("enterprise").parameterValue("Y").parameterDesc("Y=soft delete , N=Hard Delete")
-				.parameterValue("Y").createdBy("aaa").createdDate(Instant.now()).modifiedBy("bbbb")
-				.modifiedDate(Instant.now()).build();
+		AppParameterEntity appParameterEntitynew = new AppParameterEntity().toBuilder().id(1)
+				.parameterName("CAPACITY_SOFT_DELETE").parameterLevel("enterprise").parameterValue("Y")
+				.parameterDesc("Y=soft delete , N=Hard Delete").parameterValue("Y").createdBy("aaa")
+				.createdDate(Instant.now()).modifiedBy("bbbb").modifiedDate(Instant.now()).build();
 		Mockito.when(appParameterService.findByParameterName(Mockito.any())).thenReturn(appParameterEntitynew);
 		final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacityTemplateEntity test = new CapacityTemplateEntity();
@@ -381,21 +380,22 @@ class CapacityServiceImplTest {
 		test.setLastModifiedDatetime(now);
 		test.setIsDeletedFlg("N");
 		test.setConceptId(new BigInteger("1"));
-		
-		Mockito.when(capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
+
+		Mockito.when(
+				capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
 				.thenReturn(Optional.of(test));
 		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
 
 		assertEquals("Y", test.getIsDeletedFlg());
 
 	}
-	
+
 	@Test
 	void shouldHardDeleteCapacityTemplate() throws Exception {
-		AppParameterEntity appParameterEntityHard = new AppParameterEntity().toBuilder().id(1).parameterName("MENU_SOFT_DELETE")
-				.parameterLevel("enterprise").parameterValue("N").parameterDesc("Y=soft delete , N=Hard Delete")
-				.parameterValue("N").createdBy("aaa").createdDate(Instant.now()).modifiedBy("aaa")
-				.modifiedDate(Instant.now()).build();
+		AppParameterEntity appParameterEntityHard = new AppParameterEntity().toBuilder().id(1)
+				.parameterName("MENU_SOFT_DELETE").parameterLevel("enterprise").parameterValue("N")
+				.parameterDesc("Y=soft delete , N=Hard Delete").parameterValue("N").createdBy("aaa")
+				.createdDate(Instant.now()).modifiedBy("aaa").modifiedDate(Instant.now()).build();
 
 		Mockito.when(appParameterService.findByParameterName(Mockito.any())).thenReturn(appParameterEntityHard);
 		final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
@@ -408,14 +408,15 @@ class CapacityServiceImplTest {
 		test.setIsDeletedFlg("N");
 		test.setConceptId(new BigInteger("1"));
 		Mockito.lenient().doNothing().when(capacityTemplateRepo).deleteById(Mockito.any());
-		Mockito.when(capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
+		Mockito.when(
+				capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
 				.thenReturn(Optional.of(test));
 		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
 
 		assertEquals("Y", test.getIsDeletedFlg());
 
 	}
-	
+
 	@Test
 	void testValidateCapacityTemplateId() {
 		RequestContext.setConcept("1");
@@ -434,15 +435,16 @@ class CapacityServiceImplTest {
 		mAndT.setId(id);
 		mAndT.setCapacityTemplate(test);
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(test));
-		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test)).thenReturn(mAndT);
+		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test))
+				.thenReturn(Collections.singletonList(mAndT));
 		boolean res = capacityManagementServiceImpl.validateCapacityTemplateId("1");
 		assertEquals(true, res);
 	}
-	
+
 	@Test
 	void testValidateCapacityTemplateNmForCreate() {
 		RequestContext.setConcept("1");
-		
+
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
@@ -461,11 +463,11 @@ class CapacityServiceImplTest {
 		boolean res = capacityManagementServiceImpl.validateCapacityTemplateNmForCreate("aaa", "1");
 		assertEquals(false, res);
 	}
-	
+
 	@Test
 	void testUpdateCapacityTemplate() {
 		RequestContext.setConcept("1");
-		
+
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
@@ -483,7 +485,7 @@ class CapacityServiceImplTest {
 		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
 		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
 		Mockito.when(jwtUtils.findUserDetail(Mockito.anyString())).thenReturn("user");
-		
+
 		CapacityTemplateTypeEntity tType = new CapacityTemplateTypeEntity();
 		tType.setCapacityTemplateTypeId(new BigInteger("1"));
 		tType.setCapacityTemplateTypeNm("Dates");
@@ -492,7 +494,7 @@ class CapacityServiceImplTest {
 		tType.setIsDeletedFlg("N");
 		tType.setLastModifiedBy("vv");
 		tType.setLastModifiedDatetime(Instant.now());
-		
+
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
@@ -525,24 +527,27 @@ class CapacityServiceImplTest {
 		request.setSlotEndTime("02:09");
 		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
-		
+
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
-		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString())).thenReturn(tType);
+		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString()))
+				.thenReturn(tType);
 		Mockito.when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
-		Mockito.lenient().when(capacitySlotRepository.findByCapacityChannel(Mockito.any())).thenReturn(getCapacitySlots());
+		Mockito.lenient().when(capacitySlotRepository.findByCapacityChannel(Mockito.any()))
+				.thenReturn(getCapacitySlots());
 		Mockito.lenient().doNothing().when(capacitySlotRepository).delete(Mockito.any());
-		CreateTemplateResponse res = capacityManagementServiceImpl.updateCapacityTemplate(request, ACCESS_TOKEN, new BigInteger("1"));
+		CreateTemplateResponse res = capacityManagementServiceImpl.updateCapacityTemplate(request, ACCESS_TOKEN,
+				new BigInteger("1"));
 		assertNotNull(res);
 	}
-	
+
 	@Test
-	void testValidateCapacityModelBusinessDates () {
-		
+	void testValidateCapacityModelBusinessDates() {
+
 		CapacityTemplateTypeEntity days = new CapacityTemplateTypeEntity();
 		days.setCapacityTemplateTypeId(BigInteger.valueOf(1));
 		days.setCapacityTemplateTypeNm("Days");
-		
+
 		CapacityTemplateEntity c1 = new CapacityTemplateEntity();
 		c1.setCapacityTemplateId(BigInteger.valueOf(1));
 		c1.setCapacityTemplateType(days);
@@ -558,7 +563,7 @@ class CapacityServiceImplTest {
 		c1.setSunFlg("Y");
 		c1.setStartTime(java.time.LocalTime.parse("11:46:55"));
 		c1.setEndTime(java.time.LocalTime.parse("12:46:55"));
-		
+
 		CapacityTemplateEntity c2 = new CapacityTemplateEntity();
 		c2.setCapacityTemplateId(BigInteger.valueOf(2));
 		c2.setCapacityTemplateNm("Lm");
@@ -574,11 +579,11 @@ class CapacityServiceImplTest {
 		c2.setSunFlg("N");
 		c2.setStartTime(java.time.LocalTime.parse("11:46:55"));
 		c2.setEndTime(java.time.LocalTime.parse("12:46:55"));
-		
+
 		CapacityTemplateTypeEntity dates = new CapacityTemplateTypeEntity();
 		dates.setCapacityTemplateTypeId(BigInteger.valueOf(2));
 		dates.setCapacityTemplateTypeNm("Dates");
-		
+
 		List<CapacityTemplateAndBusinessDateEntity> d1 = new ArrayList<>();
 		CapacityTemplateAndBusinessDateEntity done = new CapacityTemplateAndBusinessDateEntity();
 		CapacityTemplateAndBusinessDatePK id = new CapacityTemplateAndBusinessDatePK();
@@ -586,7 +591,7 @@ class CapacityServiceImplTest {
 		id.setBusinessDate(Date.from(Instant.now()));
 		done.setId(id);
 		d1.add(done);
-		
+
 		CapacityTemplateEntity c3 = new CapacityTemplateEntity();
 		c3.setCapacityTemplateId(BigInteger.valueOf(3));
 		c3.setCapacityTemplateNm("Lm");
@@ -596,9 +601,9 @@ class CapacityServiceImplTest {
 		c3.setCapacityTemplateAndBusinessDates(d1);
 		c3.setStartTime(java.time.LocalTime.parse("11:46:55"));
 		c3.setEndTime(java.time.LocalTime.parse("12:46:55"));
-		
+
 		List<CapacityTemplateAndBusinessDateEntity> d2 = new ArrayList<>();
-		
+
 		CapacityTemplateEntity c4 = new CapacityTemplateEntity();
 		c4.setCapacityTemplateId(BigInteger.valueOf(4));
 		c4.setCapacityTemplateNm("Lmg");
@@ -608,11 +613,11 @@ class CapacityServiceImplTest {
 		c4.setCapacityTemplateAndBusinessDates(d2);
 		c4.setStartTime(java.time.LocalTime.parse("11:46:55"));
 		c4.setEndTime(java.time.LocalTime.parse("12:46:55"));
-		
+
 		CapacityModelEntity model = new CapacityModelEntity();
 		model.setCapacityModelId(new BigInteger("1"));
 		model.setCapacityModelNm("model");
-		
+
 		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
 		CapacityModelAndCapacityTemplateEntity cmct = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK idct = new CapacityModelAndCapacityTemplatePK();
@@ -621,9 +626,9 @@ class CapacityServiceImplTest {
 		cmct.setId(idct);
 		cmct.setCapacityTemplate(c1);
 		cmct.setCapacityModel(model);
-		
+
 		list.add(cmct);
-		
+
 		CapacityModelAndCapacityTemplateEntity cm2 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id2 = new CapacityModelAndCapacityTemplatePK();
 		id2.setCapacityModelId(new BigInteger("1"));
@@ -631,9 +636,9 @@ class CapacityServiceImplTest {
 		cm2.setId(id2);
 		cm2.setCapacityTemplate(c2);
 		cm2.setCapacityModel(model);
-		
+
 		list.add(cm2);
-		
+
 		CapacityModelAndCapacityTemplateEntity cm3 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id3 = new CapacityModelAndCapacityTemplatePK();
 		id3.setCapacityModelId(new BigInteger("1"));
@@ -641,9 +646,9 @@ class CapacityServiceImplTest {
 		cm3.setId(id3);
 		cm3.setCapacityTemplate(c3);
 		cm3.setCapacityModel(model);
-		
+
 		list.add(cm3);
-		
+
 		CapacityModelAndCapacityTemplateEntity cm4 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id4 = new CapacityModelAndCapacityTemplatePK();
 		id4.setCapacityModelId(new BigInteger("1"));
@@ -651,9 +656,9 @@ class CapacityServiceImplTest {
 		cm4.setId(id4);
 		cm4.setCapacityTemplate(c4);
 		cm4.setCapacityModel(model);
-		
+
 		list.add(cm4);
-		
+
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
@@ -687,19 +692,19 @@ class CapacityServiceImplTest {
 		request.setSlotEndTime("02:09");
 		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
-		
+
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
 		boolean res = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request);
 		assertEquals(true, res);
 	}
-	
+
 	@Test
-	void testValidateDate(){
-		
+	void testValidateDate() {
+
 		CapacityTemplateTypeEntity dates = new CapacityTemplateTypeEntity();
 		dates.setCapacityTemplateTypeId(BigInteger.valueOf(2));
 		dates.setCapacityTemplateTypeNm("Dates");
-		
+
 		List<CapacityTemplateAndBusinessDateEntity> d1 = new ArrayList<>();
 		CapacityTemplateAndBusinessDateEntity done = new CapacityTemplateAndBusinessDateEntity();
 		CapacityTemplateAndBusinessDatePK id = new CapacityTemplateAndBusinessDatePK();
@@ -707,7 +712,7 @@ class CapacityServiceImplTest {
 		id.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
 		done.setId(id);
 		d1.add(done);
-		
+
 		CapacityTemplateEntity c3 = new CapacityTemplateEntity();
 		c3.setCapacityTemplateId(BigInteger.valueOf(3));
 		c3.setCapacityTemplateNm("Lm");
@@ -718,7 +723,7 @@ class CapacityServiceImplTest {
 		c3.setStartTime(java.time.LocalTime.parse("11:46:55"));
 		c3.setEndTime(java.time.LocalTime.parse("12:46:55"));
 		c3.setCapacityTemplateAndBusinessDates(d1);
-		
+
 		List<CapacityTemplateAndBusinessDateEntity> d2 = new ArrayList<>();
 		CapacityTemplateAndBusinessDateEntity done1 = new CapacityTemplateAndBusinessDateEntity();
 		CapacityTemplateAndBusinessDatePK id1 = new CapacityTemplateAndBusinessDatePK();
@@ -726,7 +731,7 @@ class CapacityServiceImplTest {
 		id1.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
 		done1.setId(id);
 		d2.add(done);
-		
+
 		CapacityTemplateEntity c4 = new CapacityTemplateEntity();
 		c4.setCapacityTemplateId(BigInteger.valueOf(4));
 		c4.setCapacityTemplateNm("Lmg");
@@ -737,11 +742,11 @@ class CapacityServiceImplTest {
 		c4.setStartTime(java.time.LocalTime.parse("11:46:55"));
 		c4.setEndTime(java.time.LocalTime.parse("12:46:55"));
 		c4.setCapacityTemplateAndBusinessDates(d2);
-		
+
 		CapacityModelEntity model = new CapacityModelEntity();
 		model.setCapacityModelId(new BigInteger("1"));
 		model.setCapacityModelNm("model");
-		
+
 		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
 		CapacityModelAndCapacityTemplateEntity cm3 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id3 = new CapacityModelAndCapacityTemplatePK();
@@ -750,9 +755,9 @@ class CapacityServiceImplTest {
 		cm3.setId(id3);
 		cm3.setCapacityTemplate(c3);
 		cm3.setCapacityModel(model);
-		
+
 		list.add(cm3);
-		
+
 		CapacityModelAndCapacityTemplateEntity cm4 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id4 = new CapacityModelAndCapacityTemplatePK();
 		id4.setCapacityModelId(new BigInteger("1"));
@@ -760,9 +765,9 @@ class CapacityServiceImplTest {
 		cm4.setId(id4);
 		cm4.setCapacityTemplate(c4);
 		cm4.setCapacityModel(model);
-		
+
 		list.add(cm4);
-		
+
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
@@ -795,14 +800,14 @@ class CapacityServiceImplTest {
 		boolean res2 = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request);
 		assertEquals(true, res2);
 	}
-	
+
 	@Test
-	void testValidateDays(){
-		
+	void testValidateDays() {
+
 		CapacityTemplateTypeEntity dates = new CapacityTemplateTypeEntity();
 		dates.setCapacityTemplateTypeId(BigInteger.valueOf(2));
 		dates.setCapacityTemplateTypeNm("Days");
-		
+
 		List<CapacityTemplateAndBusinessDateEntity> d1 = new ArrayList<>();
 		CapacityTemplateAndBusinessDateEntity done = new CapacityTemplateAndBusinessDateEntity();
 		CapacityTemplateAndBusinessDatePK id = new CapacityTemplateAndBusinessDatePK();
@@ -810,7 +815,7 @@ class CapacityServiceImplTest {
 		id.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
 		done.setId(id);
 		d1.add(done);
-		
+
 		CapacityTemplateEntity c3 = new CapacityTemplateEntity();
 		c3.setCapacityTemplateId(BigInteger.valueOf(3));
 		c3.setCapacityTemplateNm("Lm");
@@ -828,7 +833,7 @@ class CapacityServiceImplTest {
 		c3.setFriFlg("N");
 		c3.setSatFlg("N");
 		c3.setSunFlg("N");
-		
+
 		List<CapacityTemplateAndBusinessDateEntity> d2 = new ArrayList<>();
 		CapacityTemplateAndBusinessDateEntity done1 = new CapacityTemplateAndBusinessDateEntity();
 		CapacityTemplateAndBusinessDatePK id1 = new CapacityTemplateAndBusinessDatePK();
@@ -836,7 +841,7 @@ class CapacityServiceImplTest {
 		id1.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
 		done1.setId(id);
 		d2.add(done);
-		
+
 		CapacityTemplateEntity c4 = new CapacityTemplateEntity();
 		c4.setCapacityTemplateId(BigInteger.valueOf(4));
 		c4.setCapacityTemplateNm("Lmg");
@@ -854,11 +859,11 @@ class CapacityServiceImplTest {
 		c4.setFriFlg("Y");
 		c4.setSatFlg("Y");
 		c4.setSunFlg("Y");
-		
+
 		CapacityModelEntity model = new CapacityModelEntity();
 		model.setCapacityModelId(new BigInteger("1"));
 		model.setCapacityModelNm("model");
-		
+
 		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
 		CapacityModelAndCapacityTemplateEntity cm3 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id3 = new CapacityModelAndCapacityTemplatePK();
@@ -867,9 +872,9 @@ class CapacityServiceImplTest {
 		cm3.setId(id3);
 		cm3.setCapacityTemplate(c3);
 		cm3.setCapacityModel(model);
-		
+
 		list.add(cm3);
-		
+
 		CapacityModelAndCapacityTemplateEntity cm4 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id4 = new CapacityModelAndCapacityTemplatePK();
 		id4.setCapacityModelId(new BigInteger("1"));
@@ -877,9 +882,9 @@ class CapacityServiceImplTest {
 		cm4.setId(id4);
 		cm4.setCapacityTemplate(c4);
 		cm4.setCapacityModel(model);
-		
+
 		list.add(cm4);
-		
+
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
@@ -921,7 +926,7 @@ class CapacityServiceImplTest {
 	}
 
 	@Test
-	void testCreateTemplateDates() throws JsonProcessingException{
+	void testCreateTemplateDates() throws JsonProcessingException {
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
@@ -939,11 +944,11 @@ class CapacityServiceImplTest {
 		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
 		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
 		CapacityTemplateAndBusinessDateEntity dateEntity = new CapacityTemplateAndBusinessDateEntity();
-		CapacityTemplateAndBusinessDatePK pk=new CapacityTemplateAndBusinessDatePK();
+		CapacityTemplateAndBusinessDatePK pk = new CapacityTemplateAndBusinessDatePK();
 		pk.setBusinessDate(new Date());
 		pk.setCapacityTemplateId(BigInteger.ONE);
 		dateEntity.setId(pk);
-		
+
 		ReferenceEntity reference = new ReferenceEntity();
 		reference.setConceptId(new BigInteger("1"));
 		reference.setReferenceId(new BigInteger("1"));
@@ -951,7 +956,7 @@ class CapacityServiceImplTest {
 		reference.setReferenceDesc("dnskndnjks");
 		reference.setReferenceNm("refNm");
 		Optional<ReferenceEntity> optRef = Optional.of(reference);
-		
+
 		CapacityChannelEntity channel = new CapacityChannelEntity();
 		channel.setCapacityChannelId(new BigInteger("1"));
 		channel.setConceptId(new BigInteger("1"));
@@ -961,7 +966,7 @@ class CapacityServiceImplTest {
 		channel.setOperationalHoursEndTime(Time.valueOf("11:40:55"));
 		channel.setOperationalHoursStartTime(Time.valueOf("11:40:55"));
 		Optional<CapacityChannelEntity> optChannel = Optional.of(channel);
-		
+
 		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
 		capacitySlotEntity.setCapacityCnt("1");
 		capacitySlotEntity.setCapacitySlotId(BigInteger.valueOf(2));
@@ -970,7 +975,7 @@ class CapacityServiceImplTest {
 		capacitySlotEntity.setCapacitySlotType(getCapacitySlotType());
 		capacitySlotEntity.setCapacityChannel(getCapacityChannel());
 		capacitySlotEntity.setIsDeletedFlg("N");
-		
+
 		CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = new CapacityTemplateAndCapacityChannelEntity();
 		CapacityTemplateAndCapacityChannelPK id = new CapacityTemplateAndCapacityChannelPK();
 		id.setCapacityChannelId(new BigInteger("1"));
@@ -978,14 +983,14 @@ class CapacityServiceImplTest {
 		capacityTemplateAndCapacityChannelEntity.setId(id);
 		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag("N");
 		capacityTemplateAndCapacityChannelEntity.setCapacityChannel(getCapacityChannel());
-		
+
 		Optional<CapacitySlotTypeEntity> optSlotType = Optional.of(getCapacitySlotType());
-		
+
 		List<BusinessDate> date = new ArrayList<>();
 		BusinessDate bdate = new BusinessDate();
 		bdate.setDate("01/01/2011");
 		date.add(bdate);
-		
+
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
@@ -1020,23 +1025,46 @@ class CapacityServiceImplTest {
 		request.setSlotEndTime("02:09");
 		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
-		
+
 		CapacityTemplateTypeEntity type = new CapacityTemplateTypeEntity();
 		type.setCapacityTemplateTypeId(new BigInteger("1"));
 		type.setCapacityTemplateTypeNm("Dates");
 		type.setIsDeletedFlg("N");
-		
+
 		RequestContext.setConcept("1");
-		
+
 		Mockito.lenient().when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
-		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString())).thenReturn(type);
+		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString()))
+				.thenReturn(type);
 		Mockito.lenient().when(capacityTemplateAndBusinessDateRepository.save(Mockito.any())).thenReturn(dateEntity);
 		Mockito.lenient().when(referenceRepository.findById(Mockito.any())).thenReturn(optRef);
 		Mockito.lenient().when(capacityChannelRepo.findById(Mockito.any())).thenReturn(optChannel);
-		Mockito.lenient().when(capacityTemplateAndCapacityChannelRepository.save(Mockito.any())).thenReturn(capacityTemplateAndCapacityChannelEntity);
+		Mockito.lenient().when(capacityTemplateAndCapacityChannelRepository.save(Mockito.any()))
+				.thenReturn(capacityTemplateAndCapacityChannelEntity);
 		Mockito.lenient().when(capacitySlotTypeRepository.findById(Mockito.any())).thenReturn(optSlotType);
 		Mockito.lenient().when(capacitySlotRepository.save(Mockito.any())).thenReturn(capacitySlotEntity);
-		CreateTemplateResponse res = capacityManagementServiceImpl.createTemplate(request, CapacityServiceImplTest.ACCESS_TOKEN);
+		CreateTemplateResponse res = capacityManagementServiceImpl.createTemplate(request,
+				CapacityServiceImplTest.ACCESS_TOKEN);
 		assertNotNull(res);
+	}
+
+	@Test
+	void testValidateCapacityTemplateIdNegative() {
+		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.empty());
+		try {
+			capacityManagementServiceImpl.validateCapacityTemplateId("1");
+		} catch (Exception e) {
+			assertTrue(e instanceof ApplicationException);
+		}
+	}
+
+	@Test
+	void testDeleteByTemplateId() {
+		when(appParameterService.findByParameterName(Mockito.anyString())).thenReturn(null);
+		try {
+			capacityManagementServiceImpl.deleteByTemplateId("1", "1", "1");
+		} catch (Exception e) {
+			assertTrue(e instanceof ApplicationException);
+		}
 	}
 }

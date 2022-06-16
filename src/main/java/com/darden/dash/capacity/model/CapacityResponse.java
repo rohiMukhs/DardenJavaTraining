@@ -1,12 +1,12 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * @author skashala
@@ -17,13 +17,15 @@ import lombok.Setter;
  */
 
 @Getter
-@Setter
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class CapacityResponse extends ServiceResponse {
+public class CapacityResponse extends ServiceResponse implements Serializable{
 
 	private List<CapacityTemplate> capacityTemplates = new ArrayList<>();
 	private List<ReferenceDatum> referenceData = new ArrayList<>();
-
-	
+	public CapacityResponse(List<CapacityTemplate> capacityTemplates, List<ReferenceDatum> referenceData) {
+		super();
+		this.capacityTemplates = capacityTemplates;
+		this.referenceData = referenceData;
+	}
 }

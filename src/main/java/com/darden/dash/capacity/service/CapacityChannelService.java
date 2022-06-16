@@ -1,11 +1,13 @@
 package com.darden.dash.capacity.service;
 
 import java.util.List;
+import java.util.Set;
 
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.CombineChannel;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
+import com.darden.dash.capacity.model.ReferenceDatum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 /**
  * 
@@ -87,4 +89,25 @@ public interface CapacityChannelService {
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateChannelFriendlyNmValidation(String friendlyNm);
+	
+	/**
+	 * This service method is used to return reference data for capacity
+	 * channels its contains all capacity channel irrespective of basic or
+	 * combine channel.
+	 * 
+	 * @return ReferenceDatum list of model class containing the value of
+	 * reference data.
+	 */
+	public ReferenceDatum getReferenceData();
+	
+	/**
+	 * This service method is to validate if the combination of selected 
+	 * channels already present in the database.
+	 * 
+	 * @param channelsNames set of selected channel names.
+	 * 
+	 * @return Set<Integer> return the value of set of Integer.Based on 
+	 * 				condition value is set.
+	 */
+	public Set<Integer> validateBaseChannelCombindation(Set<String> channelsNames);
 }

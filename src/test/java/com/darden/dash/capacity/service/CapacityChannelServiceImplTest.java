@@ -25,12 +25,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
 import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelPK;
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
-import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.mapper.CapacityChannelMapper;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.CombineChannel;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
+import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.repository.CapacityChannelAndCombinedChannelRepository;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
 import com.darden.dash.capacity.service.impl.CapacityChannelServiceImpl;
@@ -57,6 +57,10 @@ class CapacityChannelServiceImplTest {
 	
 	public static CapacityChannelEntity channelEntity = new CapacityChannelEntity();
 	
+	public static CapacityChannelAndCombinedChannelEntity combineChannel = new CapacityChannelAndCombinedChannelEntity();
+	
+	public static List<CapacityChannelAndCombinedChannelEntity> combinChannelList = new ArrayList<>();
+	
 	public static CapacityChannelMapper capacityChannelMapper = Mappers.getMapper(CapacityChannelMapper.class);
 	
 	@BeforeAll
@@ -81,6 +85,18 @@ class CapacityChannelServiceImplTest {
 		
 		channelList.add(channelEntity);
 		
+		CapacityChannelAndCombinedChannelPK id = new CapacityChannelAndCombinedChannelPK();
+		id.setCapacityChannelId(new BigInteger("1"));
+		id.setCombinedCapacityChannelId(new BigInteger("1"));
+		combineChannel.setCapacityChannel1(channelEntity);
+		combineChannel.setCapacityChannel2(channelEntity);
+		combineChannel.setCreatedBy("a");
+		combineChannel.setCreatedDatetime(Instant.now());
+		combineChannel.setId(id);
+		combineChannel.setLastModifiedBy("ddd");
+		combineChannel.setLastModifiedDatetime(Instant.now());
+		
+		combinChannelList.add(combineChannel);
 	}
 
 	@Test
@@ -91,8 +107,8 @@ class CapacityChannelServiceImplTest {
 		request.setCapacityChannelId(new BigInteger("1"));
 		request.setFriendlyName("gname");
 		request.setInterval(5);
-		request.setOperationHourStartTime("30:30:30");
-		request.setOperationHourEndTime("30:30:30");
+		request.setOperationHourStartTime("10:10");
+		request.setOperationHourEndTime("10:10");
 		
 		requestList.add(request);
 		
@@ -100,8 +116,8 @@ class CapacityChannelServiceImplTest {
 		
 		channelEntity.setFirendlyNm(request.getFriendlyName());
 		channelEntity.setInterval(request.getInterval());
-		channelEntity.setOperationalHoursStartTime(Time.valueOf(request.getOperationHourStartTime()));
-		channelEntity.setOperationalHoursEndTime(Time.valueOf(request.getOperationHourEndTime()));
+		channelEntity.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse(request.getOperationHourStartTime())));
+		channelEntity.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse(request.getOperationHourEndTime())));
 		channelEntity.setLastModifiedBy("user");
 		channelEntity.setLastModifiedDatetime(Instant.now());
 		
@@ -180,5 +196,22 @@ class CapacityChannelServiceImplTest {
 		Mockito.when(capacityChannelRepository.findByFirendlyNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
 		boolean res = capacityChannelServiceImpl.validateChannelFriendlyNmValidation("a");
 		assertEquals(true, res);
+	}
+	
+	@Test
+	void testGetReferenceData() {
+		Mockito.when(capacityChannelRepository.findAll()).thenReturn(channelList);
+		ReferenceDatum res =  capacityChannelServiceImpl.getReferenceData();
+		assertNotNull(res);
+	}
+	
+	@Test
+	void testValidationOfCombinationOfChannel() {
+		Mockito.when(capacityChannelRepository.findAll()).thenReturn(channelList);
+		Mockito.when(capacityChannelAndCombinedChannelRepository.findByCapacityChannel2(Mockito.any())).thenReturn(combinChannelList);
+		Set<String> name = new HashSet<>();
+		name.add("channelnm");
+		Set<Integer> res = capacityChannelServiceImpl.validateBaseChannelCombindation(name);
+		assertNotNull(res);
 	}
 }
