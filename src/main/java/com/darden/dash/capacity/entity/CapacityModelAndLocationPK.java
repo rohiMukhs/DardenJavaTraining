@@ -24,10 +24,10 @@ public class CapacityModelAndLocationPK implements Serializable {
 	//default serial version id, required for serializable classes.
 	private static final long serialVersionUID = 1L;
 
-	@Column(name=CapacityConstants.CAPACITY_MODEL_ID, insertable=false, updatable=false)
+	@Column(name=CapacityConstants.CAPACITY_MODEL_ID)
 	private BigInteger capacityModelId;
 
-	@Column(name=CapacityConstants.LOCATION_ID, insertable=false, updatable=false)
+	@Column(name=CapacityConstants.LOCATION_ID)
 	private BigInteger locationId;
 
 	

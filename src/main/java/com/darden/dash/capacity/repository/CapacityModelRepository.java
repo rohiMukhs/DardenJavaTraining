@@ -35,4 +35,14 @@ public interface CapacityModelRepository extends JpaRepository<CapacityModelEnti
 	 */
 	List<CapacityModelEntity> findByConceptId(BigInteger conceptId);
 
+	/**
+	 * 
+	 * This method is to get capacityModel name using provided capacityModelName
+	 * 
+	 * @param capacityModelNm CapacityModelName of the Capacity Template Entity.
+	 * 
+	 * @return List<CapacityModelEntity>List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityModelEntity> findByCapacityModelNm(String capacityModelNm);
 }
