@@ -41,7 +41,6 @@ import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelPK;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateTypeEntity;
 import com.darden.dash.capacity.entity.ReferenceEntity;
-import com.darden.dash.capacity.mapper.CapacityChannelMapper;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityTemplate;

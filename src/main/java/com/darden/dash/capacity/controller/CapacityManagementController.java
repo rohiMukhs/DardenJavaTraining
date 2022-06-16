@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.darden.dash.capacity.client.LocationClient;
+import com.darden.dash.capacity.model.CapacityModelRequest;
+import com.darden.dash.capacity.model.CapacityModelResponse;
 import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.ChannelListRequest;
@@ -344,5 +346,37 @@ public class CapacityManagementController {
 		jwtUtils.findUserDetail(accessToken);
 		capacityTemplateModelValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
 		return new GetCapacityModelResponse(capacityTemplateModelService.getAllCapacityModels(), locationClient.getAllRestaurants()).build(CapacityConstants.CAPACITY_MODEL_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
+	}
+	
+	/**
+	 * Method is used for CREATE operation for the respective concept. The request
+	 * body is sent to CapacityModel service. Before sending the request
+	 * body CapacityModelRequest is validated. After that data is mapped from the
+	 * RestaurantsAssigned ,TemplatesAssigned then sent to the CapacityModel service and 
+	 * returned the saved data. At last the API successful response is built and returned.
+	 * 
+	 * @param accessToken 	Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @param CapacityModelRequest Request class with information to
+	 * 										create Model Template.
+	 * 
+	 * @return ResponseEntity<Object> Response class with information of the
+	 *         						  Object containing created/modified Capacity Model detail.
+	 *         
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	@PostMapping(value = CapacityConstants.CAPACITY_MODELS ,produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> createCapacityTemplate(@RequestBody CapacityModelRequest capacityModelRequest,
+			@Parameter @RequestHeader (name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
+		jwtUtils.findUserDetail(accessToken);
+		capacityTemplateModelValidator.validate(capacityModelRequest, OperationConstants.OPERATION_CREATE.getCode());
+		return new CapacityModelResponse(capacityTemplateModelService.createCapacityModel(capacityModelRequest, accessToken)).build(CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_201);
+		
 	}
 }

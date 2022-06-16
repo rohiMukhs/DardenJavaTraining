@@ -293,6 +293,8 @@ public class CapacityConstants {
 	
 	public static final String FEILD_CAPACITY_TEMPLATE_NAME = "capacityTemplateName";
 	
+	public static final String EC_4503 = "4503";
+	
 	private CapacityConstants() {
 
 	}
