@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CapacityChannel {
+public class CapacityChannel implements Serializable{
 
 	private BigInteger capacityChannelId;
 	private String capacityChannelName;

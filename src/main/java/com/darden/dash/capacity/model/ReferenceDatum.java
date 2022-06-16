@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ReferenceDatum {
+public class ReferenceDatum implements Serializable{
 	private List<CapacityChannel> capacityChannel = new ArrayList<>();
 }

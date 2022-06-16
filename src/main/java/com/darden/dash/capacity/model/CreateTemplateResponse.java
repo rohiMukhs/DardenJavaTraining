@@ -1,10 +1,12 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.darden.dash.capacity.util.CapacityConstants;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -21,8 +23,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"capacityTemplateId","capacityTemplateName"})
-public class CreateTemplateResponse extends CapacityTemplateCommon {
+@JsonPropertyOrder({CapacityConstants.FEILD_CAPACITY_TEMPLATE_ID,CapacityConstants.FEILD_CAPACITY_TEMPLATE_NAME})
+public class CreateTemplateResponse extends CapacityTemplateCommon implements Serializable{
 	
 	private BigInteger capacityTemplateId;
 	private String capacityTemplateName;

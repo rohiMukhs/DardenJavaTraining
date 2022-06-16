@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class SlotChannel {
+public class SlotChannel implements Serializable{
 
 	@NotNull(message = ErrorCodeConstants.EC_4001)
 	private BigInteger channelId;
