@@ -174,7 +174,9 @@ public class ChannelValidator implements DashValidator {
 	 * field to avoid the duplicate value in the database.In this method value of 
 	 * Channel Id and friendly name is checked if present in database using the channel service 
 	 * method if the data is already present application error is raised with respect to the 
-	 * specific field name.
+	 * specific field name.Set of selected channels under combine channel is validated if 
+	 * same combination of channel is present will raised application error for set of 
+	 * combination already exists.
 	 * 
 	 * @param buildCreateObject request class containing the value of
 	 * 					capacity combine channel to be created is validated.
@@ -190,7 +192,10 @@ public class ChannelValidator implements DashValidator {
 		}
 		if(channelService.validateChannelFriendlyNmValidation(buildCreateObject.getFriendlyName())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
-					CapacityConstants.CAPACITY_CHANNEL_ID);
+					CapacityConstants.FRIENDLYNAME);
+		}
+		if(!channelService.validateBaseChannelCombindation(buildCreateObject.getChannels()).isEmpty()) {
+			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4504));
 		}
 	}
 

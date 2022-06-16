@@ -1,6 +1,8 @@
 package com.darden.dash.capacity.controller;
 
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.darden.dash.capacity.client.LocationClient;
+import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateResponse;
@@ -24,12 +29,16 @@ import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelResponse;
 import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.model.EditChannelResponse;
+import com.darden.dash.capacity.model.GetCapacityModelResponse;
+import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.ServiceResponse;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
+import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.capacity.validation.ChannelValidator;
+import com.darden.dash.capacity.validation.CapacityTemplateModelValidator;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.model.ErrorResponse;
 import com.darden.dash.common.util.JwtUtils;
@@ -62,17 +71,27 @@ public class CapacityManagementController {
 	
 	private CapacityChannelService capacityChannelService;
 	
+	private CapacityTemplateModelService capacityTemplateModelService;
+	
+	private LocationClient locationClient;
+	
 	private ChannelValidator channelValidator;
+	
+	private CapacityTemplateModelValidator capacityTemplateModelValidator;
 
 	@Autowired
 	public CapacityManagementController(CapacityManagementService capacityManagementService, JwtUtils jwtUtils, CapacityValidator capacityValidator
-			, CapacityChannelService capacityChannelService, ChannelValidator channelValidator) {
+			, CapacityChannelService capacityChannelService, CapacityTemplateModelService capacityTemplateModelService
+			, LocationClient locationClient, ChannelValidator channelValidator, CapacityTemplateModelValidator capacityTemplateModelValidator) {
 		super();
 		this.jwtUtils = jwtUtils;
 		this.capacityManagementService = capacityManagementService;
 		this.capacityValidator = capacityValidator;
 		this.capacityChannelService = capacityChannelService;
+		this.capacityTemplateModelService = capacityTemplateModelService;
+		this.locationClient = locationClient;
 		this.channelValidator = channelValidator;
+		this.capacityTemplateModelValidator = capacityTemplateModelValidator;
 	}
 
 	/**
@@ -96,7 +115,9 @@ public class CapacityManagementController {
 			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) {
         // validating the access token
 		jwtUtils.findUserDetail(accessToken);
-		return capacityManagementService.getAllCapacityTemplates();
+		List<CapacityTemplate> capacityTemplates = capacityManagementService.getAllCapacityTemplates();
+		ReferenceDatum referenceData = capacityChannelService.getReferenceData();
+		return new CapacityResponse(capacityTemplates, Collections.singletonList(referenceData)).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
 
 	}
 	
@@ -292,5 +313,36 @@ public class CapacityManagementController {
 				capacityManagementService.updateCapacityTemplate(createCapacityTemplateRequest, accessToken,new BigInteger(templateId)))
 				.build(CapacityConstants.CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_202);
 
+	}
+	
+	/**
+	 * Method is used for GET operation for the respective concept.Prior to 
+	 * the service call authorization of access token and validation of header
+	 * is done. Based on value of the concept Id list of capacity Model entity
+	 * is retrieved. Required value from capacity template and location detail
+	 * are mapped to the model class.List of locations from client call is 
+	 * attached to the response body for the reference of restaurants detail.
+	 * 
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                    userDetails for this API.
+	 *                    
+	 * @return GetCapacityModelResponse this model class returns data of capacity model
+	 * 						and restaurant details
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	@GetMapping(value = CapacityConstants.CAPACITY_MODELS ,produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_MODEL_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> getAllModels(
+			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) 
+					throws JsonProcessingException{
+		jwtUtils.findUserDetail(accessToken);
+		capacityTemplateModelValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
+		return new GetCapacityModelResponse(capacityTemplateModelService.getAllCapacityModels(), locationClient.getAllRestaurants()).build(CapacityConstants.CAPACITY_MODEL_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
 	}
 }

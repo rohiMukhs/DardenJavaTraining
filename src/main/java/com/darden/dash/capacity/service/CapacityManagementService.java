@@ -1,11 +1,11 @@
 package com.darden.dash.capacity.service;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.http.ResponseEntity;
-
+import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,7 +27,7 @@ public interface CapacityManagementService {
 	 * 							capacity Template.
 	 */
 
-	ResponseEntity<Object> getAllCapacityTemplates();
+	List<CapacityTemplate> getAllCapacityTemplates();
 
 	/**
 	 * This method to create Capacity Template, CapacityTemplateAndBusinessDates,CapacityTemplateAndCapacityChannel,
@@ -132,4 +132,5 @@ public interface CapacityManagementService {
 	* @return boolean returns the boolean value based on the condition.
 	*/
 	public boolean validateCapacityTemplateNmForCreate(String capacityTemplateNm, String templateId);
+	
 }

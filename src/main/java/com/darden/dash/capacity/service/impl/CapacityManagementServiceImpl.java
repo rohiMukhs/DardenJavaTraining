@@ -7,7 +7,6 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
@@ -39,15 +37,12 @@ import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelPK;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateTypeEntity;
 import com.darden.dash.capacity.entity.ReferenceEntity;
-import com.darden.dash.capacity.mapper.CapacityChannelMapper;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
-import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.Channel;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
-import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
@@ -108,8 +103,6 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 
 	private CapacityTemplateMapper capacityTemplateMapper = Mappers.getMapper(CapacityTemplateMapper.class);
 
-	private CapacityChannelMapper capacityChannelMapper = Mappers.getMapper(CapacityChannelMapper.class);
-
 	/**
 	 * Autowiring required properties
 	 * 
@@ -163,7 +156,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * 
 	 */
 	@Override
-	public ResponseEntity<Object> getAllCapacityTemplates() {
+	public List<CapacityTemplate> getAllCapacityTemplates() {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		if (StringUtils.isBlank(RequestContext.getConcept())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4421));
@@ -171,7 +164,6 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		}
 		BigInteger concepId = new BigInteger(RequestContext.getConcept());
 		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo.findByConceptId(concepId);
-		List<CapacityChannelEntity> channelEntities = capacityChannelRepo.findAll();
 		List<CapacityTemplate> capacityTemplates = new ArrayList<>();
 		capacityTemplateEntities.stream().filter(Objects::nonNull).forEach(capacityTemplateEntity -> {
 			List<Channel> channels = getCapacityTemplateChannels(capacityTemplateEntity);
@@ -183,30 +175,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			List<SlotChannel> slotChannels = mapSlotChannels(channelSlotDetails, channelIds, channelNames);
 			mapCapacityTemplateModel(capacityTemplates, capacityTemplateEntity, channels, slotChannels);
 		});
-		CapacityResponse response = mapReferenceData(channelEntities, capacityTemplates);
-		return response.build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY,
-				CapacityConstants.STATUS_CODE_200);
-	}
-
-	/**
-	 * This method is to map the reference data to capacity Response Here by using
-	 * mapstruct channel entities are mapped to capacity channel
-	 * 
-	 * @param channelEntities list of entity class with capacity channel detail.
-	 * 
-	 * @param capacityTemplates list of model class with capacity template detail.
-	 * 
-	 * @return CapacityResponse response class with detail of list of Capacity Template
-	 * 							and list of Reference Data to display.
-	 */
-	private CapacityResponse mapReferenceData(List<CapacityChannelEntity> channelEntities,
-			List<CapacityTemplate> capacityTemplates) {
-		CapacityResponse response = new CapacityResponse();
-		response.setCapacityTemplates(capacityTemplates);
-		ReferenceDatum referenceDatum = new ReferenceDatum();
-		referenceDatum.setCapacityChannel(capacityChannelMapper.mapChannels(channelEntities));
-		response.setReferenceData(Collections.singletonList(referenceDatum));
-		return response;
+		return capacityTemplates; 
 	}
 
 	/**
@@ -537,12 +506,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		
-		CapacityModelAndCapacityTemplateEntity dbModelAndTemplate = new CapacityModelAndCapacityTemplateEntity();
+		List<CapacityModelAndCapacityTemplateEntity> dbModelAndTemplate = new ArrayList<>();
 		if(dbTemplateValue.isPresent()) {
 			dbModelAndTemplate = capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(dbTemplateValue.get());
 		}
 
-		return dbModelAndTemplate != null;
+		return !dbModelAndTemplate.isEmpty();
 	}
 	
 	/**

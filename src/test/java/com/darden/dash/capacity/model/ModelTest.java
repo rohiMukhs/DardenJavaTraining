@@ -1,6 +1,10 @@
 package com.darden.dash.capacity.model;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -48,7 +52,7 @@ class ModelTest {
 	void testSlotChannel() {
 		List<SlotDetail> slotList = new ArrayList<>();
 		SlotChannel model = new SlotChannel();
-//		model.setChannelId("1");
+		model.setChannelId(new BigInteger("1"));
 		model.setChannelName("name");
 		model.setSlotDetails(slotList);
 		model.getChannelId();
@@ -61,36 +65,84 @@ class ModelTest {
 	void testCreateCapacityResponse() {
 		CreateTemplateResponse response = new CreateTemplateResponse();
 		CreateCapacityTemplateResponse model = new CreateCapacityTemplateResponse(response);
+		CreateCapacityTemplateResponse model1 = new CreateCapacityTemplateResponse(response);
 		model.setCapacityTemplate(response);
+		model1.setCapacityTemplate(model.getCapacityTemplate());
 		model.setCorrelationId("212121");
+		model1.setCorrelationId(model.getCorrelationId());
 		model.setStatus(200);
+		model1.setStatus(model.getStatus());
 		model.setTitle("aaa");
-		model.getCapacityTemplate();
-		model.getCorrelationId();
-		model.getStatus();
-		model.getTitle();
+		model1.setTitle(model.getTitle());
 		model.build("Aaa", 200);
+		model1.build("Aaa", 200);
 		model.canEqual(model);
 		model.equals(model);
 		assertNotNull(model);
+		assertEquals(model, model1);
+		assertEquals(model.hashCode(), model1.hashCode());
 	}
 	
 	@Test
 	void testEditChannelResponse() {
 		List<CapacityChannel> response = new ArrayList<>();
 		EditChannelResponse model = new EditChannelResponse(response);
-		model.setChannels(response);
+		EditChannelResponse model1 = new EditChannelResponse(response);
+		model.setChannels(model.getChannels());
+		model1.setChannels(response);
 		model.setCorrelationId("aaa");
+		model1.setCorrelationId(model.getCorrelationId());
 		model.setStatus(200);
+		model1.setStatus(model.getStatus());
 		model.setTitle("aa");
-		model.getChannels();
-		model.getCorrelationId();
-		model.getStatus();
-		model.getTitle();
+		model1.setTitle(model.getTitle());
 		model.build("aa", 200);
+		model1.build("aa", 200);
 		model.canEqual(model);
 		model.equals(model);
+		assertNotEquals(null, model);
 		assertNotNull(model);
+		assertEquals(model, model1);
+		assertEquals(model.hashCode(), model1.hashCode());
 	}
 	
+	@Test
+	void covreageForHashCodeAndEquals() {
+		CapacityTemplate c1 = new CapacityTemplate();
+		CapacityTemplate c2 = new CapacityTemplate();
+		c1.equals(null);
+		assertNotEquals(null, c1);
+		assertEquals(c1, c2);
+		assertEquals(c1.hashCode(), c2.hashCode());
+		
+		CapacityResponse r1 = new CapacityResponse();
+		CapacityResponse r2 = new CapacityResponse();
+		r1.canEqual(r2);
+		assertNotEquals(null, r1);
+		assertEquals(r1, r2);
+		assertEquals(r1.hashCode(), r2.hashCode());
+		
+		ServiceResponse s1 = new ServiceResponse();
+		ServiceResponse s2 = new ServiceResponse();
+		s1.canEqual(s2);
+		assertNotEquals(null, s1);
+		assertEquals(s1, s2);
+		assertEquals(s1.hashCode(), s2.hashCode());
+		
+		
+		GetCapacityModelResponse m1 = new GetCapacityModelResponse();
+		GetCapacityModelResponse m2 = new GetCapacityModelResponse();
+		m1.canEqual(m2);
+		assertNotEquals(null, m1);
+		assertEquals(m1, m2);
+		assertEquals(m1.hashCode(), m2.hashCode());
+		
+		CombineChannel cha = new CombineChannel();
+		CreateCombineChannelResponse cc1 = new CreateCombineChannelResponse(cha);
+		CreateCombineChannelResponse cc2 = new CreateCombineChannelResponse(cha);
+		cc1.canEqual(cc2);
+		assertNotEquals(null, cc1);
+		assertEquals(cc1, cc2);
+		assertEquals(cc1.hashCode(), cc2.hashCode());
+	}
 }

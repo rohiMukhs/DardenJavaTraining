@@ -1,5 +1,7 @@
 package com.darden.dash.capacity.repository;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplatePK;
+import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 
 /**
@@ -31,6 +34,19 @@ public interface CapacityModelAndCapacityTemplateRepository extends JpaRepositor
 	 * @return CapacityModelAndCapacityTemplateEntity Capacity Channel And Capacity Template  Entity
 	 * 					 class retrieved based on the parameters passed.
 	 */
-	CapacityModelAndCapacityTemplateEntity findByCapacityTemplate(CapacityTemplateEntity capacityTemplate);
+	List<CapacityModelAndCapacityTemplateEntity> findByCapacityTemplate(CapacityTemplateEntity capacityTemplate);
+	
+	/**
+	 * This method is used to fetch list of  Capacity Channel And 
+	 * Capacity Template Entity based on the value of combine capacity 
+	 * model.
+	 * 
+	 * @param capacitymodel entity class containing the value of capacity
+	 * 				model.
+	 * 
+	 * @return List<CapacityModelAndCapacityTemplateEntity> returned list
+	 * 		of entity class with the value of model and template assigned.
+	 */
+	List<CapacityModelAndCapacityTemplateEntity> findByCapacityModel(CapacityModelEntity capacitymodel);
 	
 }

@@ -281,6 +281,18 @@ public class CapacityConstants {
 	
 	public static final String PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS = "^[a-zA-Z0-9\\@\\# \\$ \\! \\& \\- \\_ \\. \\s]+$";
 	
+	public static final String CAPACITY_MODELS = "/capacity-models";
+	
+	public static final String CAPACITY_MODEL_LOADED_SUCCESSFULLY = "Capacity template models loaded successfully";
+	
+	public static final String EC_4504 = "4504";
+	
+	public static final String MAP_TO_CAPACITY_MODEL = "mapToCapacityModel";
+	
+	public static final String FEILD_CAPACITY_TEMPLATE_ID = "capacityTemplateId";
+	
+	public static final String FEILD_CAPACITY_TEMPLATE_NAME = "capacityTemplateName";
+	
 	private CapacityConstants() {
 
 	}

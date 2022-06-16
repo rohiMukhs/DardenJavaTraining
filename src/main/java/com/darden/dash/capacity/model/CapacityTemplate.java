@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class CapacityTemplate {
+public class CapacityTemplate implements Serializable{
 
 	private String capacityTemplateId;
 	private String templateName;
