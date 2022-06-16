@@ -933,46 +933,29 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	public boolean validateDays(CreateCapacityTemplateRequest createCapacityTemplateRequest,
 			CapacityTemplateEntity template) {
-			String sunDay = createCapacityTemplateRequest.getSunDay();
-			String monDay = createCapacityTemplateRequest.getMonDay();
-			String tueDay = createCapacityTemplateRequest.getTueDay();
-			String wedDay = createCapacityTemplateRequest.getWedDay();
-			String thuDay = createCapacityTemplateRequest.getThuDay();
-			String friDay = createCapacityTemplateRequest.getFriDay();
-			String satDay = createCapacityTemplateRequest.getSatDay();
-			boolean result = false;
+		String sunDay = createCapacityTemplateRequest.getSunDay();
+		String monDay = createCapacityTemplateRequest.getMonDay();
+		String tueDay = createCapacityTemplateRequest.getTueDay();
+		String wedDay = createCapacityTemplateRequest.getWedDay();
+		String thuDay = createCapacityTemplateRequest.getThuDay();
+		String friDay = createCapacityTemplateRequest.getFriDay();
+		String satDay = createCapacityTemplateRequest.getSatDay();
 
-			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, sunDay)
-					&& StringUtils.equalsIgnoreCase(sunDay, template.getSunFlg())) {
-				return true;
-			}
-			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, monDay)
-					&& StringUtils.equalsIgnoreCase(monDay, template.getMonFlg())) {
-				return true;
-			}
-			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, tueDay)
-					&& StringUtils.equalsIgnoreCase(tueDay, template.getTueFlg())) {
-				return true;
-			}
-			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, wedDay)
-					&& StringUtils.equalsIgnoreCase(wedDay, template.getWedFlg())) {
-				return true;
-			}
-			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, thuDay)
-					&& StringUtils.equalsIgnoreCase(thuDay, template.getThuFlg())) {
-				return true;
-			}
-			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, friDay)
-					&& StringUtils.equalsIgnoreCase(friDay, template.getFriFlg())) {
-				return true;
-			}
-			if (StringUtils.equalsIgnoreCase(CapacityConstants.Y, satDay)
-					&& StringUtils.equalsIgnoreCase(satDay, template.getSatFlg())) {
-				return true;
-			}
-			else {
-				return result;
-			}
-			
+		return validateBusinessDay(template.getSunFlg(), sunDay) || validateBusinessDay(template.getMonFlg(), monDay)
+				|| validateBusinessDay(template.getTueFlg(), tueDay)
+				|| validateBusinessDay(template.getWedFlg(), wedDay)
+				|| validateBusinessDay(template.getThuFlg(), thuDay)
+				|| validateBusinessDay(template.getFriFlg(), friDay)
+				|| validateBusinessDay(template.getSatFlg(), satDay);
+	}
+	
+	/**
+	 * @param template
+	 * @param sunDayFlg
+	 * @return
+	 */
+	private boolean validateBusinessDay(String reqFlg, String resFlg) {
+		return StringUtils.equalsIgnoreCase(CapacityConstants.Y, resFlg)
+				&& StringUtils.equalsIgnoreCase(resFlg, reqFlg);
 	}
 }

@@ -2,7 +2,10 @@ package com.darden.dash.capacity.service;
 
 import java.util.List;
 
+import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModel;
+import com.darden.dash.capacity.model.CapacityModelRequest;
+import com.darden.dash.capacity.model.CapacityTemplateModel;
 
 /**
  * 
@@ -25,4 +28,40 @@ public interface CapacityTemplateModelService {
 	 */
 	public List<CapacityModel> getAllCapacityModels();
 	
+	/**
+	 * This service method is used to create capacity model based on the 
+	 * data RestaurantAssigned and TemplateAssigned which is assigned to the capacity Model
+	 * provided in capacityModel request and user detail passed in
+	 * the parameter of method
+	 * 
+	 * @param capacityModelRequest request class containing detail of
+	 * 								Capacity Model Template to be created.
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 * @return CapacityTemplateModel 
+	 */
+
+	CapacityTemplateModel createCapacityModel(CapacityModelRequest capacityModelRequest, String accessToken);
+	/**
+	 * This method is to validate capacity model name using provided capacity model name
+	 * It returns boolean values based on the condition if the
+	 * passing values capacity model name is present in database.
+	 * 
+	 * @param capacityModelNm Capacity Model Name to be validated.
+	 * @return boolean returns the boolean value based on the condition.
+	 */
+	
+	public boolean validateModelTemplateNm(String capacityModelNm);
+	/**
+	 * This method is to validate capacity model template business dates using provided
+	 * business dates in capacity template request 
+	 * It returns boolean values based on the condition if the
+	 * passing values Business Date is present in database.
+	 * 
+	 * @param capacityTemplateEntityRequest request class containing detail of
+	 * 								Capacity Model Template to be created.
+	 * @return boolean returns the boolean value based on the condition.
+	 */
+	
+	public boolean validateCapacityModelTemplateBusinessDates(CapacityTemplateEntity capacityTemplateEntityRequest);
 }

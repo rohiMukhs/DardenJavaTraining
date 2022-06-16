@@ -34,7 +34,9 @@ import com.darden.dash.capacity.client.LocationClient;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.CapacityModel;
+import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplate;
+import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CombineChannel;
@@ -43,8 +45,10 @@ import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.Locations;
 import com.darden.dash.capacity.model.Region;
+import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
+import com.darden.dash.capacity.model.TemplatesAssigned;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
@@ -416,5 +420,41 @@ public class CapacityControllerTest {
 		mockMvc.perform(get("/api/v1/capacity-models/").headers(getHeaders())).andExpect(status().isOk())
 		.andExpect(result -> result.getResponse());
 	}
+	
+
+	@Test
+	void createCapacityModelTest() throws Exception{
+		CapacityModelRequest request=new CapacityModelRequest();
+		request.setTemplateModelName("abc");
+		List<TemplatesAssigned> TemplatesAssignedList=new ArrayList<>();
+		TemplatesAssigned templatesAssigned=new TemplatesAssigned();
+		templatesAssigned.setTemplateId("101");
+		templatesAssigned.setTemplateName("Test101");
+		TemplatesAssignedList.add(templatesAssigned);
+		List<RestaurantsAssigned> restaurantsAssignedList=new ArrayList<>();
+		RestaurantsAssigned restaurantsAssigned=new RestaurantsAssigned();
+		restaurantsAssigned.setLocationId("1111");
+		restaurantsAssignedList.add(restaurantsAssigned);
+		CapacityTemplateModel capacityTemplateModelResponse=new CapacityTemplateModel();
+		capacityTemplateModelResponse.setCreatedBy("user");
+		capacityTemplateModelResponse.setCreatedDateTime(Instant.now());
+		capacityTemplateModelResponse.setLastModifiedBy("user");
+		capacityTemplateModelResponse.setLastModifiedDateTime(Instant.now());
+		List<TemplatesAssigned> TemplatesAssignedList1=new ArrayList<>();
+		TemplatesAssigned templatesAssigned1=new TemplatesAssigned();
+		templatesAssigned1.setTemplateId("101");
+		templatesAssigned1.setTemplateName("Test101");
+		TemplatesAssignedList1.add(templatesAssigned1);
+		List<RestaurantsAssigned> restaurantsAssignedList1=new ArrayList<>();
+		RestaurantsAssigned restaurantsAssigned1=new RestaurantsAssigned();
+		restaurantsAssigned1.setLocationId("1111");
+		restaurantsAssignedList1.add(restaurantsAssigned1);
+		
+		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
+		Mockito.when(capacityTemplateModelService.createCapacityModel(Mockito.any(), Mockito.any())).thenReturn(capacityTemplateModelResponse);
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-models").contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(request)))
+				.andExpect(status().isCreated());
+}
 
 }
