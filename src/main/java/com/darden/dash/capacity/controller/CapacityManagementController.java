@@ -230,9 +230,9 @@ public class CapacityManagementController {
 		
 		capacityValidator.validate(new DeleteCapacityTemplateRequest(templateId, deletedFlag), OperationConstants.OPERATION_DELETE.getCode());
 		
-		capacityManagementService.deleteByTemplateId(templateId, deletedFlag, userDetail);
+		String capacityTemplateNm = capacityManagementService.deleteByTemplateId(templateId, deletedFlag, userDetail);
 		
-		return new ServiceResponse().build(CapacityConstants.CAPACITY_TEMPLATE_DELETED, CapacityConstants.STATUS_CODE_INT_202);
+		return new ServiceResponse().build(capacityTemplateNm + CapacityConstants.CAPACITY_TEMPLATE_DELETED, CapacityConstants.STATUS_CODE_INT_202);
 	}
 	
 	/**

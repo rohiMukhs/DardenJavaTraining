@@ -249,8 +249,8 @@ public class CapacityControllerTest {
 	@Test
 	void testShouldDeleteCapacityTemplate() throws Exception{
 		
-		doNothing().when(capacityManagementService).deleteByTemplateId(Mockito.anyString(), Mockito.anyString(),
-				Mockito.anyString());
+		Mockito.when(capacityManagementService.deleteByTemplateId(Mockito.anyString(), Mockito.anyString(),
+				Mockito.anyString())).thenReturn("templateNm");
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-templates/{templateId}", 1)
 				.param("deletedFlag", "Y").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())

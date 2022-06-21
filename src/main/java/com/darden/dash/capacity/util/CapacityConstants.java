@@ -249,7 +249,7 @@ public class CapacityConstants {
 	
 	public static final String CAPACITY_TEMPLATE_WITH_TEMPLATEID = "/capacity-templates/{templateId}";
 	
-	public static final String CAPACITY_TEMPLATE_DELETED = "Capacity Template deleted successfully";
+	public static final String CAPACITY_TEMPLATE_DELETED = " deleted successfully";
 	
 	public static final String APP_PARAMETER_SERVICE = "appParameterService";
 	

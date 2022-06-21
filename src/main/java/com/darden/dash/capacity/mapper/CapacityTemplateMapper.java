@@ -110,7 +110,9 @@ public interface CapacityTemplateMapper {
 		templateEntity.setCreatedDatetime(dateTime);
 		templateEntity.setLastModifiedBy(createdBy);
 		templateEntity.setLastModifiedDatetime(dateTime);
-		templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+		if(templateRequest.getExpiryDate() != null) {
+			templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+		}
 		templateEntity.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
 		templateEntity.setCapacityTemplateType(templateType);
 		templateEntity.setStartTime(LocalTime.parse(templateRequest.getSlotStartTime()));
@@ -309,7 +311,9 @@ public interface CapacityTemplateMapper {
 		createTemplateResponse.setConceptId(createdTemplateEntity.getConceptId());
 		createTemplateResponse.setIsDeletedFlag(createdTemplateEntity.getIsDeletedFlg());
 		createTemplateResponse.setEffectiveDate(createdTemplateEntity.getEffectiveDate().toString());
-		createTemplateResponse.setExpiryDate(createdTemplateEntity.getExpiryDate().toString());
+		if(createdTemplateEntity.getExpiryDate() != null) {
+			createTemplateResponse.setExpiryDate(createdTemplateEntity.getExpiryDate().toString());
+		}
 		createTemplateResponse.setSunDay(createdTemplateEntity.getSunFlg());
 		createTemplateResponse.setMonDay(createdTemplateEntity.getMonFlg());
 		createTemplateResponse.setTueDay(createdTemplateEntity.getTueFlg());
