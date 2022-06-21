@@ -317,12 +317,17 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	@Transactional(rollbackOn = Exception.class)
 	public CreateTemplateResponse createTemplate(@Valid CreateCapacityTemplateRequest templateRequest,
 			String accessToken) throws JsonProcessingException {
+		ApplicationErrors applicationErrors = new ApplicationErrors();
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacityTemplateTypeEntity templateType = capacityTemplateTypeRepository
 				.findByCapacityTemplateTypeNm(templateRequest.getTemplateTypeName());
 		CapacityTemplateEntity templateEntity = capacityTemplateMapper.mapToTemplate(templateRequest, templateType,
 				createdBy, dateTime);
+		if(templateRequest.getTemplateTypeName().equals(CapacityConstants.DAYS) && templateEntity.getExpiryDate() ==  null) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
 		CapacityTemplateEntity createdTemplateEntity = capacityTemplateRepo.save(templateEntity);
 		List<BusinessDate> responseDate = new ArrayList<>();
 		if (CapacityConstants.DATES.equals(templateType.getCapacityTemplateTypeNm())) {
@@ -413,7 +418,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	@Override
 	@Transactional
-	public void deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
+	public String deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
 			throws JsonProcessingException {
 		
 		ApplicationErrors applicationErrors = new ApplicationErrors();
@@ -442,7 +447,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			capacityTemplateRepo.delete(capacityTemplateEntity);
 			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_HARD, null, capacityTemplateEntity, userDetail);
 		}
-		
+		return capacityTemplateEntity.getCapacityTemplateNm();
 	}
 	
 	/**
@@ -713,7 +718,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			Instant dateTime, CapacityTemplateEntity existingTemplate) {
 		existingTemplate.setCapacityTemplateNm(templateRequest.getCapacityTemplateName());
 		existingTemplate.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
-		existingTemplate.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+		if(templateRequest.getExpiryDate() != null) {
+			existingTemplate.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+		}
 		existingTemplate.setLastModifiedBy(createdBy);
 		existingTemplate.setLastModifiedDatetime(dateTime);
 		String templateTypeName = templateRequest.getTemplateTypeName();
@@ -879,6 +886,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	@Override
 	public boolean validateCapacityModelBusinessDates(CreateCapacityTemplateRequest createCapacityTemplateRequest) {
+		ApplicationErrors applicationErrors = new ApplicationErrors();
 		List<CapacityModelAndCapacityTemplateEntity> list = capacityModelAndCapacityTemplateRepository.findAll();
 		String templateTypeName = createCapacityTemplateRequest.getTemplateTypeName();
 
@@ -889,6 +897,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 				LocalDate dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getCapacityTemplate().getExpiryDate());
 				LocalDate effectiveDateReq = DateUtil
 						.convertStringtoLocalDate(createCapacityTemplateRequest.getEffectiveDate());
+				if(createCapacityTemplateRequest.getExpiryDate() == null) {
+					applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
+					applicationErrors.raiseExceptionIfHasErrors();
+				}
 				LocalDate expReq = DateUtil.convertStringtoLocalDate(createCapacityTemplateRequest.getExpiryDate());
 				if (effectiveDateReq.isBefore(dbTemplateExpDate) && expReq.isAfter(dbTemplateEffectiveDate)) {
 					CapacityTemplateEntity template=t.getCapacityTemplate();

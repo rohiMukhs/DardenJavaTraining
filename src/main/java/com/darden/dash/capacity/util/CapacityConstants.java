@@ -249,7 +249,7 @@ public class CapacityConstants {
 	
 	public static final String CAPACITY_TEMPLATE_WITH_TEMPLATEID = "/capacity-templates/{templateId}";
 	
-	public static final String CAPACITY_TEMPLATE_DELETED = "Capacity Template deleted successfully";
+	public static final String CAPACITY_TEMPLATE_DELETED = " deleted successfully";
 	
 	public static final String APP_PARAMETER_SERVICE = "appParameterService";
 	
@@ -294,6 +294,12 @@ public class CapacityConstants {
 	public static final String FEILD_CAPACITY_TEMPLATE_NAME = "capacityTemplateName";
 	
 	public static final String EC_4503 = "4503";
+	
+	public static final String EC_4505 = "4505";
+	
+	public static final String CAPACITY_MODELS_WITH_MODEL_ID = "/capacity-models/{modelId}";
+	
+	public static final String CAPACITY_MODEL_UPDATED_SUCCESSFULLY = "capacity template model updated successfully";
 	
 	private CapacityConstants() {
 

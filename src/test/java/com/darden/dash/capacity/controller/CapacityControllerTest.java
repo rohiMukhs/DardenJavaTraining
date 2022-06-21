@@ -249,8 +249,8 @@ public class CapacityControllerTest {
 	@Test
 	void testShouldDeleteCapacityTemplate() throws Exception{
 		
-		doNothing().when(capacityManagementService).deleteByTemplateId(Mockito.anyString(), Mockito.anyString(),
-				Mockito.anyString());
+		Mockito.when(capacityManagementService.deleteByTemplateId(Mockito.anyString(), Mockito.anyString(),
+				Mockito.anyString())).thenReturn("templateNm");
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-templates/{templateId}", 1)
 				.param("deletedFlag", "Y").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())
@@ -455,6 +455,41 @@ public class CapacityControllerTest {
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-models").contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isCreated());
-}
+	}
+	
+	@Test
+	void updateCapacityModelTest() throws Exception{
+		CapacityModelRequest request=new CapacityModelRequest();
+		request.setTemplateModelName("abc");
+		List<TemplatesAssigned> TemplatesAssignedList=new ArrayList<>();
+		TemplatesAssigned templatesAssigned=new TemplatesAssigned();
+		templatesAssigned.setTemplateId("101");
+		templatesAssigned.setTemplateName("Test101");
+		TemplatesAssignedList.add(templatesAssigned);
+		List<RestaurantsAssigned> restaurantsAssignedList=new ArrayList<>();
+		RestaurantsAssigned restaurantsAssigned=new RestaurantsAssigned();
+		restaurantsAssigned.setLocationId("1111");
+		restaurantsAssignedList.add(restaurantsAssigned);
+		CapacityTemplateModel capacityTemplateModelResponse=new CapacityTemplateModel();
+		capacityTemplateModelResponse.setCreatedBy("user");
+		capacityTemplateModelResponse.setCreatedDateTime(Instant.now());
+		capacityTemplateModelResponse.setLastModifiedBy("user");
+		capacityTemplateModelResponse.setLastModifiedDateTime(Instant.now());
+		List<TemplatesAssigned> TemplatesAssignedList1=new ArrayList<>();
+		TemplatesAssigned templatesAssigned1=new TemplatesAssigned();
+		templatesAssigned1.setTemplateId("101");
+		templatesAssigned1.setTemplateName("Test101");
+		TemplatesAssignedList1.add(templatesAssigned1);
+		List<RestaurantsAssigned> restaurantsAssignedList1=new ArrayList<>();
+		RestaurantsAssigned restaurantsAssigned1=new RestaurantsAssigned();
+		restaurantsAssigned1.setLocationId("1111");
+		restaurantsAssignedList1.add(restaurantsAssigned1);
+		
+		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
+		Mockito.when(capacityTemplateModelService.updateCapacityModel(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(capacityTemplateModelResponse);
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-models/{modelId}",1).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(request)))
+				.andExpect(status().isAccepted());
+	}
 
 }

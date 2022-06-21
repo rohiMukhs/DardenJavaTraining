@@ -1,11 +1,13 @@
 package com.darden.dash.capacity.service;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
+import com.darden.dash.capacity.model.RestaurantsAssigned;
 
 /**
  * 
@@ -63,5 +65,52 @@ public interface CapacityTemplateModelService {
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	
-	public boolean validateCapacityModelTemplateBusinessDates(CapacityTemplateEntity capacityTemplateEntityRequest);
+	public boolean validateCapacityModelTemplateBusinessDates(CapacityTemplateEntity capacityTemplateEntityRequest, List<BigInteger> otherTemplateId);
+	
+	/**
+	 * This service method is used to update capacity model based on the 
+	 * data RestaurantAssigned and TemplateAssigned which is assigned to the capacity Model
+	 * provided in capacityModel request and user detail passed in
+	 * the parameter of method
+	 * 
+	 * @param modelId string contains the value of capacity model 
+	 * 					to be updated.
+	 * 
+	 * @param capacityModelRequest request class containing detail of
+	 * 								Capacity Model Template to be created.
+	 * 
+	 * @param user String contains the detail of user extracted from the
+	 * 								access token.
+	 * 
+	 * @return CapacityTemplateModel model class containing the value of
+	 * 						data of updated capacity template model.
+	 */
+	public CapacityTemplateModel updateCapacityModel(String modelId, CapacityModelRequest capacityModelRequest, String user);
+	
+	/**
+	 * This service method is written for purpose of validating capacity
+	 * template model name in database to avoid duplicates.
+	 * 
+	 * @param capacityModelNm String contains the value capacity model 
+	 * 					name to be validated in database.
+	 * 
+	 * @param id String contains the value of capacity template model id.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
+	public boolean validateModelTemplateNmForUpdate(String capacityModelNm, String id);
+	
+	/**
+	 * This service method is written for purpose of validating restaurant 
+	 * list to be assigned to check whether any restaurant is being unassigned 
+	 * it will not allow previous restaurants to be unassigned.
+	 * 
+	 * @param restaurantsAssigned list of model class containing the value 
+	 * 					of restaurants to be assigned.
+	 * 
+	 * @param id String contains the value of capacity template model id.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
+	public boolean validateIfRestaurantIsUnassigned(List<RestaurantsAssigned> restaurantsAssigned, String id);
 }
