@@ -2,6 +2,7 @@ package com.darden.dash.capacity.repository;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -45,4 +46,37 @@ public interface CapacityModelRepository extends JpaRepository<CapacityModelEnti
 	 * 									   based on the parameters passed.
 	 */
 	List<CapacityModelEntity> findByCapacityModelNm(String capacityModelNm);
+	
+	/**
+	 * This repository method is to retrieve the optional value of capacity Model
+	 * Entity based on the value of capacity model id, is deleted flag and concept
+	 * id provided in header.
+	 * 
+	 * @param capacityModelId BigInteger contains the value of capacity model id to be
+	 * 							fetched.
+	 * 
+	 * @param isdeletedflg String contains the value of delete status of data to be
+	 * 							fetched
+	 * 						
+	 * @param conceptId String contains the value of concept id from header.
+	 * 
+	 * @return Optional<CapacityModelEntity> Optional of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	Optional<CapacityModelEntity> findByCapacityModelIdAndIsDeletedFlgAndConceptId(BigInteger capacityModelId, String isdeletedflg, BigInteger conceptId);
+	
+	/**
+	 * This repository method is to retrieve the optional value of capacity Model
+	 * Entity based on the value of capacity model name and concept id provided in 
+	 * header.
+	 * 
+	 * @param capacityModelNm String contains the value of capacity model name to be
+	 * 							fetched.
+	 * 
+	 * @param conceptId String contains the value of concept id from header.
+	 * 
+	 * @return Optional<CapacityModelEntity> Optional of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	Optional<CapacityModelEntity> findByCapacityModelNmAndConceptId(String capacityModelNm, BigInteger conceptId);
 }

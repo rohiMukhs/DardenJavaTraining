@@ -49,4 +49,14 @@ public interface CapacityModelAndCapacityTemplateRepository extends JpaRepositor
 	 */
 	List<CapacityModelAndCapacityTemplateEntity> findByCapacityModel(CapacityModelEntity capacitymodel);
 	
+	/**
+	 * This repository method is to deleted the value of Capacity Channel And 
+	 * Capacity Template Entity based on the value of combine capacity 
+	 * model.
+	 * 
+	 * @param capacitymodel entity class containing the value of capacity
+	 * 				model.
+	 */
+	void deleteByCapacityModel(CapacityModelEntity capacitymodel);
+	
 }

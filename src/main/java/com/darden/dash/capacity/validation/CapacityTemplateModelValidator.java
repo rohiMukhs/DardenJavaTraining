@@ -1,9 +1,12 @@
 package com.darden.dash.capacity.validation;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -85,7 +88,33 @@ public class CapacityTemplateModelValidator implements DashValidator {
 				applicationErrors.raiseExceptionIfHasErrors();
 			}
 		}
-
+		
+		/**
+		 * This validation method is used to validate if the values passed in request
+		 * body are not null, not blank ,min and max value for specific fields
+		 * ,alphanumeric for specific fields and so on if any of the validation fails
+		 * certain application error is raised with respect to the failed validation.
+		 * This validation method is used for the database validation of the request
+		 * body which is used for the UPDATE operation. Based on the requirement of
+		 * validation on specific field is checked if validation fails application error
+		 * is raised.
+		 * 
+		 */
+		if (OperationConstants.OPERATION_UPDATE.getCode().equals(operation)) {
+			ApplicationErrors applicationErrors = new ApplicationErrors();
+			ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
+			for (String id : parameters) {
+				
+				CapacityModelRequest capacityModelRequest = buildCreateObject(object);
+				
+				if (!applicationErrors.isValidObject(capacityModelRequest)) {
+					applicationErrors.raiseExceptionIfHasErrors();
+				} else {
+					validateInDbForUpdate(buildCreateObject(object), applicationErrors, id);
+					applicationErrors.raiseExceptionIfHasErrors();
+				}
+			}
+		}
 	}
 
 	/**
@@ -104,6 +133,34 @@ public class CapacityTemplateModelValidator implements DashValidator {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 					CapacityConstants.CAPACITY_MODEL_NM);
 		} else if (validateBusinessDatesAndDays(capacityModelRequest)) {
+			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4502));
+		}
+	}
+	
+	/**
+	 * This method validates if templates assigned are valid, if any location 
+	 * is being unassigned from the database,if capacity template Model name is already
+	 * present in database,if templates assigned have same days or dates template.
+	 * 
+	 * @param CapacityModelRequest request class containing the value of capacity
+	 *                             template model to be created is validated.
+	 * 
+	 * @param applicationErrors    error class is used to raise application errors
+	 *                             for invalid condition.
+	 *                             
+	 * @param id String contains the value of  model id of capacity template model 
+	 * 								to be updated.
+	 */
+	private void validateInDbForUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id) {
+		validateAssignedTemplates(capacityModelRequest, applicationErrors);
+		if(capacityTemplateModelService.validateIfRestaurantIsUnassigned(capacityModelRequest.getRestaurantsAssigned(), id)) {
+			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4505));
+		}
+		if(capacityTemplateModelService.validateModelTemplateNmForUpdate(capacityModelRequest.getTemplateModelName(), id)) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
+					CapacityConstants.CAPACITY_MODEL_NM);
+		}
+		if(validateBusinessDatesAndDays(capacityModelRequest)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4502));
 		}
 	}
@@ -137,11 +194,20 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	private boolean validateBusinessDatesAndDays(CapacityModelRequest capacityModelRequest) {
+		List<BigInteger> templateAssigned = new ArrayList<>();
+		if(CollectionUtils.isNotEmpty(capacityModelRequest.getTemplatesAssigned())) {
+			capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull)
+					.forEach(templatesAssigned -> templateAssigned.add(new BigInteger(templatesAssigned.getTemplateId())));
+		}
 		return capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull).anyMatch(t -> {
+			List<BigInteger> currentTemplate = new ArrayList<>();
+			currentTemplate.add(new BigInteger(t.getTemplateId()));
+			List<BigInteger> otherTemplateId = new ArrayList<>(templateAssigned);
+			otherTemplateId.removeAll(currentTemplate);
 			Optional<CapacityTemplateEntity> dbTemplate = capacityTemplateRepo
 					.findById(new BigInteger(t.getTemplateId()));
 			return dbTemplate.isPresent()
-					&& capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(dbTemplate.get());
+					&& capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(dbTemplate.get(), otherTemplateId);
 		});
 	}
 

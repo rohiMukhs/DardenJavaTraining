@@ -1,6 +1,7 @@
 package com.darden.dash.capacity.validator.test;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
@@ -109,7 +110,7 @@ class CapacityTemplateModelValidatorTest {
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
-		when(capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(Mockito.any())).thenReturn(true);
+		when(capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(Mockito.any(), Mockito.any())).thenReturn(true);
 		capacityModelRequest.setRestaurantsAssigned(restaurantsAssignedList);
 		when(capacityTemplateModelService.validateModelTemplateNm(Mockito.any())).thenReturn(false);
 		try {
@@ -118,7 +119,40 @@ class CapacityTemplateModelValidatorTest {
 			assertTrue(e instanceof ApplicationException);
 		}
 	}
-
+	
+	@Test
+	void validateForGet() throws JsonProcessingException {
+		RequestContext.setConcept("1");
+		RequestContext.setCorrelationId("d64cf01b-ce65-4a57-ac3e-f7fa09e1a87f");
+		capacityTemplateModelValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
 	}
+	
+	@Test
+	void validateForUpdate() throws JsonProcessingException{
+		RequestContext.setConcept("1");
+		RequestContext.setCorrelationId("d64cf01b-ce65-4a57-ac3e-f7fa09e1a87f");
+		CapacityModelRequest capacityModelRequest = new CapacityModelRequest();
+		capacityModelRequest.setTemplateModelName("abc");
+		List<TemplatesAssigned> templatesAssignedList = new ArrayList<>();
+		TemplatesAssigned templatesAssigned = new TemplatesAssigned();
+		templatesAssigned.setTemplateId("101");
+		templatesAssigned.setTemplateName("Test101");
+		templatesAssignedList.add(templatesAssigned);
+		capacityModelRequest.setTemplatesAssigned(templatesAssignedList);
+		List<RestaurantsAssigned> restaurantsAssignedList = new ArrayList<>();
+		RestaurantsAssigned restaurantsAssigned = new RestaurantsAssigned();
+		restaurantsAssigned.setLocationId("1111");
+		restaurantsAssignedList.add(restaurantsAssigned);
+		capacityModelRequest.setRestaurantsAssigned(restaurantsAssignedList);
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
+		lenient().when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
+		lenient().when(capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(Mockito.any(), Mockito.any())).thenReturn(true);
+		lenient().when(capacityTemplateModelService.validateIfRestaurantIsUnassigned(Mockito.anyList(), Mockito.anyString())).thenReturn(false);
+		lenient().when(capacityTemplateModelService.validateModelTemplateNmForUpdate(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+		capacityModelRequest.setRestaurantsAssigned(restaurantsAssignedList);
+	}
+
+}
 
 

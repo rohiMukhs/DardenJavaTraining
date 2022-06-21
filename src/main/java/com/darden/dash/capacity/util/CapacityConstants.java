@@ -295,6 +295,12 @@ public class CapacityConstants {
 	
 	public static final String EC_4503 = "4503";
 	
+	public static final String EC_4505 = "4505";
+	
+	public static final String CAPACITY_MODELS_WITH_MODEL_ID = "/capacity-models/{modelId}";
+	
+	public static final String CAPACITY_MODEL_UPDATED_SUCCESSFULLY = "capacity template model updated successfully";
+	
 	private CapacityConstants() {
 
 	}

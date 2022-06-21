@@ -27,6 +27,8 @@ public class Locations implements Serializable{
 	
 	private String addressState;
 	
+	private String divisionName;
+	
 	private Region region;
 	
 	private Instant lastModifiedDateTime;
