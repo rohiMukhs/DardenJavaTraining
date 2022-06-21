@@ -81,7 +81,9 @@ public interface CapacityTemplateMapper {
 	@AfterMapping
 	default void map(CapacityTemplateEntity capacityEntity, @MappingTarget CapacityTemplate capacityModel) {
 		capacityModel.setEffectiveDate(DateUtil.instantToDate(capacityEntity.getEffectiveDate()));
-		capacityModel.setExpiryDate(DateUtil.instantToDate(capacityEntity.getExpiryDate()));
+		if(capacityEntity.getExpiryDate() != null) {
+			capacityModel.setExpiryDate(DateUtil.instantToDate(capacityEntity.getExpiryDate()));
+		}
 	}
 
 	/**
