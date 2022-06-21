@@ -889,28 +889,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		List<CapacityModelAndCapacityTemplateEntity> list = capacityModelAndCapacityTemplateRepository.findAll();
 		String templateTypeName = createCapacityTemplateRequest.getTemplateTypeName();
-
 		if (CapacityConstants.DAYS.equalsIgnoreCase(templateTypeName)) {
-			return list.stream().filter(Objects::nonNull).anyMatch(t -> {
-				LocalDate dbTemplateEffectiveDate = DateUtil
-						.convertDatetoLocalDate(t.getCapacityTemplate().getEffectiveDate());
-				LocalDate dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getCapacityTemplate().getExpiryDate());
-				LocalDate effectiveDateReq = DateUtil
-						.convertStringtoLocalDate(createCapacityTemplateRequest.getEffectiveDate());
-				if(createCapacityTemplateRequest.getExpiryDate() == null) {
-					applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
-					applicationErrors.raiseExceptionIfHasErrors();
-				}
-				LocalDate expReq = DateUtil.convertStringtoLocalDate(createCapacityTemplateRequest.getExpiryDate());
-				if (effectiveDateReq.isBefore(dbTemplateExpDate) && expReq.isAfter(dbTemplateEffectiveDate)) {
-					CapacityTemplateEntity template=t.getCapacityTemplate();
-					if (CapacityConstants.DAYS.equalsIgnoreCase(template.getCapacityTemplateType().getCapacityTemplateTypeNm())) {
-					 return validateDays(createCapacityTemplateRequest,template);
-					}
-					return false;
-				}
-				return false;
-			});
+			if(createCapacityTemplateRequest.getExpiryDate() == null) {
+				applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
+				applicationErrors.raiseExceptionIfHasErrors();
+			}
+			return validationForTemplateDays(createCapacityTemplateRequest, list);
 		} else if (CapacityConstants.DATES.equalsIgnoreCase(templateTypeName)) {
 			return list.stream().filter(Objects::nonNull).anyMatch(t -> t.getCapacityTemplate()
 					.getCapacityTemplateAndBusinessDates().stream().filter(Objects::nonNull).anyMatch(s -> {
@@ -927,6 +911,37 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 					}));
 		}
 		return false;
+	}
+
+	/**
+	 * This method is to validate if capacity templates assigned to capacity
+	 * template model are overlapping over the same days.
+	 * 
+	 * @param createCapacityTemplateRequest Request class containing the detail of
+	 * 								Capacity Template to be created.
+	 * 
+	 * @param list of entity class containing the value of capacity model and capacity
+	 * 								template relation.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
+	private boolean validationForTemplateDays(CreateCapacityTemplateRequest createCapacityTemplateRequest, List<CapacityModelAndCapacityTemplateEntity> list) {
+		return list.stream().filter(Objects::nonNull).anyMatch(t -> {
+			LocalDate dbTemplateEffectiveDate = DateUtil
+					.convertDatetoLocalDate(t.getCapacityTemplate().getEffectiveDate());
+			LocalDate dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getCapacityTemplate().getExpiryDate());
+			LocalDate effectiveDateReq = DateUtil
+					.convertStringtoLocalDate(createCapacityTemplateRequest.getEffectiveDate());
+			LocalDate expReq = DateUtil.convertStringtoLocalDate(createCapacityTemplateRequest.getExpiryDate());
+			if (effectiveDateReq.isBefore(dbTemplateExpDate) && expReq.isAfter(dbTemplateEffectiveDate)) {
+				CapacityTemplateEntity template=t.getCapacityTemplate();
+				if (CapacityConstants.DAYS.equalsIgnoreCase(template.getCapacityTemplateType().getCapacityTemplateTypeNm())) {
+				 return validateDays(createCapacityTemplateRequest,template);
+				}
+				return false;
+			}
+			return false;
+		});
 	}
 
 	/**
