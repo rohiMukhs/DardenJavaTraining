@@ -75,7 +75,7 @@ public interface CapacityManagementService {
 	 * @throws JsonProcessingException if any json processing exception is thrown at
 	 *                                 runtime e.g json parsing.
 	 */
-	void deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
+	String deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
 			throws JsonProcessingException;
 	
 	/**

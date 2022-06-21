@@ -230,9 +230,9 @@ public class CapacityManagementController {
 		
 		capacityValidator.validate(new DeleteCapacityTemplateRequest(templateId, deletedFlag), OperationConstants.OPERATION_DELETE.getCode());
 		
-		capacityManagementService.deleteByTemplateId(templateId, deletedFlag, userDetail);
+		String capacityTemplateNm = capacityManagementService.deleteByTemplateId(templateId, deletedFlag, userDetail);
 		
-		return new ServiceResponse().build(CapacityConstants.CAPACITY_TEMPLATE_DELETED, CapacityConstants.STATUS_CODE_INT_202);
+		return new ServiceResponse().build(capacityTemplateNm + CapacityConstants.CAPACITY_TEMPLATE_DELETED, CapacityConstants.STATUS_CODE_INT_202);
 	}
 	
 	/**
@@ -378,5 +378,42 @@ public class CapacityManagementController {
 		capacityTemplateModelValidator.validate(capacityModelRequest, OperationConstants.OPERATION_CREATE.getCode());
 		return new CapacityModelResponse(capacityTemplateModelService.createCapacityModel(capacityModelRequest, accessToken)).build(CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_201);
 		
+	}
+	
+	/**
+	 * Method is used for UPDATE operation for the respective concept Id.The request
+	 * body is sent to CapacityModel service. Before sending the request
+	 * body CapacityModelRequest is validated. After that data is mapped from the
+	 * RestaurantsAssigned ,TemplatesAssigned then sent to the CapacityModel service and 
+	 * returned the updated data. At last the API successful response is built and returned.
+	 * 
+	 * 
+	 * @param modelId String containing the value of capacity template model to be updated.
+	 * 
+	 * @param capacityModelRequest Request class with information to
+	 * 										create Model Template.
+	 * 
+	 * @param accessToken  Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @return ResponseEntity<Object> Response class with information of the
+	 *         						  Object containing created/modified Capacity Model detail.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	@PutMapping(value = CapacityConstants.CAPACITY_MODELS_WITH_MODEL_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_UPDATED, description = CapacityConstants.CAPACITY_MODEL_UPDATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> updateCapacityModel(
+			@Schema(type = CapacityConstants.INTEGER) @PathVariable String modelId,
+			@RequestBody CapacityModelRequest capacityModelRequest,
+			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
+			throws JsonProcessingException {
+		String user = jwtUtils.findUserDetail(accessToken);
+		capacityTemplateModelValidator.validate(capacityModelRequest, OperationConstants.OPERATION_UPDATE.getCode(), modelId);
+		return new CapacityModelResponse(capacityTemplateModelService.updateCapacityModel(modelId, capacityModelRequest, user)).build(CapacityConstants.CAPACITY_MODEL_UPDATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_202);
 	}
 }

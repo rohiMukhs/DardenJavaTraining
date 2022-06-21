@@ -23,7 +23,6 @@ import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.error.ApplicationErrors;
-import com.darden.dash.common.exception.ApplicationException;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 

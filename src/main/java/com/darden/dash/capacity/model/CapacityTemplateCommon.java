@@ -24,9 +24,7 @@ public class CapacityTemplateCommon {
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@JsonFormat(pattern = CapacityConstants.MM_DD_YYYY)
 	private String effectiveDate;
-	
-	@NotBlank(message = ErrorCodeConstants.EC_4001)
-	@JsonFormat(pattern = CapacityConstants.MM_DD_YYYY)
+
 	private String expiryDate;
 	private BigInteger conceptId;
 	private String isDeletedFlag;
