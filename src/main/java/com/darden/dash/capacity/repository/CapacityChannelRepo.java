@@ -50,7 +50,7 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * @return CapacityChannelEntity Capacity Channel entity class retrieved 
 	 * 									   based on the parameters passed. 
 	 */
-	CapacityChannelEntity findByFirendlyNmAndConceptId(String firendlynm, BigInteger conceptId);
+	CapacityChannelEntity findByPosNameAndConceptId(String firendlynm, BigInteger conceptId);
 	
 	/**
 	 * This method is used to fetch the value of capacity channel based on the value 

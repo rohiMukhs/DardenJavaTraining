@@ -30,8 +30,8 @@ import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.capacity.util.DateUtil;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.util.DateUtil;
 
 /**
  * @author skashala
@@ -80,9 +80,9 @@ public interface CapacityTemplateMapper {
 	 */
 	@AfterMapping
 	default void map(CapacityTemplateEntity capacityEntity, @MappingTarget CapacityTemplate capacityModel) {
-		capacityModel.setEffectiveDate(DateUtil.instantToDate(capacityEntity.getEffectiveDate()));
+		capacityModel.setEffectiveDate(DateUtil.dateToString(capacityEntity.getEffectiveDate()));
 		if(capacityEntity.getExpiryDate() != null) {
-			capacityModel.setExpiryDate(DateUtil.instantToDate(capacityEntity.getExpiryDate()));
+			capacityModel.setExpiryDate(DateUtil.dateToString(capacityEntity.getExpiryDate()));
 		}
 	}
 

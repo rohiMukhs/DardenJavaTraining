@@ -113,4 +113,7 @@ public interface CapacityTemplateModelService {
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateIfRestaurantIsUnassigned(List<RestaurantsAssigned> restaurantsAssigned, String id);
+	
+	public boolean validateIfTemplateAlreadyAssigned(CapacityTemplateEntity capacityTemplateEntity);
+
 }

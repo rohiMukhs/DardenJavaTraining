@@ -37,10 +37,10 @@ import com.darden.dash.capacity.repository.CapacityModelRepository;
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.capacity.util.DateUtil;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.error.ApplicationErrors;
+import com.darden.dash.common.util.DateUtil;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -588,5 +588,11 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	public boolean isLocationIdValid(String locationId, List<Locations> restaurantInDB) {
 		return restaurantInDB.stream().filter(Objects::nonNull)
 				.noneMatch(l -> l.getLocationId().equals(new BigInteger(locationId)));
+	}
+
+	@Override
+	public boolean validateIfTemplateAlreadyAssigned(CapacityTemplateEntity capacityTemplateEntity) {
+		List<CapacityModelAndCapacityTemplateEntity> list = capacityModelAndCapacityTemplateRepo.findByCapacityTemplate(capacityTemplateEntity);
+		return !list.isEmpty();
 	}
 }

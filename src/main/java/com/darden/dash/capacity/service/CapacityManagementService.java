@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
+import com.darden.dash.common.error.ApplicationErrors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 /**
  * 
@@ -88,7 +89,7 @@ public interface CapacityManagementService {
 	 * 
 	 * @return boolean returns the boolean value based on the condition.
 	 */
-	public boolean validateCapacityTemplateId(String templateId);
+	public boolean validateCapacityTemplateId(String templateId, ApplicationErrors applicationErrors);
 	
 	/**
 	 * This method is to validate the business dates in the database whether the given business dates

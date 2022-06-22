@@ -58,12 +58,13 @@ import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.repository.CapacityTemplateTypeRepository;
 import com.darden.dash.capacity.repository.ReferenceRepository;
 import com.darden.dash.capacity.service.impl.CapacityManagementServiceImpl;
-import com.darden.dash.capacity.util.DateUtil;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.entity.AppParameterEntity;
+import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.exception.ApplicationException;
 import com.darden.dash.common.service.AppParameterService;
 import com.darden.dash.common.service.AuditService;
+import com.darden.dash.common.util.DateUtil;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -198,7 +199,7 @@ class CapacityServiceImplTest {
 		capacityChannelEntity.setOperationalHoursStartTime(Time.valueOf("11:40:55"));
 		capacityChannelEntity.setOperationalHoursEndTime(Time.valueOf("12:40:55"));
 		capacityChannelEntity.setIsCombinedFlg("Y");
-		capacityChannelEntity.setFirendlyNm("togo");
+		capacityChannelEntity.setPosName("togo");
 		capacityChannelEntity.setInterval(0);
 		capacityChannelEntity.setCapacityChannelAndCombinedChannels1(getCombinedCapacityChannel());
 		return capacityChannelEntity;
@@ -209,7 +210,7 @@ class CapacityServiceImplTest {
 		CapacityChannelEntity capacityChannelEntity = new CapacityChannelEntity();
 		capacityChannelEntity.setCapacityChannelId(BigInteger.ONE);
 		capacityChannelEntity.setCapacityChannelNm("Togo");
-		capacityChannelEntity.setFirendlyNm("togo");
+		capacityChannelEntity.setPosName("togo");
 		capacityChannelEntity.setOperationalHoursStartTime(Time.valueOf("11:40:55"));
 		capacityChannelEntity.setOperationalHoursEndTime(Time.valueOf("12:40:55"));
 		capacityChannelEntity.setInterval(0);
@@ -427,16 +428,21 @@ class CapacityServiceImplTest {
 		test.setLastModifiedDatetime(Instant.now());
 		test.setIsDeletedFlg("N");
 		test.setConceptId(new BigInteger("1"));
+		CapacityModelEntity model = new CapacityModelEntity();
+		model.setCapacityModelId(new BigInteger("1"));
+		model.setCapacityModelNm("name");
 		CapacityModelAndCapacityTemplateEntity mAndT = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id = new CapacityModelAndCapacityTemplatePK();
 		id.setCapacityModelId(new BigInteger("1"));
 		id.setCapacityTemplateId(new BigInteger("1"));
 		mAndT.setId(id);
 		mAndT.setCapacityTemplate(test);
+		mAndT.setCapacityModel(model);
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(test));
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test))
 				.thenReturn(Collections.singletonList(mAndT));
-		boolean res = capacityManagementServiceImpl.validateCapacityTemplateId("1");
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		boolean res = capacityManagementServiceImpl.validateCapacityTemplateId("1", applicationErrors);
 		assertEquals(true, res);
 	}
 
@@ -1051,7 +1057,8 @@ class CapacityServiceImplTest {
 	void testValidateCapacityTemplateIdNegative() {
 		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.empty());
 		try {
-			capacityManagementServiceImpl.validateCapacityTemplateId("1");
+			ApplicationErrors applicationErrors = new ApplicationErrors();
+			capacityManagementServiceImpl.validateCapacityTemplateId("1", applicationErrors);
 		} catch (Exception e) {
 			assertTrue(e instanceof ApplicationException);
 		}

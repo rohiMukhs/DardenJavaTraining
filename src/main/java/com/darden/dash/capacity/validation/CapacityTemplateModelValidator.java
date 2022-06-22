@@ -10,11 +10,16 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModelRequest;
+import com.darden.dash.capacity.model.TemplatesAssigned;
+import com.darden.dash.capacity.repository.CapacityModelRepository;
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.darden.dash.capacity.util.CapacityManagementUtils;
+import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.error.ApplicationErrors;
@@ -41,12 +46,16 @@ public class CapacityTemplateModelValidator implements DashValidator {
 
 	private CapacityTemplateModelService capacityTemplateModelService;
 	private CapacityTemplateRepo capacityTemplateRepo;
+	private CapacityModelRepository capacityModelRepository;
+	private CapacityManagementUtils capacityManagementUtils;
 
 	@Autowired
-	public CapacityTemplateModelValidator(CapacityTemplateModelService capacityTemplateModelService, CapacityTemplateRepo capacityTemplateRepo) {
+	public CapacityTemplateModelValidator(CapacityTemplateModelService capacityTemplateModelService, CapacityTemplateRepo capacityTemplateRepo,CapacityModelRepository capacityModelRepository,CapacityManagementUtils capacityManagementUtils) {
 		super();
 		this.capacityTemplateModelService = capacityTemplateModelService;
 		this.capacityTemplateRepo = capacityTemplateRepo;
+		this.capacityModelRepository=capacityModelRepository;
+		this.capacityManagementUtils=capacityManagementUtils;
 	}
 	
 	@Override
@@ -56,10 +65,9 @@ public class CapacityTemplateModelValidator implements DashValidator {
 		 * This validation method is used to validate if the values of concept id and
 		 * correlation id have been passed in header if not application error is raised.
 		 */
-		if (OperationConstants.OPERATION_GET.getCode().equals(operation)) {
-			ApplicationErrors applicationErrors = new ApplicationErrors();
-			ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
-		}
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
+		capacityManagementUtils.validateConceptId(RequestContext.getConcept(), applicationErrors);
 
 		/**
 		 * This validation method is used to validate if the values passed in request
@@ -72,14 +80,7 @@ public class CapacityTemplateModelValidator implements DashValidator {
 		 * is raised.
 		 * 
 		 */
-		if (OperationConstants.OPERATION_CREATE.getCode().equals(operation)) {
-			/**
-			 * This validation method is used to validate if the values of concept id and
-			 * correlation id have been passed in header if not application error is raised.
-			 */
-			ApplicationErrors applicationErrors = new ApplicationErrors();
-			ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
-
+		if (OperationConstants.OPERATION_CREATE.getCode().equals(operation)) {	
 			CapacityModelRequest capacityModelRequest = buildCreateObject(object);
 			if (!applicationErrors.isValidObject(capacityModelRequest)) {
 				applicationErrors.raiseExceptionIfHasErrors();
@@ -101,12 +102,8 @@ public class CapacityTemplateModelValidator implements DashValidator {
 		 * 
 		 */
 		if (OperationConstants.OPERATION_UPDATE.getCode().equals(operation)) {
-			ApplicationErrors applicationErrors = new ApplicationErrors();
-			ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
 			for (String id : parameters) {
-				
 				CapacityModelRequest capacityModelRequest = buildCreateObject(object);
-				
 				if (!applicationErrors.isValidObject(capacityModelRequest)) {
 					applicationErrors.raiseExceptionIfHasErrors();
 				} else {
@@ -128,6 +125,7 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 *                             for invalid condition.
 	 */
 	private void validateInDbForCreate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors) {
+		validateRequestTemplateIds(capacityModelRequest, applicationErrors);
 		validateAssignedTemplates(capacityModelRequest, applicationErrors);
 		if (capacityTemplateModelService.validateModelTemplateNm(capacityModelRequest.getTemplateModelName())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
@@ -152,19 +150,37 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 * 								to be updated.
 	 */
 	private void validateInDbForUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id) {
+		validateRequestTemplateIds(capacityModelRequest, applicationErrors);
 		validateAssignedTemplates(capacityModelRequest, applicationErrors);
 		if(capacityTemplateModelService.validateIfRestaurantIsUnassigned(capacityModelRequest.getRestaurantsAssigned(), id)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4505));
 		}
-		if(capacityTemplateModelService.validateModelTemplateNmForUpdate(capacityModelRequest.getTemplateModelName(), id)) {
+		else if(capacityTemplateModelService.validateModelTemplateNmForUpdate(capacityModelRequest.getTemplateModelName(), id)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 					CapacityConstants.CAPACITY_MODEL_NM);
 		}
-		if(validateBusinessDatesAndDays(capacityModelRequest)) {
+		else if(validateBusinessDatesAndDays(capacityModelRequest)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4502));
 		}
 	}
 
+	/**
+	 * This method validates the given templateIds are validate or not
+	 * @param capacityModelRequest
+	 * @param applicationErrors
+	 */
+	private void validateRequestTemplateIds(CapacityModelRequest capacityModelRequest,
+			ApplicationErrors applicationErrors) {
+		capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull).forEach(t -> {
+			Optional<CapacityTemplateEntity> dbTemplate = capacityTemplateRepo
+					.findById(new BigInteger(t.getTemplateId()));
+			if (dbTemplate.isEmpty()) {
+				applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4503), t.getTemplateId());
+			}
+		});
+		applicationErrors.raiseExceptionIfHasErrors();
+	}
+	
 	/**
 	 * This method validates capacity template model using provided Id if already
 	 * present in database
@@ -177,13 +193,19 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 */
 	private void validateAssignedTemplates(CapacityModelRequest capacityModelRequest,
 			ApplicationErrors applicationErrors) {
-		capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull).forEach(t -> {
-			Optional<CapacityTemplateEntity> dbTemplate = capacityTemplateRepo
-					.findById(new BigInteger(t.getTemplateId()));
-			if (dbTemplate.isEmpty()) {
-				applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4503), t.getTemplateId());
-			}
-		});
+		List<CapacityModelEntity> capacityModelEntityList = capacityModelRepository.findByConceptId(new BigInteger(RequestContext.getConcept()));
+		List<String> templateIds = capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull)
+				.map(TemplatesAssigned::getTemplateId).toList();
+		if (CollectionUtils.isNotEmpty(capacityModelEntityList)) {
+			capacityModelEntityList.stream().filter(Objects::nonNull).forEach(capacityModelEntity -> capacityModelEntity
+					.getCapacityModelAndCapacityTemplates().stream().forEach(t -> {
+						BigInteger templateId = t.getId().getCapacityTemplateId();
+						if (templateIds.contains(String.valueOf(templateId))) {
+							applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4506),String.valueOf(templateId));
+						}
+					}));
+		}
+		applicationErrors.raiseExceptionIfHasErrors();
 	}
 
 	/**

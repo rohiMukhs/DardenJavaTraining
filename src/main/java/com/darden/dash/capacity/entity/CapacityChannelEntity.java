@@ -45,8 +45,8 @@ public class CapacityChannelEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.CONCEPT_ID)
 	private BigInteger conceptId;
 
-	@Column(name=CapacityConstants.FIRENDLY_NM)
-	private String firendlyNm;
+	@Column(name=CapacityConstants.POS_NM)
+	private String posName;
 
 	@Column(name=CapacityConstants.INTERVAL)
 	private int interval;
