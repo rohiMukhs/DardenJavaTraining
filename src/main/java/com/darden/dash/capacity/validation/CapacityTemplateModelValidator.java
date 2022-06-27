@@ -43,12 +43,20 @@ import com.google.gson.Gson;
  */
 @Component
 public class CapacityTemplateModelValidator implements DashValidator {
-
+	
 	private CapacityTemplateModelService capacityTemplateModelService;
 	private CapacityTemplateRepo capacityTemplateRepo;
 	private CapacityModelRepository capacityModelRepository;
 	private CapacityManagementUtils capacityManagementUtils;
-
+	
+	/**
+	 * Autowiring
+	 * 
+	 * @param capacityTemplateModelService
+	 * @param capacityTemplateRepo
+	 * @param capacityModelRepository
+	 * @param capacityManagementUtils
+	 */
 	@Autowired
 	public CapacityTemplateModelValidator(CapacityTemplateModelService capacityTemplateModelService, CapacityTemplateRepo capacityTemplateRepo,CapacityModelRepository capacityModelRepository,CapacityManagementUtils capacityManagementUtils) {
 		super();
@@ -58,6 +66,16 @@ public class CapacityTemplateModelValidator implements DashValidator {
 		this.capacityManagementUtils=capacityManagementUtils;
 	}
 	
+	/**
+	 * This validator method is to validate all the data related to perform CRUD 
+	 * operation on capacity template model.
+	 * 
+	 * @param object containing the data related to request body.
+	 * 
+	 * @param operation containing the operation value.
+	 * 
+	 * @param containing the value of parameter such as id.
+	 */
 	@Override
 	public void validate(Object object, String operation, String... parameters) throws JsonProcessingException {
 
@@ -166,8 +184,11 @@ public class CapacityTemplateModelValidator implements DashValidator {
 
 	/**
 	 * This method validates the given templateIds are validate or not
-	 * @param capacityModelRequest
-	 * @param applicationErrors
+	 * @param capacityModelRequest  request class containing the value of capacity
+	 *                             template model to be created is validated.
+	 *                             
+	 * @param applicationErrors error class is used to raise application errors
+	 *                             for invalid condition.
 	 */
 	private void validateRequestTemplateIds(CapacityModelRequest capacityModelRequest,
 			ApplicationErrors applicationErrors) {

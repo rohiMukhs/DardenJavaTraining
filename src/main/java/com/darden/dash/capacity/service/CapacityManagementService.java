@@ -87,6 +87,9 @@ public interface CapacityManagementService {
 	 * @param templateId Template Id of Capacity template to be validated 
 	 * 						in database.
 	 * 
+	 * @param applicationErrors error class to raise error if validation
+	 * 						fails.
+	 * 
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateCapacityTemplateId(String templateId, ApplicationErrors applicationErrors);

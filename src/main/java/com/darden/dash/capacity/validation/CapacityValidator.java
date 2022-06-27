@@ -34,6 +34,12 @@ public class CapacityValidator implements DashValidator {
 	private CapacityManagementService capacityManagementService;
 	private CapacityManagementUtils capacityManagementUtils;
 
+	/**
+	 * required Autowiring.
+	 * 
+	 * @param capacityManagementService
+	 * @param capacityManagementUtils
+	 */
 	@Autowired
 	public CapacityValidator(CapacityManagementService capacityManagementService,CapacityManagementUtils capacityManagementUtils) {
 		super();

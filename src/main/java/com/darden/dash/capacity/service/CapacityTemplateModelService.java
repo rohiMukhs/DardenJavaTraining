@@ -114,6 +114,15 @@ public interface CapacityTemplateModelService {
 	 */
 	public boolean validateIfRestaurantIsUnassigned(List<RestaurantsAssigned> restaurantsAssigned, String id);
 	
+	/**
+	 * This service method is to validate if capacity template is already assigned to other
+	 * capacity model.
+	 * 
+	 * @param capacityTemplateEntity entity class containing the value of capacity template to 
+	 * be validated.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
 	public boolean validateIfTemplateAlreadyAssigned(CapacityTemplateEntity capacityTemplateEntity);
 
 }

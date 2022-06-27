@@ -39,6 +39,7 @@ public class ChannelValidator implements DashValidator {
 	 * Autowiring required properties
 	 * 
 	 * @param channelService
+	 * @param capacityManagementUtils
 	 */
 	@Autowired
 	public ChannelValidator(CapacityChannelService channelService,CapacityManagementUtils capacityManagementUtils) {
@@ -47,7 +48,22 @@ public class ChannelValidator implements DashValidator {
 		this.capacityManagementUtils=capacityManagementUtils;
 	}
 
-
+	/**
+	* 
+	* Method is used to validate the request data and throws exception based on the validation
+	*
+	* @param object request class to be validated.
+	* 
+	* @param operation String containing the value of
+	* 				action performed.
+	* 
+	* @param parameters String containing the values of 
+	* 						parameters
+	* 
+	* @throws JsonProcessingException if any json processing exception is thrown at
+	*                                 runtime e.g json parsing.
+	* 
+	*/
 	@Override
 	public void validate(Object object, String operation, String... parameters) throws JsonProcessingException {
 		
