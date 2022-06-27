@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,8 +216,8 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	private void validateAssignedTemplates(CapacityModelRequest capacityModelRequest,
 			ApplicationErrors applicationErrors) {
 		List<CapacityModelEntity> capacityModelEntityList = capacityModelRepository.findByConceptId(new BigInteger(RequestContext.getConcept()));
-		List<String> templateIds = capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull)
-				.map(TemplatesAssigned::getTemplateId).toList();
+		List<String> templateIds =capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull)
+				.map(TemplatesAssigned::getTemplateId).collect(Collectors.toList());
 		if (CollectionUtils.isNotEmpty(capacityModelEntityList)) {
 			capacityModelEntityList.stream().filter(Objects::nonNull).forEach(capacityModelEntity -> capacityModelEntity
 					.getCapacityModelAndCapacityTemplates().stream().forEach(t -> {
