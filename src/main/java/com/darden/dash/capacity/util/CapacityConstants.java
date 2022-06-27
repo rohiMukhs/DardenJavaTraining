@@ -26,7 +26,7 @@ public class CapacityConstants {
 	public static final String LAST_MODIFIED_BY = "last_modified_by";
 	public static final String IS_DELETED_FLG = "is_deleted_flg";
 	public static final String IS_COMBINED_FLG = "is_combined_flg";
-	public static final String FIRENDLY_NM = "firendly_nm";
+	public static final String POS_NM = "pos_name";
 	public static final String CREATED_DATETIME = "created_datetime";
 	public static final String CREATED_BY = "created_by";
 	public static final String CONCEPT_ID = "concept_id";
@@ -135,13 +135,9 @@ public class CapacityConstants {
 
 	public static final String MAPPER_CAPACITY_CHANNEL_NM = "capacityChannelNm";
 
-	public static final String MAPPER_FIRENDLY_NAME = "firendlyName";
-
 	public static final String MAPPER_OPERATIONAL_HOURS_END_TIME = "operationalHoursEndTime";
 
 	public static final String MAPPER_OPERATIONAL_HOURS_START_TIME = "operationalHoursStartTime";
-
-	public static final String MAPPER_FIRENDLY_NM = "firendlyNm";
 
 	public static final String Y = "Y";
 	
@@ -233,7 +229,7 @@ public class CapacityConstants {
 	
 	public static final String CAPACITYCHANNELID = "capacityChannelId";
 	
-	public static final String FRIENDLYNAME = "friendlyName";
+	public static final String POSNAME = "posName";
 	
 	public static final String INTERVAL_MIN = "Interval should be Minimum value is 5";
 	
@@ -296,6 +292,8 @@ public class CapacityConstants {
 	public static final String EC_4503 = "4503";
 	
 	public static final String EC_4505 = "4505";
+	
+	public static final String EC_4506 = "4506";
 	
 	public static final String CAPACITY_MODELS_WITH_MODEL_ID = "/capacity-models/{modelId}";
 	

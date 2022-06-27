@@ -31,7 +31,7 @@ class ModelTest {
 		CapacityChannel model = new CapacityChannel();
 		model.setCapacityChannelId(new BigInteger("1"));
 	    model.setCapacityChannelName("name");
-	    model.setFirendlyName("fname");
+	    model.setPosName("fname");
 	    model.setInterval("1");
 	    model.setIsCombinedFlg("N");
 	    model.setOperationalHoursEndTime("01:02:03");
@@ -40,7 +40,7 @@ class ModelTest {
 	    model.getCapacityChannelId();
 	    model.getCapacityChannelName();
 	    model.getCombinedChannels();
-	    model.getFirendlyName();
+	    model.getPosName();
 	    model.getInterval();
 	    model.getIsCombinedFlg();
 	    model.getOperationalHoursEndTime();

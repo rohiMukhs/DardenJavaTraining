@@ -56,7 +56,6 @@ import com.darden.dash.capacity.repository.CapacityTemplateTypeRepository;
 import com.darden.dash.capacity.repository.ReferenceRepository;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.capacity.util.DateUtil;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.entity.AppParameterEntity;
@@ -65,6 +64,7 @@ import com.darden.dash.common.enums.CharacterConstants;
 import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.service.AppParameterService;
 import com.darden.dash.common.service.AuditService;
+import com.darden.dash.common.util.DateUtil;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -498,13 +498,15 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * @param templateId Template Id of Capacity template to be validated 
 	 * 						in database.
 	 * 
+	 * @param applicationErrors error class to raise error if validation
+	 * 						fails.
+	 * 
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
-	public boolean validateCapacityTemplateId(String templateId) {
+	public boolean validateCapacityTemplateId(String templateId, ApplicationErrors applicationErrors) {
 
 		Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo.findById(new BigInteger(templateId));
-		ApplicationErrors applicationErrors = new ApplicationErrors();
 		if(dbTemplateValue.isEmpty()) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
 					CapacityConstants.CAPACITY_TEMPLATE_ID);
@@ -515,8 +517,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		if(dbTemplateValue.isPresent()) {
 			dbModelAndTemplate = capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(dbTemplateValue.get());
 		}
+		if(!dbModelAndTemplate.isEmpty()) {
+			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4501), dbModelAndTemplate.get(0).getCapacityTemplate().getCapacityTemplateNm(),
+					dbModelAndTemplate.get(0).getCapacityModel().getCapacityModelNm());
+		}
 
-		return !dbModelAndTemplate.isEmpty();
+		return true;
 	}
 	
 	/**

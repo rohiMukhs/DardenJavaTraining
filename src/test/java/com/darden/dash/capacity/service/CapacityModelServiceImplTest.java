@@ -43,8 +43,8 @@ import com.darden.dash.capacity.repository.CapacityModelRepository;
 import com.darden.dash.capacity.repository.CapacityTemplateAndBusinessDateRepository;
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.impl.CapacityTemplateModelServiceImpl;
-import com.darden.dash.capacity.util.DateUtil;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.util.DateUtil;
 import com.darden.dash.common.util.JwtUtils;
 
 @ExtendWith({ MockitoExtension.class })

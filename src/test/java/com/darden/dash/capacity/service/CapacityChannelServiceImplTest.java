@@ -74,7 +74,7 @@ class CapacityChannelServiceImplTest {
 		channelEntity.setConceptId(new BigInteger("1"));
 		channelEntity.setCreatedBy("aa");
 		channelEntity.setCreatedDatetime(Instant.now());
-		channelEntity.setFirendlyNm("fname");
+		channelEntity.setPosName("fname");
 		channelEntity.setInterval(4);
 		channelEntity.setIsCombinedFlg("N");
 		channelEntity.setIsDeletedFlg("N");
@@ -105,7 +105,7 @@ class CapacityChannelServiceImplTest {
 		List<ChannelInformationRequest> requestList = new ArrayList<>();
 		ChannelInformationRequest request = new ChannelInformationRequest();
 		request.setCapacityChannelId(new BigInteger("1"));
-		request.setFriendlyName("gname");
+		request.setPosName("gname");
 		request.setInterval(5);
 		request.setOperationHourStartTime("10:10");
 		request.setOperationHourEndTime("10:10");
@@ -114,7 +114,7 @@ class CapacityChannelServiceImplTest {
 		
 		List<CapacityChannelEntity> editedList = new ArrayList<>();
 		
-		channelEntity.setFirendlyNm(request.getFriendlyName());
+		channelEntity.setPosName(request.getPosName());
 		channelEntity.setInterval(request.getInterval());
 		channelEntity.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse(request.getOperationHourStartTime())));
 		channelEntity.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse(request.getOperationHourEndTime())));
@@ -139,12 +139,12 @@ class CapacityChannelServiceImplTest {
 	void testFriendlyNmValidation() {
 		ChannelInformationRequest request = new ChannelInformationRequest();
 		request.setCapacityChannelId(new BigInteger("2"));
-		request.setFriendlyName("fname");
+		request.setPosName("fname");
 		request.setInterval(5);
 		request.setOperationHourStartTime("30:30:30");
 		request.setOperationHourEndTime("30:30:30");
 		RequestContext.setConcept("1");
-		Mockito.when(capacityChannelRepository.findByFirendlyNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
+		Mockito.when(capacityChannelRepository.findByPosNameAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
 		boolean res = capacityChannelServiceImpl.friendlyNmValidation(request);
 		assertEquals(true, res);
 	}
@@ -156,7 +156,7 @@ class CapacityChannelServiceImplTest {
 		channel.setCapacityChannelNm("s");
 		channel.setCapacityChannelId(new BigInteger("1"));
 		channel.setConceptId(new BigInteger("1"));
-		channel.setFirendlyNm("A");
+		channel.setPosName("A");
 		channel.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse("00:00")));
 		channel.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse("00:00")));
 		List<CapacityChannelAndCombinedChannelEntity> list = new ArrayList<>();
@@ -173,7 +173,7 @@ class CapacityChannelServiceImplTest {
 		CreateCombineChannelRequest request = new CreateCombineChannelRequest();
 		request.setChannels(s);
 		request.setCombinedChannelName("aaa");
-		request.setFriendlyName("a");
+		request.setPosName("a");
 		request.setEndTime("00:11");
 		request.setStartTime("00:00");
 		request.setInterval(1);
@@ -193,7 +193,7 @@ class CapacityChannelServiceImplTest {
 	
 	@Test
 	void testValidateChannelFriendlyNmValidation() {
-		Mockito.when(capacityChannelRepository.findByFirendlyNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
+		Mockito.when(capacityChannelRepository.findByPosNameAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
 		boolean res = capacityChannelServiceImpl.validateChannelFriendlyNmValidation("a");
 		assertEquals(true, res);
 	}

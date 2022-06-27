@@ -1,11 +1,14 @@
 package com.darden.dash.capacity.validator.test;
 
+import static org.mockito.Mockito.when;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +20,7 @@ import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.service.CapacityChannelService;
+import com.darden.dash.capacity.util.CapacityManagementUtils;
 import com.darden.dash.capacity.validation.ChannelValidator;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.enums.OperationConstants;
@@ -39,6 +43,14 @@ class ChannelValidatorTest {
 	@Mock
 	private ApplicationErrors applicationErrors;
 	
+	@Mock
+	private CapacityManagementUtils capacityManagementUtils;
+	
+	@BeforeEach
+	private void setup() {
+		when(capacityManagementUtils.validateConceptId(Mockito.any(),Mockito.any())).thenReturn(false);
+	}
+	
 	@Test
 	void testValidateInDBforUpdate() throws JsonProcessingException{
 		RequestContext.setConcept("1");
@@ -47,14 +59,14 @@ class ChannelValidatorTest {
 		List<ChannelInformationRequest> list = new ArrayList<>();
 		ChannelInformationRequest r1 = new ChannelInformationRequest();
 		r1.setCapacityChannelId(new BigInteger("1"));
-		r1.setFriendlyName("aa");
+		r1.setPosName("aa");
 		r1.setInterval(5);
 		r1.setOperationHourEndTime("00:05");
 		r1.setOperationHourStartTime("00:10");
 		list.add(r1);
 		ChannelInformationRequest r2 = new ChannelInformationRequest();
 		r2.setCapacityChannelId(new BigInteger("2"));
-		r2.setFriendlyName("bb");
+		r2.setPosName("bb");
 		r2.setInterval(10);
 		r2.setOperationHourEndTime("00:10");
 		r2.setOperationHourStartTime("00:20");
@@ -74,7 +86,7 @@ class ChannelValidatorTest {
 		s.add("b");
 		request.setChannels(s);
 		request.setCombinedChannelName("aaa");
-		request.setFriendlyName("a");
+		request.setPosName("a");
 		request.setEndTime("00:11");
 		request.setStartTime("00:00");
 		request.setInterval(9);

@@ -44,7 +44,6 @@ public interface CapacityChannelMapper {
 	 */
 	List<CapacityChannel> mapChannels(List<CapacityChannelEntity> capacityChannelEntites);
 	
-	@Mapping(source = CapacityConstants.MAPPER_FIRENDLY_NM, target = CapacityConstants.MAPPER_FIRENDLY_NAME)
 	@Mapping(source = CapacityConstants.MAPPER_CAPACITY_CHANNEL_NM, target = CapacityConstants.MAPPER_CAPACITY_CHANNEL_NAME)
 	@Mapping(target = CapacityConstants.MAPPER_OPERATIONAL_HOURS_START_TIME, ignore = true)
 	@Mapping(target = CapacityConstants.MAPPER_OPERATIONAL_HOURS_END_TIME, ignore = true)
@@ -101,7 +100,7 @@ public interface CapacityChannelMapper {
 		capacityChannel.setIsDeletedFlg(CapacityConstants.N);
 		capacityChannel.setIsCombinedFlg(CapacityConstants.Y);
 		capacityChannel.setConceptId(new BigInteger(RequestContext.getConcept()));
-		capacityChannel.setFirendlyNm(createCombinedChannelRequest.getFriendlyName());
+		capacityChannel.setPosName(createCombinedChannelRequest.getPosName());
 		capacityChannel.setInterval(createCombinedChannelRequest.getInterval());
 		capacityChannel.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse(createCombinedChannelRequest.getStartTime())));
 		capacityChannel.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse(createCombinedChannelRequest.getEndTime())));
@@ -162,7 +161,7 @@ public interface CapacityChannelMapper {
 		response.setCombinedChannelName(savedCombinedCapacityChannel.getCapacityChannelNm());
 		response.setCombinedFlg(savedCombinedCapacityChannel.getIsCombinedFlg());
 		response.setChannels(createCombinedChannelRequest.getChannels());
-		response.setFriendlyName(savedCombinedCapacityChannel.getFirendlyNm());
+		response.setPosName(savedCombinedCapacityChannel.getPosName());
 		response.setInterval(savedCombinedCapacityChannel.getInterval());
 		response.setOperationHourStartTime(savedCombinedCapacityChannel.getOperationalHoursStartTime().toString());
 		response.setOperationHourEndTime(savedCombinedCapacityChannel.getOperationalHoursEndTime().toString());

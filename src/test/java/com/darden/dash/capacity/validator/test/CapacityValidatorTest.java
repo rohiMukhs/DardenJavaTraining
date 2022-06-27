@@ -1,11 +1,13 @@
 package com.darden.dash.capacity.validator.test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +21,7 @@ import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.service.CapacityManagementService;
+import com.darden.dash.capacity.util.CapacityManagementUtils;
 import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.enums.OperationConstants;
@@ -41,12 +44,20 @@ class CapacityValidatorTest {
 	@Mock
 	private ApplicationErrors applicationErrors;
 	
+	@Mock
+	private CapacityManagementUtils capacityManagementUtils;
+	
+	@BeforeEach
+	private void setup() {
+		when(capacityManagementUtils.validateConceptId(Mockito.any(),Mockito.any())).thenReturn(false);
+	}
+	
 	@Test
     void validateInDbForDeleteTest() throws JsonProcessingException {
 		RequestContext.setConcept("1");
 		RequestContext.setCorrelationId("d64cf01b-ce65-4a57-ac3e-f7fa09e1a87f");
 		DeleteCapacityTemplateRequest deleteRq = new DeleteCapacityTemplateRequest("99", "Y");
-		Mockito.when(capacityManagementService.validateCapacityTemplateId(deleteRq.getTemplateId())).thenReturn(false);
+		Mockito.when(capacityManagementService.validateCapacityTemplateId(Mockito.anyString(),Mockito.any())).thenReturn(false);
 		capacityValidator.validate(deleteRq, OperationConstants.OPERATION_DELETE.getCode());
 		assertNotNull(deleteRq);
     }

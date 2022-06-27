@@ -105,7 +105,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		capacityChannelEntityList.stream().filter(Objects::nonNull).forEach(capacityChannel -> {
 			ChannelInformationRequest channelInformationRequest=editChannelsMap.get(capacityChannel.getCapacityChannelId());
 			if(channelInformationRequest != null) {
-				capacityChannel.setFirendlyNm(channelInformationRequest.getFriendlyName());
+				capacityChannel.setPosName(channelInformationRequest.getPosName());
 				capacityChannel.setInterval(channelInformationRequest.getInterval());
 				capacityChannel.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse(channelInformationRequest.getOperationHourStartTime())));
 				capacityChannel.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse(channelInformationRequest.getOperationHourEndTime())));
@@ -136,7 +136,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel) {
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByFirendlyNmAndConceptId(validateChannel.getFriendlyName(), new BigInteger(RequestContext.getConcept()));
+		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptId(validateChannel.getPosName(), new BigInteger(RequestContext.getConcept()));
 		if(capacityChannelEntity != null && capacityChannelEntity.getCapacityChannelId().equals(validateChannel.getCapacityChannelId()))
 			return CapacityConstants.FALSE;
 		else
@@ -254,7 +254,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean validateChannelFriendlyNmValidation(String friendlyNm) {
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByFirendlyNmAndConceptId(friendlyNm, new BigInteger(RequestContext.getConcept()));
+		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptId(friendlyNm, new BigInteger(RequestContext.getConcept()));
 		return capacityChannelEntity != null;
 	}
 	
@@ -276,7 +276,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			CapacityChannel channel = new CapacityChannel();
 			channel.setCapacityChannelId(ce.getCapacityChannelId());
 			channel.setCapacityChannelName(ce.getCapacityChannelNm());
-			channel.setFirendlyName(ce.getFirendlyNm());
+			channel.setPosName(ce.getPosName());
 			channel.setInterval(String.valueOf(ce.getInterval()));
 			channel.setIsCombinedFlg(ce.getIsCombinedFlg());
 			channel.setOperationalHoursEndTime(ce.getOperationalHoursEndTime().toString());
