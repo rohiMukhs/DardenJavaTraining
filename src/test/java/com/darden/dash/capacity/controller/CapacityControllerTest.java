@@ -217,7 +217,7 @@ public class CapacityControllerTest {
 		List<ChannelInformationRequest> channelList = new ArrayList<>();
 		ChannelInformationRequest channel = new ChannelInformationRequest();
 		channel.setCapacityChannelId(new BigInteger("1"));
-		channel.setFriendlyName("frnm");
+		channel.setPosName("frnm");
 		channel.setInterval(2);
 		channel.setOperationHourStartTime("01:01:01");
 		channel.setOperationHourEndTime("02:02:02");
@@ -227,7 +227,7 @@ public class CapacityControllerTest {
 		CapacityChannel response = new CapacityChannel();
 		response.setCapacityChannelId(new BigInteger("1"));
 		response.setCapacityChannelName("abc");
-		response.setFirendlyName("frnm");
+		response.setPosName("frnm");
 		response.setInterval("2");
 		response.setIsCombinedFlg("N");
 		response.setOperationalHoursEndTime("02:02:02");
@@ -270,7 +270,7 @@ public class CapacityControllerTest {
 		response.setCombinedFlg("Y");
 		response.setCreatedBy("aaa");
 		response.setCreatedDateTime(Instant.now());
-		response.setFriendlyName("a");
+		response.setPosName("a");
 		response.setInterval(1);
 		response.setLastModifiedBy("aa");
 		response.setLastModifiedDateTime(Instant.now());
@@ -282,7 +282,7 @@ public class CapacityControllerTest {
 		response.getCombinedFlg();
 		response.getCreatedBy();
 		response.getCreatedDateTime();
-		response.getFriendlyName();
+		response.getPosName();
 		response.getInterval();
 		response.getLastModifiedBy();
 		response.getLastModifiedDateTime();
@@ -291,7 +291,7 @@ public class CapacityControllerTest {
 		CreateCombineChannelRequest request = new CreateCombineChannelRequest();
 		request.setChannels(s);
 		request.setCombinedChannelName("aaa");
-		request.setFriendlyName("a");
+		request.setPosName("a");
 		request.setEndTime("00:11");
 		request.setStartTime("00:00");
 		request.setInterval(1);

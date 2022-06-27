@@ -22,7 +22,7 @@ public class CapacityChannel implements Serializable{
 
 	private BigInteger capacityChannelId;
 	private String capacityChannelName;
-	private String firendlyName;
+	private String posName;
 	private String interval;
 	private String operationalHoursStartTime;
 	private String operationalHoursEndTime;

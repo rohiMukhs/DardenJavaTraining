@@ -32,8 +32,8 @@ public class ChannelInformationRequest {
 	
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS, message = ErrorCodeConstants.EC_4003)
-	@Schema(example = CapacityConstants.FRIENDLYNAME)
-	private String friendlyName;
+	@Schema(example = CapacityConstants.POSNAME)
+	private String posName;
 
 	@NotNull(message = ErrorCodeConstants.EC_4001)
 	@Min(value=5,message= CapacityConstants.INTERVAL_MIN)

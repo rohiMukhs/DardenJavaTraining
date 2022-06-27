@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.darden.dash.capacity.util.DateUtil;
+import com.darden.dash.common.util.DateUtil;
+
 
 @ExtendWith({ MockitoExtension.class })
 class EntityTest {
@@ -82,7 +83,7 @@ class EntityTest {
 		entity.setCapacityChannelAndCombinedChannels1(capacityChannelAndCombinedChannels1);
 		entity.setCapacityChannelAndCombinedChannels2(capacityChannelAndCombinedChannels2);
 		entity.setCapacityChannelAndOrderChannels(capacityChannelAndOrderChannels);
-		entity.setFirendlyNm("a");
+		entity.setPosName("a");
 		entity.setInterval(3);
 		entity.setIsCombinedFlg("Y");
 		entity.setIsDeletedFlg("Y");
@@ -101,7 +102,7 @@ class EntityTest {
 		entity.getIsDeletedFlg();
 		entity.getIsCombinedFlg();
 		entity.getInterval();
-		entity.getFirendlyNm();
+		entity.getPosName();
 		entity.setCreatedBy("aa");
 		entity.setCreatedDatetime(Instant.now());
 		entity.setLastModifiedBy("aa");

@@ -42,7 +42,7 @@ public class CreateCombineChannelRequest {
 	@Length(max = 40, message = ErrorCodeConstants.EC_4002)
 	@Pattern(regexp = CommonConstants.PATTERN_BEFORE_AFTER_SPACE, message = ErrorCodeConstants.EC_4014)
 	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS, message = ErrorCodeConstants.EC_4003)
-	private String friendlyName;
+	private String posName;
 	
 	@NotEmpty(message = ErrorCodeConstants.EC_4001)
 	private Set<String> channels;

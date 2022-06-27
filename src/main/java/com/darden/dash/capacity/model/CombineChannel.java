@@ -23,7 +23,7 @@ public class CombineChannel {
 	
 	private String combinedChannelName;
 	
-	private String friendlyName;
+	private String posName;
 	
 	private String combinedFlg;
 	

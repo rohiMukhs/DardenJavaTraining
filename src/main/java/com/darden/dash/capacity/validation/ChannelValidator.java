@@ -7,6 +7,8 @@ import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.darden.dash.capacity.util.CapacityManagementUtils;
+import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.error.ApplicationErrors;
@@ -31,19 +33,37 @@ import com.google.gson.Gson;
 public class ChannelValidator implements DashValidator {
 	
 	private CapacityChannelService channelService;
+	private CapacityManagementUtils capacityManagementUtils;
 	
 	/**
 	 * Autowiring required properties
 	 * 
 	 * @param channelService
+	 * @param capacityManagementUtils
 	 */
 	@Autowired
-	public ChannelValidator(CapacityChannelService channelService) {
+	public ChannelValidator(CapacityChannelService channelService,CapacityManagementUtils capacityManagementUtils) {
 		super();
 		this.channelService = channelService;
+		this.capacityManagementUtils=capacityManagementUtils;
 	}
 
-
+	/**
+	* 
+	* Method is used to validate the request data and throws exception based on the validation
+	*
+	* @param object request class to be validated.
+	* 
+	* @param operation String containing the value of
+	* 				action performed.
+	* 
+	* @param parameters String containing the values of 
+	* 						parameters
+	* 
+	* @throws JsonProcessingException if any json processing exception is thrown at
+	*                                 runtime e.g json parsing.
+	* 
+	*/
 	@Override
 	public void validate(Object object, String operation, String... parameters) throws JsonProcessingException {
 		
@@ -54,7 +74,7 @@ public class ChannelValidator implements DashValidator {
 		 */
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
-		
+		capacityManagementUtils.validateConceptId(RequestContext.getConcept(), applicationErrors);
 		/**
 		 * This validation method is used to validate if the values passed in 
 		 * request body are not null, not blank ,no duplicate values for specific field ,
@@ -120,7 +140,7 @@ public class ChannelValidator implements DashValidator {
 	private void validateInRequestBody(ChannelListRequest buildObject, ApplicationErrors applicationErrors) {
 		for(int i= 0; i < buildObject.getChannels().size(); i++) {
 			for(int j = i+1; j < buildObject.getChannels().size(); j++) {
-				if(buildObject.getChannels().get(i).getFriendlyName().equals(buildObject.getChannels().get(j).getFriendlyName())) {
+				if(buildObject.getChannels().get(i).getPosName().equals(buildObject.getChannels().get(j).getPosName())) {
 					applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4500));
 				}
 			}
@@ -163,7 +183,7 @@ public class ChannelValidator implements DashValidator {
 		buildObject.getChannels().stream().forEach(c -> {
 			if(channelService.friendlyNmValidation(c)) {
 				applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
-						c.getFriendlyName());
+						c.getPosName());
 			}
 		});
 		
@@ -188,11 +208,11 @@ public class ChannelValidator implements DashValidator {
 			ApplicationErrors applicationErrors) {
 		if(channelService.validateChannelNmValidation(buildCreateObject.getCombinedChannelName())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
-					CapacityConstants.CAPACITY_CHANNEL_NM);
+					buildCreateObject.getCombinedChannelName());
 		}
-		if(channelService.validateChannelFriendlyNmValidation(buildCreateObject.getFriendlyName())) {
+		if(channelService.validateChannelFriendlyNmValidation(buildCreateObject.getPosName())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
-					CapacityConstants.FRIENDLYNAME);
+					buildCreateObject.getPosName());
 		}
 		if(!channelService.validateBaseChannelCombindation(buildCreateObject.getChannels()).isEmpty()) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4504));
