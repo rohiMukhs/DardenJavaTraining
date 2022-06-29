@@ -1,6 +1,7 @@
 package com.darden.dash.capacity.mapper;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import org.mapstruct.Named;
 
 import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.model.CapacityModel;
+import com.darden.dash.capacity.model.CapacityTemplateNames;
 import com.darden.dash.capacity.model.Locations;
 import com.darden.dash.capacity.util.CapacityConstants;
 
@@ -46,10 +48,13 @@ public interface CapacityModelMapper {
 		CapacityModel model = new CapacityModel();
 		model.setCapacityModelId(mel.getCapacityModelId());
 		model.setCapacityModelName(mel.getCapacityModelNm());
-		Set<String> templateNames = new HashSet<>();
+		List<CapacityTemplateNames> templateNames = new ArrayList<>();
 		mel.getCapacityModelAndCapacityTemplates().stream().forEach(cmct -> {
-			if(cmct.getCapacityTemplate().getCapacityTemplateNm() != null)
-				templateNames.add(cmct.getCapacityTemplate().getCapacityTemplateNm());
+			if(cmct.getCapacityTemplate().getCapacityTemplateNm() != null){
+				CapacityTemplateNames tempName = new CapacityTemplateNames();
+				tempName.setTemplateName(cmct.getCapacityTemplate().getCapacityTemplateNm());
+				templateNames.add(tempName);
+			}
 		});
 		model.setCapacityTemplateList(templateNames);
 		Set<BigInteger> restaurantNumberList = new HashSet<>();

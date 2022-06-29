@@ -76,6 +76,15 @@ public class CapacityValidator implements DashValidator {
 		capacityManagementUtils.validateConceptId(RequestContext.getConcept(), applicationErrors);
 		
 		/**
+		 * This validation method is used for the validation of the
+		 * header passed for the GET operation. Based on the requirement 
+		 * of validation check if validation fails application error is raised.
+		 */
+		if (OperationConstants.OPERATION_GET.getCode().equals(operation)) {
+			return;
+		}
+		
+		/**
 		 * This validation method is used for the database validation of the
 		 * parameter passed stored in a model class which is used for the UPDATE 
 		 * operation. Based on the requirement of validation on specific field is 
