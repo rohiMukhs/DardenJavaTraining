@@ -114,9 +114,10 @@ public class CapacityManagementController {
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
 	public ResponseEntity<Object> getAllCapacityTemplates(
-			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) {
+			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
         // validating the access token
 		jwtUtils.findUserDetail(accessToken);
+		capacityValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
 		List<CapacityTemplate> capacityTemplates = capacityManagementService.getAllCapacityTemplates();
 		ReferenceDatum referenceData = capacityChannelService.getReferenceData();
 		return new CapacityResponse(capacityTemplates, Collections.singletonList(referenceData)).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);

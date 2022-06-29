@@ -3,6 +3,7 @@ package com.darden.dash.capacity.model;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class CapacityModel implements Serializable{
 	
 	private String capacityModelName;
 	private BigInteger capacityModelId;
-	private Set<String> capacityTemplateList ;
+	private List<CapacityTemplateNames> capacityTemplateList ;
 	private Set<BigInteger> restaurants;
 	private String isDeletedFlg;
 	private String createdBy;
