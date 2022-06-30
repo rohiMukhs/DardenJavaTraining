@@ -1,7 +1,6 @@
 package com.darden.dash.capacity.controller;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,9 +52,9 @@ import com.darden.dash.capacity.model.TemplatesAssigned;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
+import com.darden.dash.capacity.validation.CapacityTemplateModelValidator;
 import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.capacity.validation.ChannelValidator;
-import com.darden.dash.capacity.validation.CapacityTemplateModelValidator;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -116,6 +115,7 @@ public class CapacityControllerTest {
 		headers.add("Content-Type", "application/json");
 		headers.add("Correlation-Id", "ce65-4a57-ac3e-f7fa09e1a8");
 		headers.add("Authorization", "Bearer " + ACCESS_TOKEN);
+		headers.add("Concept-Id","1");		
 		return headers;
 	}
 
@@ -204,7 +204,9 @@ public class CapacityControllerTest {
 		
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityManagementService.createTemplate(Mockito.any(), Mockito.any())).thenReturn(response);
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-templates").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-templates")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isCreated());
 		
@@ -242,7 +244,9 @@ public class CapacityControllerTest {
 		
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityChannelService.editChannelInformation(Mockito.anyList(),Mockito.anyString())).thenReturn(responseList);
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/combine-channels").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/combine-channels")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request))).andExpect(status().isAccepted());
 		
 	}
@@ -254,7 +258,9 @@ public class CapacityControllerTest {
 				Mockito.anyString())).thenReturn("templateNm");
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-templates/{templateId}", 1)
-				.param("deletedFlag", "Y").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())
+				.param("deletedFlag", "Y")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())
 				.andExpect(jsonPath("status", is(202)));
 		
 	}
@@ -297,7 +303,9 @@ public class CapacityControllerTest {
 		request.setStartTime("00:00");
 		request.setInterval(1);
 		Mockito.when(capacityChannelService.addCombinedChannel(Mockito.any(), Mockito.anyString())).thenReturn(response);
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/combine-channels").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/combine-channels")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isCreated());
 	}
@@ -368,7 +376,9 @@ public class CapacityControllerTest {
 		response.setLastModifiedBy("user");
 		response.setLastModifiedDateTime(Instant.now());
 		Mockito.when(capacityManagementService.updateCapacityTemplate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(response);
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-templates/{templateId}",1).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-templates/{templateId}",1)
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isAccepted());
 	}
@@ -455,7 +465,9 @@ public class CapacityControllerTest {
 		
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityTemplateModelService.createCapacityModel(Mockito.any(), Mockito.any())).thenReturn(capacityTemplateModelResponse);
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-models").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-models")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isCreated());
 	}
@@ -490,7 +502,9 @@ public class CapacityControllerTest {
 		
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityTemplateModelService.updateCapacityModel(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(capacityTemplateModelResponse);
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-models/{modelId}",1).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-models/{modelId}",1)
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isAccepted());
 	}

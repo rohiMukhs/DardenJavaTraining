@@ -38,9 +38,9 @@ import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.darden.dash.capacity.validation.CapacityTemplateModelValidator;
 import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.capacity.validation.ChannelValidator;
-import com.darden.dash.capacity.validation.CapacityTemplateModelValidator;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.model.ErrorResponse;
 import com.darden.dash.common.util.JwtUtils;
@@ -64,6 +64,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @RequestMapping(value = CapacityConstants.API_V1, produces = MediaType.APPLICATION_JSON_VALUE)
 @CrossOrigin(origins = CapacityConstants.CAPACITYMANAGEMENT_CROSS_ORIGIN)
 public class CapacityManagementController {
+
 
 	private CapacityManagementService capacityManagementService;
 	
@@ -110,10 +111,10 @@ public class CapacityManagementController {
 	 */
 	@GetMapping(value = CapacityConstants.CAPACITY_TEMPLATES ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CapacityResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> getAllCapacityTemplates(
+	public ResponseEntity<Object> getAllCapacityTemplates(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
 			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
         // validating the access token
 		jwtUtils.findUserDetail(accessToken);
@@ -146,10 +147,10 @@ public class CapacityManagementController {
 	 */
 	@PostMapping(value = CapacityConstants.CAPACITY_TEMPLATES ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CreateCapacityTemplateResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> createCapacityTemplate(@RequestBody CreateCapacityTemplateRequest createCapacityTemplateRequest,
+	public ResponseEntity<Object> createCapacityTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@RequestBody CreateCapacityTemplateRequest createCapacityTemplateRequest,
 			@Parameter @RequestHeader (name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
 		
 		jwtUtils.findUserDetail(accessToken);
@@ -185,10 +186,10 @@ public class CapacityManagementController {
 	 */
 	@PutMapping(value = CapacityConstants.COMBINED_CHANNELS , produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EditChannelResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> editChannelInformation(
+	public ResponseEntity<Object> editChannelInformation(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
 			@RequestBody ChannelListRequest channelListRequest,
 			@RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
 			throws JsonProcessingException {
@@ -221,10 +222,10 @@ public class CapacityManagementController {
 	 */
 	@PatchMapping(value = CapacityConstants.CAPACITY_TEMPLATE_WITH_TEMPLATEID, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_202, description = CapacityConstants.CAPACITY_TEMPLATE_DELETED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_202, description = CapacityConstants.CAPACITY_TEMPLATE_DELETED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ServiceResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> deleteTemplate(@PathVariable String templateId, @RequestParam String deletedFlag,
+	public ResponseEntity<Object> deleteTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@PathVariable String templateId, @RequestParam String deletedFlag,
 			@RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
 			throws JsonProcessingException {
 		String userDetail = jwtUtils.findUserDetail(accessToken);
@@ -260,10 +261,10 @@ public class CapacityManagementController {
 	 */
 	@PostMapping(value = CapacityConstants.COMBINE_CHANNELS ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_CHANNELS_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_CHANNELS_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CreateCombineChannelResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> createCombineCapacityChannel(@RequestBody CreateCombineChannelRequest createCombineChannelRequest,
+	public ResponseEntity<Object> createCombineCapacityChannel(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@RequestBody CreateCombineChannelRequest createCombineChannelRequest,
 			@Parameter @RequestHeader (name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
 		
 		String userDetail = jwtUtils.findUserDetail(accessToken);
@@ -302,10 +303,10 @@ public class CapacityManagementController {
 	 */
 	@PutMapping(value = CapacityConstants.EDIT_TEMPLATES, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_UPDATED, description = CapacityConstants.CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_UPDATED, description = CapacityConstants.CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CreateCapacityTemplateResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> updateCapacityTemplate(
+	public ResponseEntity<Object> updateCapacityTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
 			@Schema(type = CapacityConstants.INTEGER) @PathVariable String templateId,
 			@RequestBody CreateCapacityTemplateRequest createCapacityTemplateRequest,
 			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
@@ -338,10 +339,10 @@ public class CapacityManagementController {
 	 */
 	@GetMapping(value = CapacityConstants.CAPACITY_MODELS ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_MODEL_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_MODEL_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = GetCapacityModelResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> getAllModels(
+	public ResponseEntity<Object> getAllModels(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
 			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) 
 					throws JsonProcessingException{
 		jwtUtils.findUserDetail(accessToken);
@@ -370,10 +371,10 @@ public class CapacityManagementController {
 	 */
 	@PostMapping(value = CapacityConstants.CAPACITY_MODELS ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CapacityModelResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> createCapacityTemplate(@RequestBody CapacityModelRequest capacityModelRequest,
+	public ResponseEntity<Object> createCapacityTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@RequestBody CapacityModelRequest capacityModelRequest,
 			@Parameter @RequestHeader (name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
 		jwtUtils.findUserDetail(accessToken);
 		capacityTemplateModelValidator.validate(capacityModelRequest, OperationConstants.OPERATION_CREATE.getCode());
@@ -405,10 +406,10 @@ public class CapacityManagementController {
 	 */
 	@PutMapping(value = CapacityConstants.CAPACITY_MODELS_WITH_MODEL_ID, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_UPDATED, description = CapacityConstants.CAPACITY_MODEL_UPDATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema())),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_UPDATED, description = CapacityConstants.CAPACITY_MODEL_UPDATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CapacityModelResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> updateCapacityModel(
+	public ResponseEntity<Object> updateCapacityModel(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
 			@Schema(type = CapacityConstants.INTEGER) @PathVariable String modelId,
 			@RequestBody CapacityModelRequest capacityModelRequest,
 			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)

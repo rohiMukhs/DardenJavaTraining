@@ -299,6 +299,8 @@ public class CapacityConstants {
 	
 	public static final String CAPACITY_MODEL_UPDATED_SUCCESSFULLY = "capacity template model updated successfully";
 	
+	public static final String HEADER_CONCEPT_ID = "Concept-Id";
+	
 	private CapacityConstants() {
 
 	}
