@@ -161,7 +161,7 @@ class CapacityServiceImplTest {
 	private List<CapacitySlotEntity> getCapacitySlots() {
 		List<CapacitySlotEntity> capacitySlotEntities = new ArrayList<>();
 		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
-		capacitySlotEntity.setCapacityCnt("1");
+		capacitySlotEntity.setCapacityCnt(1);
 		CapacityTemplateEntity capacityTemplateEntity=new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		capacitySlotEntity.setCapacityTemplate(capacityTemplateEntity);
@@ -260,7 +260,7 @@ class CapacityServiceImplTest {
 		Optional<CapacityChannelEntity> optChannel = Optional.of(channel);
 
 		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
-		capacitySlotEntity.setCapacityCnt("1");
+		capacitySlotEntity.setCapacityCnt(1);
 		capacitySlotEntity.setCapacitySlotId(BigInteger.valueOf(2));
 		capacitySlotEntity.setStartTime(java.time.LocalTime.parse("11:00:00"));
 		capacitySlotEntity.setEndTime(java.time.LocalTime.parse("11:46:55"));
@@ -286,7 +286,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -506,7 +506,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -583,7 +583,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -750,7 +750,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -859,7 +859,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("4");
+		detail.setCapacityCount(4);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -976,7 +976,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("4");
+		detail.setCapacityCount(4);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -1056,7 +1056,7 @@ class CapacityServiceImplTest {
 		Optional<CapacityChannelEntity> optChannel = Optional.of(channel);
 
 		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
-		capacitySlotEntity.setCapacityCnt("1");
+		capacitySlotEntity.setCapacityCnt(1);
 		capacitySlotEntity.setCapacitySlotId(BigInteger.valueOf(2));
 		capacitySlotEntity.setStartTime(java.time.LocalTime.parse("11:00:00"));
 		capacitySlotEntity.setEndTime(java.time.LocalTime.parse("11:46:55"));
@@ -1082,7 +1082,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -1196,7 +1196,7 @@ class CapacityServiceImplTest {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));

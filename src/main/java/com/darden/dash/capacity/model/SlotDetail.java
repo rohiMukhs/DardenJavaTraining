@@ -19,7 +19,7 @@ public class SlotDetail implements Serializable{
 	private BigInteger slotId;
 	private String startTime;
 	private String endTime;
-	private String capacityCount;
+	private Integer capacityCount;
 	private String slotTypeId;
 	private String isDeletedFlg;
 

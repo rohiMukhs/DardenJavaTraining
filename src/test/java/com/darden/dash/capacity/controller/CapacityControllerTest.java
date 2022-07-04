@@ -146,7 +146,7 @@ public class CapacityControllerTest {
 		dates.add(date);
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
@@ -320,7 +320,7 @@ public class CapacityControllerTest {
 		dates.add(date);
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount("1");
+		detail.setCapacityCount(2);
 		detail.setEndTime("01:01");
 		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
