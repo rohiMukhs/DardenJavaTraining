@@ -45,7 +45,7 @@ public class LocationClientImpl implements LocationClient {
 	 *                          This data comes from Location Micro service.
 	 */
 	@Override
-	@Cacheable(CapacityConstants.RESTAURANTS_CACHE)
+	@Cacheable(value = CapacityConstants.RESTAURANTS_CACHE)
 	public List<Locations> getAllRestaurants() {
 		StringBuilder urlBuilder = new StringBuilder();
 		urlBuilder.append(url);
