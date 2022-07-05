@@ -2,6 +2,7 @@ package com.darden.dash.capacity.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
@@ -33,6 +34,7 @@ import com.darden.dash.capacity.entity.CapacityTemplateTypeEntity;
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
+import com.darden.dash.capacity.model.ConceptForCache;
 import com.darden.dash.capacity.model.Locations;
 import com.darden.dash.capacity.model.Region;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
@@ -44,8 +46,14 @@ import com.darden.dash.capacity.repository.CapacityTemplateAndBusinessDateReposi
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.impl.CapacityTemplateModelServiceImpl;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.client.service.ConceptClient;
+import com.darden.dash.common.enums.OperationConstants;
+import com.darden.dash.common.error.ApplicationErrors;
+import com.darden.dash.common.exception.ApplicationException;
+import com.darden.dash.common.model.Concept;
 import com.darden.dash.common.util.DateUtil;
 import com.darden.dash.common.util.JwtUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @ExtendWith({ MockitoExtension.class })
 class CapacityModelServiceImplTest {
@@ -73,6 +81,9 @@ class CapacityModelServiceImplTest {
 
 	@Mock
 	private CapacityModelAndLocationRepository capacityModelAndLocationRepo;
+	
+	@Mock
+	private ConceptClient conceptClient;
 
 	
 	public static CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
@@ -86,6 +97,8 @@ class CapacityModelServiceImplTest {
 	public static CapacityModelAndLocationEntity capacityModelAndLocationEntity = new CapacityModelAndLocationEntity();
 	
 	public static List<CapacityModelAndLocationEntity> modelAndLocationList = new ArrayList<>();
+	
+	public static CapacityModelRequest capacityModelRequest = new CapacityModelRequest();
 	
 	@BeforeAll
 	static void beforeAll() {
@@ -131,6 +144,19 @@ class CapacityModelServiceImplTest {
 		capacityModelEntity.setCapacityModelAndLocations(modelAndLocationList);
 		
 		modelAndLocationList.add(capacityModelAndLocationEntity);
+		
+		capacityModelRequest.setTemplateModelName("abc");
+		List<TemplatesAssigned> templatesAssignedList = new ArrayList<>();
+		TemplatesAssigned templatesAssigned = new TemplatesAssigned();
+		templatesAssigned.setTemplateId("101");
+		templatesAssigned.setTemplateName("Test101");
+		templatesAssignedList.add(templatesAssigned);
+		capacityModelRequest.setTemplatesAssigned(templatesAssignedList);
+		List<RestaurantsAssigned> restaurantsAssignedList = new ArrayList<>();
+		RestaurantsAssigned restaurantsAssigned = new RestaurantsAssigned();
+		restaurantsAssigned.setLocationId("1111");
+		restaurantsAssignedList.add(restaurantsAssigned);
+		capacityModelRequest.setRestaurantsAssigned(restaurantsAssignedList);
 	}
 	
 	@Test
@@ -806,5 +832,52 @@ class CapacityModelServiceImplTest {
 		boolean res = capacityTemplateModelServiceImpl.validateIfRestaurantIsUnassigned(locationIds, "1");
 		assertEquals(false, res);
 	}
-
+	
+	@Test
+	void testValidateTemplateAssignedforUpdate() throws JsonProcessingException{
+		CapacityTemplateEntity capacityTemplateEntity=new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
+		when(capacityModelAndCapacityTemplateRepo.findAll()).thenReturn(Collections.EMPTY_LIST);
+		boolean res = capacityTemplateModelServiceImpl.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, "1");
+		assertEquals(true, res);
+	}
+	
+	@Test
+	void testValidateTemplateAssignedforUpdateNegOne() throws JsonProcessingException{
+		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.empty());
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		try {
+			capacityTemplateModelServiceImpl.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, "1");
+		} catch (Exception e) {
+			assertTrue(e instanceof ApplicationException);
+		}
+	}
+	
+	@Test
+	void testValidateTemplateAssignedforUpdateNegTwo() throws JsonProcessingException{
+		CapacityTemplateEntity capacityTemplateEntity=new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.TWO);
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
+		when(capacityModelAndCapacityTemplateRepo.findAll()).thenReturn(modelAndTemplateList);
+		try {
+			capacityTemplateModelServiceImpl.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, "1");
+		} catch (Exception e) {
+			assertTrue(e instanceof ApplicationException);
+		}
+	}
+	
+	@Test
+	void testCacheConcept() {
+		Concept concept = new Concept();
+		concept.setConceptName("name");
+		concept.setConceptId(1);
+		List<Concept> list = new ArrayList<>();
+		list.add(concept);
+		Mockito.when(conceptClient.getAllConcepts()).thenReturn(list);
+		List<ConceptForCache> res = capacityTemplateModelServiceImpl.getCacheConceptData();
+		assertNotNull(res);
+	}
 }

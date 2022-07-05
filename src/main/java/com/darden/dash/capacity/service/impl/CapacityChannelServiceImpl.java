@@ -18,6 +18,9 @@ import javax.transaction.Transactional;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
@@ -98,6 +101,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	@Transactional
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME, key = CapacityConstants.CAPACITY_CHANNEL_CACHE_KEY),
+            @CacheEvict(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME, allEntries = true) })
 	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user) throws JsonProcessingException{
 		Map<BigInteger,ChannelInformationRequest> editChannelsMap=editChannelInformationRequest.stream().collect(Collectors.toMap(ChannelInformationRequest::getCapacityChannelId,o->o));
 		List<BigInteger> allCapacityChannelIdList=editChannelInformationRequest.stream().map(ChannelInformationRequest::getCapacityChannelId).collect(Collectors.toList());
@@ -165,6 +170,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 *                                 runtime e.g json parsing.
 	 */
 	@Override
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME, allEntries = true) })
 	public CombineChannel addCombinedChannel(CreateCombineChannelRequest createCombinedChannelRequest,
 			String userDetail) throws JsonProcessingException {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
@@ -268,6 +274,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * 
 	 */
 	@Override
+	@Cacheable(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME)
 	public ReferenceDatum getReferenceData() {
 		List<CapacityChannelEntity> channelEntities = capacityChannelRepository.findAll();
 		ReferenceDatum referenceDatum = new ReferenceDatum();
