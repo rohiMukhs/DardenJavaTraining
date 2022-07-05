@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import com.darden.dash.common.client.service.ConceptClient;
+import com.darden.dash.capacity.model.ConceptForCache;
+import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.error.ApplicationErrors;
-import com.darden.dash.common.model.Concept;
 /**
  * 
  * @author skashala
@@ -21,11 +21,15 @@ import com.darden.dash.common.model.Concept;
 @Component
 public class CapacityManagementUtils {
 
-	private ConceptClient conceptClient;
-
+	private CapacityTemplateModelService capacityTemplateModelService;
+	/**
+	 * Autowiring.
+	 * 
+	 * @param capacityTemplateModelService
+	 */
 	@Autowired
-	public CapacityManagementUtils(ConceptClient conceptClient) {
-		this.conceptClient = conceptClient;
+	public CapacityManagementUtils(CapacityTemplateModelService capacityTemplateModelService) {
+		this.capacityTemplateModelService = capacityTemplateModelService;
 	}
 
 	/**
@@ -40,13 +44,13 @@ public class CapacityManagementUtils {
 	 *         in the argument exists.
 	 */
 	public boolean validateConceptId(String conceptId, ApplicationErrors applicationErrors) {
-		List<Concept> concepts = conceptClient.getAllConcepts();
+		List<ConceptForCache> concepts = capacityTemplateModelService.getCacheConceptData();
 		if (CollectionUtils.isEmpty(concepts)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
 					CapacityConstants.CONCEPT_ID);
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
-		List<Concept> existingConcept = concepts.stream()
+		List<ConceptForCache> existingConcept = concepts.stream()
 				.filter(concept -> concept.getConceptId() == Integer.parseInt(conceptId)).collect(Collectors.toList());
 		if (CollectionUtils.isEmpty(existingConcept)) {
 			if (!ObjectUtils.isEmpty(applicationErrors)) {

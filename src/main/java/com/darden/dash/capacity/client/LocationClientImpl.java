@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -11,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.darden.dash.capacity.model.GetLocationsResponse;
 import com.darden.dash.capacity.model.Locations;
+import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.client.RestCallGet;
 import com.darden.dash.common.exception.ApplicationException;
@@ -43,6 +45,7 @@ public class LocationClientImpl implements LocationClient {
 	 *                          This data comes from Location Micro service.
 	 */
 	@Override
+	@Cacheable(value = CapacityConstants.RESTAURANTS_CACHE)
 	public List<Locations> getAllRestaurants() {
 		StringBuilder urlBuilder = new StringBuilder();
 		urlBuilder.append(url);

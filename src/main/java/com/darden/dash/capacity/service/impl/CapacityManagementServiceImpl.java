@@ -25,6 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
@@ -156,6 +160,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * 
 	 */
 	@Override
+	@Cacheable(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE)
 	public List<CapacityTemplate> getAllCapacityTemplates() {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		if (StringUtils.isBlank(RequestContext.getConcept())) {
@@ -315,6 +320,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	@Override
 	@Transactional(rollbackOn = Exception.class)
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
 	public CreateTemplateResponse createTemplate(@Valid CreateCapacityTemplateRequest templateRequest,
 			String accessToken) throws JsonProcessingException {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
@@ -418,6 +424,8 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	@Override
 	@Transactional
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key = CapacityConstants.CAPACITY_TEMPLATE_CACHE_KEY),
+            @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
 	public String deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
 			throws JsonProcessingException {
 		
@@ -577,6 +585,8 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	@Override
 	@Transactional(rollbackOn = Exception.class)
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) }, put = {
+            @CachePut(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key = CapacityConstants.CAPACITY_TEMPLATE_CACHE_KEY) })
 	public CreateTemplateResponse updateCapacityTemplate(@Valid CreateCapacityTemplateRequest templateRequest,
 			String accessToken, BigInteger templateId) {
 		CreateTemplateResponse response = new CreateTemplateResponse();
