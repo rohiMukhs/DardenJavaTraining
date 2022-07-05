@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -15,6 +16,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.darden.dash.capacity.client.LocationClient;
@@ -28,6 +33,7 @@ import com.darden.dash.capacity.mapper.CapacityModelMapper;
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
+import com.darden.dash.capacity.model.ConceptForCache;
 import com.darden.dash.capacity.model.Locations;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.model.TemplatesAssigned;
@@ -38,6 +44,7 @@ import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.client.service.ConceptClient;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.util.DateUtil;
@@ -69,24 +76,32 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	private CapacityTemplateRepo capacityTemplateRepo;
 
 	private CapacityModelAndLocationRepository capacityModelAndLocationRepo;
-
+	
+	private ConceptClient conceptClient;
 	/**
 	 * Autowiring required properties
 	 * 
 	 * @param capacityModelRepository
 	 * @param locationClient
+	 * @param jwtUtils
+	 * @param capacityModelAndLocationRepo
+	 * @param capacityTemplateRepo
+	 * @param capacityModelAndCapacityTemplateRepo
+	 * @param conceptClient
 	 */
 	@Autowired
 	public CapacityTemplateModelServiceImpl(CapacityModelRepository capacityModelRepository,
 			LocationClient locationClient, JwtUtils jwtUtils,
 			CapacityModelAndLocationRepository capacityModelAndLocationRepo, CapacityTemplateRepo capacityTemplateRepo,
-			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepo) {
+			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepo,
+			ConceptClient conceptClient) {
 		this.jwtUtils = jwtUtils;
 		this.capacityModelRepository = capacityModelRepository;
 		this.locationClient = locationClient;
 		this.capacityModelAndCapacityTemplateRepo = capacityModelAndCapacityTemplateRepo;
 		this.capacityModelAndLocationRepo = capacityModelAndLocationRepo;
 		this.capacityTemplateRepo = capacityTemplateRepo;
+		this.conceptClient = conceptClient;
 	}
 
 	/**
@@ -98,6 +113,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 *         capacity models.
 	 */
 	@Override
+	@Cacheable(value = CapacityConstants.CAPACITY_MODEL_CACHE)
 	public List<CapacityModel> getAllCapacityModels() {
 		List<CapacityModelEntity> modelEntityList = capacityModelRepository
 				.findByConceptId(new BigInteger(RequestContext.getConcept()));
@@ -133,6 +149,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 
 	@Override
 	@Transactional(rollbackOn = Exception.class)
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_MODEL_CACHE, allEntries = true) })
 	public CapacityTemplateModel createCapacityModel(CapacityModelRequest capacityModelRequest, String accessToken) {
 		CapacityTemplateModel capacityTemplateModel = new CapacityTemplateModel();
 		String createdBy = jwtUtils.findUserDetail(accessToken);
@@ -430,6 +447,8 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	@Override
 	@Transactional(rollbackOn = Exception.class)
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_MODEL_CACHE, allEntries = true) }, put = {
+            @CachePut(value = CapacityConstants.CAPACITY_MODEL_CACHE, key = CapacityConstants.CAPACITY_MODEL_CACHE_KEY) })
 	public CapacityTemplateModel updateCapacityModel(String modelId, CapacityModelRequest capacityModelRequest,
 			String user) {
 		CapacityTemplateModel capacityTemplateModel = new CapacityTemplateModel();
@@ -592,16 +611,58 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 
 	/**
 	 * This service method is to validate if capacity template is already assigned to other
-	 * capacity model.
+	 * capacity model for update operation.
 	 * 
-	 * @param capacityTemplateEntity entity class containing the value of capacity template to 
-	 * be validated.
+	 * @param capacityModelRequest request class containing the value of template model
+	 * 				to be updated.
 	 * 
-	 * @return boolean returns the boolean value based on the condition. 
+	 * @param applicationErrors error class used to raise exception in case any validation
+	 * 				is failed
+	 * 
+	 * @param id string containing the value of template id to be updated.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
-	public boolean validateIfTemplateAlreadyAssigned(CapacityTemplateEntity capacityTemplateEntity) {
-		List<CapacityModelAndCapacityTemplateEntity> list = capacityModelAndCapacityTemplateRepo.findByCapacityTemplate(capacityTemplateEntity);
-		return !list.isEmpty();
+	public boolean validateTemplateAssignedforUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id) {
+		capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull).forEach(t -> {
+			Optional<CapacityTemplateEntity> dbTemplate = capacityTemplateRepo
+					.findById(new BigInteger(t.getTemplateId()));
+			if (dbTemplate.isEmpty()) {
+				applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4503), t.getTemplateId());
+			}
+			else if(dbTemplate.isPresent()) {
+				List<CapacityModelAndCapacityTemplateEntity> list = capacityModelAndCapacityTemplateRepo.findAll();
+				List<CapacityModelAndCapacityTemplateEntity> listFiltered = list.stream()
+						.filter(entity -> entity.getCapacityTemplate().equals(dbTemplate.get()))
+						.filter(entity -> !entity.getCapacityModel().getCapacityModelId().equals(new BigInteger(id)))
+						.collect(Collectors.toList());
+				if(!listFiltered.isEmpty()) {
+					applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4506),t.getTemplateId());
+				}
+			}
+		});
+		applicationErrors.raiseExceptionIfHasErrors();
+		return true;
 	}
+
+	/**
+	 * This service method is used to cache concept data from restCall.
+	 * 
+	 * @return List<ConceptForCache> list of model class containing the value of
+	 * 				concept data.
+	 */
+	@Override
+	@Cacheable(value = CapacityConstants.CONCEPTS_CACHE)
+	public List<ConceptForCache> getCacheConceptData() {
+		List<ConceptForCache> cachedConceptList = new ArrayList<>();
+		conceptClient.getAllConcepts().stream().forEach(concept ->{
+			ConceptForCache cacheConcept = new ConceptForCache();
+			cacheConcept.setConceptId(concept.getConceptId());
+			cacheConcept.setConceptName(concept.getConceptName());
+			cachedConceptList.add(cacheConcept);
+		});
+		return cachedConceptList;
+	}
+
 }

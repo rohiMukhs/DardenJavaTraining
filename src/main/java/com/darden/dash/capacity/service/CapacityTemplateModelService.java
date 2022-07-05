@@ -7,7 +7,9 @@ import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
+import com.darden.dash.capacity.model.ConceptForCache;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
+import com.darden.dash.common.error.ApplicationErrors;
 
 /**
  * 
@@ -116,13 +118,26 @@ public interface CapacityTemplateModelService {
 	
 	/**
 	 * This service method is to validate if capacity template is already assigned to other
-	 * capacity model.
+	 * capacity model for update operation.
 	 * 
-	 * @param capacityTemplateEntity entity class containing the value of capacity template to 
-	 * be validated.
+	 * @param capacityModelRequest request class containing the value of template model
+	 * 				to be updated.
+	 * 
+	 * @param applicationErrors error class used to raise exception in case any validation
+	 * 				is failed
+	 * 
+	 * @param id string containing the value of template id to be updated.
 	 * 
 	 * @return boolean returns the boolean value based on the condition.
 	 */
-	public boolean validateIfTemplateAlreadyAssigned(CapacityTemplateEntity capacityTemplateEntity);
+	public boolean validateTemplateAssignedforUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id);
+	
+	/**
+	 * This service method is used to cache concept data from restCall.
+	 * 
+	 * @return List<ConceptForCache> list of model class containing the value of
+	 * 				concept data.
+	 */
+	public List<ConceptForCache> getCacheConceptData();
 
 }

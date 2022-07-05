@@ -169,8 +169,7 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 * 								to be updated.
 	 */
 	private void validateInDbForUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id) {
-		validateRequestTemplateIds(capacityModelRequest, applicationErrors);
-		validateAssignedTemplates(capacityModelRequest, applicationErrors);
+		capacityTemplateModelService.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, id);
 		if(capacityTemplateModelService.validateIfRestaurantIsUnassigned(capacityModelRequest.getRestaurantsAssigned(), id)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4505));
 		}
