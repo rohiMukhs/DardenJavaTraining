@@ -288,7 +288,7 @@ public interface CapacityTemplateMapper {
 	@Named(CapacityConstants.MAP_TO_SLOT)
 	default SlotDetail mapToResponseSlot(CapacitySlotEntity savedSlot, SlotDetail s) {
 		SlotDetail responseSlot = new SlotDetail();
-		responseSlot.setCapacityCount(savedSlot.getCapacityCnt());
+		responseSlot.setCapacityCount(Integer.valueOf(savedSlot.getCapacityCnt()));
 		responseSlot.setEndTime(savedSlot.getEndTime().toString());
 		responseSlot.setStartTime(savedSlot.getStartTime().toString());
 		responseSlot.setSlotId(savedSlot.getCapacitySlotId());

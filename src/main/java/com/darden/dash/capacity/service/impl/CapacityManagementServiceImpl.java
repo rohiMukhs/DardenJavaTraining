@@ -257,7 +257,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
 			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
 			slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
-			slotDetail.setCapacityCount(String.valueOf(cs.getCapacityCnt()));
+			slotDetail.setCapacityCount(cs.getCapacityCnt());
 			channelSlotDetails.put(String.valueOf(cs.getCapacityChannel().getCapacityChannelId()), slotDetail);
 		});
 	}
@@ -654,7 +654,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
 			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
 			slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
-			slotDetail.setCapacityCount(String.valueOf(cs.getCapacityCnt()));
+			slotDetail.setCapacityCount(cs.getCapacityCnt());
 			channelSlotDetails.put(String.valueOf(cs.getCapacityChannel().getCapacityChannelId()), slotDetail);
 		});
 	}

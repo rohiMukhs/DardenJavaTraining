@@ -225,7 +225,7 @@ class EntityTest {
 		CapacitySlotTypeEntity capacitySlotType = new CapacitySlotTypeEntity();
 		CapacityTemplateEntity capacityTemplate = new CapacityTemplateEntity();
 		entity.setCapacityChannel(capacityChannel);
-		entity.setCapacityCnt("!1");
+		entity.setCapacityCnt(1);
 		entity.setCapacitySlotId(new BigInteger("1"));
 		entity.setCapacitySlotType(capacitySlotType);
 		entity.setCapacityTemplate(capacityTemplate);

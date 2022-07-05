@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ServiceResponse {
 
 	@Schema(description = CapacityConstants.MATCHES_THE_HTTP_STATUS_CODE, defaultValue = CapacityConstants.STATUS_CODE_SUCCESS, required = true)

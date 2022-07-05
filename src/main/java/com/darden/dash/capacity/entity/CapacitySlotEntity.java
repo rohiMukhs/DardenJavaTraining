@@ -38,7 +38,7 @@ public class CapacitySlotEntity extends Audit implements Serializable {
 	private BigInteger capacitySlotId;
 
 	@Column(name=CapacityConstants.CAPACITY_CNT)
-	private String capacityCnt;
+	private Integer capacityCnt;
 
 	@Column(name=CapacityConstants.END_TIME)
 	private LocalTime endTime;
