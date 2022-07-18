@@ -34,6 +34,7 @@ import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
+import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.CapacityTemplateNames;
@@ -102,11 +103,13 @@ public class CapacityControllerTest {
 
 	@Test
 	void getAllCapacityTemplates() throws Exception {
-		Mockito.when(capacityManagementService.getAllCapacityTemplates())
-				.thenReturn(getAllTemplates());
-		mockMvc.perform(get("/api/v1/capacity-templates/").headers(getHeaders())).andExpect(status().isOk())
-		.andExpect(result -> result.getResponse());
-
+		CapacityResponse capacityResponse = new CapacityResponse();
+		Mockito.when(capacityManagementService.getAllCapacityTemplates(Mockito.anyBoolean()))
+				.thenReturn(capacityResponse);
+		mockMvc.perform(get("/api/v1/capacity-templates/")
+				.param("isRefDataReq", "false")
+				.headers(getHeaders())).andExpect(status().isOk())
+				.andExpect(result -> result.getResponse());
 	}
 
 	public static final HttpHeaders getHeaders() {

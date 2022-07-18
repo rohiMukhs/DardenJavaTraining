@@ -310,6 +310,13 @@ public class CapacityConstants {
 	public static final String CAPACITY_MODEL_CACHE_KEY = "#modelId";
 	public static final String CONCEPTS_CACHE = "concepts";
 	
+	public static final String MAPTOCAPACITYCHANNELENTITY = "mapToCapacityChannelEntity";
+	public static final String MAPTOCAPACITYCHANNELENTITYLIST = "mapToCapacityChannelEntityList";
+	public static final String MAPTOCAPACITYMODELANDLOCATIONENTITYLIST = "mapToCapacityModelAndLocationEntityList";
+	public static final String MAPCREATETEMPLATERESPONSE = "mapCreateTemplateResponse";
+	public static final String CAPACITYTEMPLATETYPE = "capacityTemplateType";
+	public static final String BUSINESSDATE = "businessDate";
+	
 	private CapacityConstants() {
 
 	}
