@@ -243,15 +243,21 @@ public class CapacityTemplateModelValidator implements DashValidator {
 					.forEach(templatesAssigned -> templateAssigned.add(new BigInteger(templatesAssigned.getTemplateId())));
 		}
 		return capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull).anyMatch(t -> {
-			List<BigInteger> currentTemplate = new ArrayList<>();
-			currentTemplate.add(new BigInteger(t.getTemplateId()));
-			List<BigInteger> otherTemplateId = new ArrayList<>(templateAssigned);
-			otherTemplateId.removeAll(currentTemplate);
+			List<BigInteger> otherTemplateId = extractingOtherAssignedTemplateIdToModel(templateAssigned, t);
 			Optional<CapacityTemplateEntity> dbTemplate = capacityTemplateRepo
 					.findById(new BigInteger(t.getTemplateId()));
 			return dbTemplate.isPresent()
 					&& capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(dbTemplate.get(), otherTemplateId);
 		});
+	}
+
+	private List<BigInteger> extractingOtherAssignedTemplateIdToModel(List<BigInteger> templateAssigned,
+			TemplatesAssigned t) {
+		List<BigInteger> currentTemplate = new ArrayList<>();
+		currentTemplate.add(new BigInteger(t.getTemplateId()));
+		List<BigInteger> otherTemplateId = new ArrayList<>(templateAssigned);
+		otherTemplateId.removeAll(currentTemplate);
+		return otherTemplateId;
 	}
 
 	/**

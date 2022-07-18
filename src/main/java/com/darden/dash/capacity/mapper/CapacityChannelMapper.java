@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.mapstruct.AfterMapping;
@@ -19,6 +20,7 @@ import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelPK;
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.Channel;
+import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.CombineChannel;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.util.CapacityConstants;
@@ -172,4 +174,48 @@ public interface CapacityChannelMapper {
 		return response;
 	}
 
+	/**
+	 * This mapper method is used to map the data of updating channels 
+	 * to Capacity Channel entity class.
+	 * 
+	 * @param user information of createdBy String value.
+	 * 
+	 * @param dateTime information of dateTime Instant value.
+	 * 
+	 * @param capacityChannel mapped model class of capacity Channel information.
+	 * 
+	 * @param channelInformationRequest model class containing the list of channels
+	 * 							to be updated.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYCHANNELENTITY)
+	default void mapToCapacityChannelEntity(String user, Instant dateTime, CapacityChannelEntity capacityChannel,
+			ChannelInformationRequest channelInformationRequest) {
+		capacityChannel.setPosName(channelInformationRequest.getPosName());
+		capacityChannel.setInterval(channelInformationRequest.getInterval());
+		capacityChannel.setOperationalHoursStartTime(Time.valueOf(LocalTime.parse(channelInformationRequest.getOperationHourStartTime())));
+		capacityChannel.setOperationalHoursEndTime(Time.valueOf(LocalTime.parse(channelInformationRequest.getOperationHourEndTime())));
+		capacityChannel.setLastModifiedBy(user);
+		capacityChannel.setLastModifiedDatetime(dateTime);
+	}
+
+	/**
+	 * This mapper method is used to map the data of updating channels 
+	 * to Capacity Channel entity class.
+	 * 
+	 * @param user
+	 * @param dateTime
+	 * @param editChannelsMap
+	 * @param capacityChannelEntityList
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYCHANNELENTITYLIST)
+	default void mapToCapacityChannelEntityList(String user, Instant dateTime,
+			Map<BigInteger, ChannelInformationRequest> editChannelsMap,
+			List<CapacityChannelEntity> capacityChannelEntityList) {
+		capacityChannelEntityList.stream().filter(Objects::nonNull).forEach(capacityChannel -> {
+			ChannelInformationRequest channelInformationRequest=editChannelsMap.get(capacityChannel.getCapacityChannelId());
+			if(channelInformationRequest != null) {
+				mapToCapacityChannelEntity(user, dateTime, capacityChannel, channelInformationRequest);
+			}
+		});
+	}
 }

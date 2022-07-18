@@ -59,13 +59,15 @@ public interface CapacityTemplateMapper {
 	@Mapping(target = CapacityConstants.SLOT_START_TIME, ignore = true)
 	@Mapping(target = CapacityConstants.MAP_EFFECTIVE_DATE, ignore = true)
 	@Mapping(target = CapacityConstants.MAP_EXPIRY_DATE, ignore = true)
-	@Mapping(source = CapacityConstants.MAP_SUN_FLG, target = CapacityConstants.SUN_DAY)
-	@Mapping(source = CapacityConstants.MAP_MON_FLG, target = CapacityConstants.MON_DAY)
-	@Mapping(source = CapacityConstants.MAP_TUE_FLG, target = CapacityConstants.TUE_DAY)
-	@Mapping(source = CapacityConstants.MAP_WED_FLG, target = CapacityConstants.WED_DAY)
-	@Mapping(source = CapacityConstants.MAP_THU_FLG, target = CapacityConstants.THU_DAY)
-	@Mapping(source = CapacityConstants.MAP_FRI_FLG, target = CapacityConstants.FRI_DAY)
-	@Mapping(source = CapacityConstants.MAP_SAT_FLG, target = CapacityConstants.SAT_DAY)
+	@Mapping(target = CapacityConstants.CAPACITYTEMPLATETYPE, ignore = true)
+	@Mapping(target = CapacityConstants.BUSINESSDATE, ignore = true)
+	@Mapping(target = CapacityConstants.SUN_DAY, ignore = true)
+	@Mapping(target = CapacityConstants.MON_DAY, ignore = true)
+	@Mapping(target = CapacityConstants.TUE_DAY, ignore = true)
+	@Mapping(target = CapacityConstants.WED_DAY, ignore = true)
+	@Mapping(target = CapacityConstants.THU_DAY, ignore = true)
+	@Mapping(target = CapacityConstants.FRI_DAY, ignore = true)
+	@Mapping(target = CapacityConstants.SAT_DAY, ignore = true)
 	@Mapping(source = CapacityConstants.MAP_CAPACITY_TEMPLATE_NM, target = CapacityConstants.TEMPLATE_NAME)
 	CapacityTemplate map(CapacityTemplateEntity capacityTemplate);
 
@@ -306,6 +308,7 @@ public interface CapacityTemplateMapper {
 	 * @return CreateTemplateResponse mapped model class of 
 	 * 			Create Template Response detail.
 	 */
+	@Named(CapacityConstants.MAPCREATETEMPLATERESPONSE)
 	default CreateTemplateResponse mapCreateResponse(CapacityTemplateEntity createdTemplateEntity) {
 		CreateTemplateResponse createTemplateResponse = new CreateTemplateResponse();
 		createTemplateResponse.setCapacityTemplateId(createdTemplateEntity.getCapacityTemplateId());
