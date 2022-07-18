@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -43,10 +45,12 @@ import com.darden.dash.capacity.entity.CapacityTemplateTypeEntity;
 import com.darden.dash.capacity.entity.ReferenceEntity;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
+import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.Channel;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
+import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.repository.CapacityChannelRepo;
@@ -58,6 +62,7 @@ import com.darden.dash.capacity.repository.CapacityTemplateAndCapacityChannelRep
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.repository.CapacityTemplateTypeRepository;
 import com.darden.dash.capacity.repository.ReferenceRepository;
+import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
@@ -101,6 +106,8 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	
 	private CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository;
 	
+	private CapacityChannelService capacityChannelService;
+	
 	private AppParameterService appParameterService;
 	
 	private AuditService auditService;
@@ -131,6 +138,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			CapacitySlotRepository capacitySlotRepository,
 			CapacityTemplateAndCapacityChannelRepository capacityTemplateAndCapacityChannelRepository,
 			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository,
+			CapacityChannelService capacityChannelService,
 			@Qualifier(CapacityConstants.APP_PARAMETER_SERVICE) AppParameterService appParameterService,
 			AuditService auditService) {
 		super();
@@ -144,6 +152,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		this.capacitySlotRepository = capacitySlotRepository;
 		this.capacityTemplateAndCapacityChannelRepository = capacityTemplateAndCapacityChannelRepository;
 		this.capacityModelAndCapacityTemplateRepository = capacityModelAndCapacityTemplateRepository;
+		this.capacityChannelService = capacityChannelService;
 		this.appParameterService = appParameterService;
 		this.auditService = auditService;
 	}
@@ -161,7 +170,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	@Override
 	@Cacheable(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE)
-	public List<CapacityTemplate> getAllCapacityTemplates() {
+	public CapacityResponse getAllCapacityTemplates(Boolean isRefDataReq) {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		if (StringUtils.isBlank(RequestContext.getConcept())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4421));
@@ -180,7 +189,62 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			List<SlotChannel> slotChannels = mapSlotChannels(channelSlotDetails, channelIds, channelNames);
 			mapCapacityTemplateModel(capacityTemplates, capacityTemplateEntity, channels, slotChannels);
 		});
-		return capacityTemplates; 
+		List<ReferenceDatum> referenceData = getReferenceDataBasedOnIsRefDataReq(isRefDataReq,
+				capacityTemplateEntities);
+		return new CapacityResponse(capacityTemplates, referenceData);
+	}
+
+	/**
+	 * This method is used to retrieve reference data based on the boolean
+	 * value of isRefDataReq passed in the parameters.
+	 * 
+	 * @param isRefDataReq boolean class containing the value of 
+	 * 							if reference data is required.
+	 * 
+	 * @param capacityTemplateEntities list of entity class containing the
+	 * 						value of Capacity Template.
+	 * 
+	 * @return List<ReferenceDatum> list of model class containing the 
+	 * 						value of reference data.
+	 */
+	private List<ReferenceDatum> getReferenceDataBasedOnIsRefDataReq(Boolean isRefDataReq,
+			List<CapacityTemplateEntity> capacityTemplateEntities) {
+		List<ReferenceDatum> referenceData = new ArrayList<>();
+		List<CapacityTemplate> assignTemplate = new ArrayList<>();
+		if(null == isRefDataReq || isRefDataReq) {
+			getAssignedTemplates(capacityTemplateEntities, assignTemplate);
+			ReferenceDatum refData = capacityChannelService.getReferenceData();
+			refData.setAssignTemplate(assignTemplate);
+			referenceData = Collections.singletonList(refData);
+		}
+		return referenceData;
+	}
+
+	/**
+	 * This method is used to retrieve list of assigned templates to 
+	 * capacity models.
+	 * 
+	 * @param capacityTemplateEntities list of entity class containing the
+	 * 						value of Capacity Template.
+	 * 
+	 * @param assignTemplate List of model class containing the value 
+	 * 						of assigned templates to model.
+	 */
+	private void getAssignedTemplates(List<CapacityTemplateEntity> capacityTemplateEntities,
+			List<CapacityTemplate> assignTemplate) {
+		List<BigInteger> assignedTemplateId = new ArrayList<>();
+		capacityModelAndCapacityTemplateRepository.findAll().stream().filter(Objects::nonNull)
+			.forEach(assigned -> assignedTemplateId.add(assigned.getCapacityTemplate().getCapacityTemplateId()));
+		List<BigInteger> allTemplateId = new ArrayList<>();
+		capacityTemplateEntities.stream().filter(Objects::nonNull)
+			.forEach(all -> allTemplateId.add(all.getCapacityTemplateId()));
+		allTemplateId.removeAll(assignedTemplateId);
+		capacityTemplateEntities.stream().filter(id -> !allTemplateId.contains(id.getCapacityTemplateId())).forEach(unTemplate ->{
+			CapacityTemplate template = new CapacityTemplate();
+			template.setCapacityTemplateId(unTemplate.getCapacityTemplateId().toString());
+			template.setTemplateName(unTemplate.getCapacityTemplateNm());
+			assignTemplate.add(template);
+		});
 	}
 
 	/**
@@ -204,8 +268,27 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	private void mapCapacityTemplateModel(List<CapacityTemplate> capacityTemplateModels,
 			CapacityTemplateEntity capacityTemplateEntity, List<Channel> channels, List<SlotChannel> slotChannels) {
 		CapacityTemplate capacityTemplateModel = capacityTemplateMapper.map(capacityTemplateEntity);
+		capacityTemplateModel.setCapacityTemplateType(capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm());
 		capacityTemplateModel.setSlotStartTime(String.valueOf(capacityTemplateEntity.getStartTime()));
 		capacityTemplateModel.setSlotEndTime(String.valueOf(capacityTemplateEntity.getEndTime()));
+		if(capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DAYS)) {
+			capacityTemplateModel.setSunDay(capacityTemplateEntity.getSunFlg());
+			capacityTemplateModel.setMonDay(capacityTemplateEntity.getMonFlg());
+			capacityTemplateModel.setTueDay(capacityTemplateEntity.getTueFlg());
+			capacityTemplateModel.setWedDay(capacityTemplateEntity.getWedFlg());
+			capacityTemplateModel.setThuDay(capacityTemplateEntity.getThuFlg());
+			capacityTemplateModel.setFriDay(capacityTemplateEntity.getFriFlg());
+			capacityTemplateModel.setSatDay(capacityTemplateEntity.getSatFlg());
+		}
+		else if(capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DATES)) {
+			List<BusinessDate> datesAssigned = new ArrayList<>();
+			capacityTemplateEntity.getCapacityTemplateAndBusinessDates().stream().filter(Objects::nonNull).forEach(d -> {
+				BusinessDate date = new BusinessDate();
+				date.setDate(DateUtil.dateToString(d.getId().getBusinessDate()));
+				datesAssigned.add(date);
+			});
+			capacityTemplateModel.setBusinessDate(datesAssigned);
+		}
 		capacityTemplateModel.setSlotChannels(slotChannels);
 		capacityTemplateModel.setChannels(channels);
 		capacityTemplateModels.add(capacityTemplateModel);
@@ -901,32 +984,114 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
-	public boolean validateCapacityModelBusinessDates(CreateCapacityTemplateRequest createCapacityTemplateRequest) {
+	public boolean validateCapacityModelBusinessDates(CreateCapacityTemplateRequest createCapacityTemplateRequest, String templateId) {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		List<CapacityModelAndCapacityTemplateEntity> list = capacityModelAndCapacityTemplateRepository.findAll();
-		String templateTypeName = createCapacityTemplateRequest.getTemplateTypeName();
-		if (CapacityConstants.DAYS.equalsIgnoreCase(templateTypeName)) {
-			if(createCapacityTemplateRequest.getExpiryDate() == null) {
-				applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
-				applicationErrors.raiseExceptionIfHasErrors();
+		List<BigInteger> assignedTemplateId = extractingAllAssignedTemplateId(list);
+		if(assignedTemplateId.contains(new BigInteger(templateId))) {
+			list = extractingAssignedTemplatesToBeComapred(templateId, list);
+			String templateTypeName = createCapacityTemplateRequest.getTemplateTypeName();
+			if (CapacityConstants.DAYS.equalsIgnoreCase(templateTypeName)) {
+				validateEffectiveDateAndExpiryDate(createCapacityTemplateRequest, applicationErrors);
+				return validationForTemplateDays(createCapacityTemplateRequest, list);
+			} else if (CapacityConstants.DATES.equalsIgnoreCase(templateTypeName)) {
+				return validateForTemplateDates(createCapacityTemplateRequest, list);
 			}
-			return validationForTemplateDays(createCapacityTemplateRequest, list);
-		} else if (CapacityConstants.DATES.equalsIgnoreCase(templateTypeName)) {
-			return list.stream().filter(Objects::nonNull).anyMatch(t -> t.getCapacityTemplate()
-					.getCapacityTemplateAndBusinessDates().stream().filter(Objects::nonNull).anyMatch(s -> {
-						LocalDate businessDate = DateUtil.convertDatetoLocalDate(s.getId().getBusinessDate());
-						return createCapacityTemplateRequest.getBusinessDates().stream().filter(Objects::nonNull)
-								.anyMatch(bDate -> {
-									LocalDate reqBusinessDate = DateUtil.convertStringtoLocalDate(bDate.getDate());
-									boolean isSameBusinessDate = false;
-									if (businessDate.equals(reqBusinessDate)) {
-										isSameBusinessDate = true;
-									}
-									return isSameBusinessDate;
-								});
-					}));
 		}
 		return false;
+	}
+
+	/**
+	 * This method is to validate effective date and expiry date for days
+	 * capacity template.
+	 * 
+	 * @param createCapacityTemplateRequest Request class containing the detail of
+	 * 								Capacity Template to be created.
+	 * 
+	 * @param applicationErrors error class used to throw errors if validation fails.
+	 */
+	private void validateEffectiveDateAndExpiryDate(CreateCapacityTemplateRequest createCapacityTemplateRequest,
+			ApplicationErrors applicationErrors) {
+		if(createCapacityTemplateRequest.getEffectiveDate() == null) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EFFECTIVE_DATE);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		if(createCapacityTemplateRequest.getExpiryDate() == null) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+	}
+
+	/**
+	 * This method is used to validate days if any similar day format template
+	 * is present in same capacity model.
+	 * 
+	 * @param createCapacityTemplateRequest Request class containing the detail of
+	 * 								Capacity Template to be created.
+	 * 
+	 * @param list of entity class containing the value of Capacity Model And Capacity 
+	 * 							Template.
+	 * 
+	 * @return boolean value is returned based on condition.
+	 */
+	private boolean validateForTemplateDates(CreateCapacityTemplateRequest createCapacityTemplateRequest,
+			List<CapacityModelAndCapacityTemplateEntity> list) {
+		return list.stream().filter(Objects::nonNull)
+				.filter(tempType -> tempType.getCapacityTemplate().getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DATES))
+				.anyMatch(t -> t.getCapacityTemplate()
+				.getCapacityTemplateAndBusinessDates()
+				.stream()
+				.filter(Objects::nonNull)
+				.anyMatch(s -> {
+					LocalDate businessDate = DateUtil.convertDatetoLocalDate(s.getId().getBusinessDate());
+					return createCapacityTemplateRequest.getBusinessDates().stream().filter(Objects::nonNull)
+							.anyMatch(bDate -> {
+								LocalDate reqBusinessDate = DateUtil.convertStringtoLocalDate(bDate.getDate());
+								boolean isSameBusinessDate = false;
+								if (businessDate.equals(reqBusinessDate)) {
+									isSameBusinessDate = true;
+								}
+								return isSameBusinessDate;
+							});
+				}));
+	}
+
+	/**
+	 * This method is used to get all other templates assigned to capacity model.
+	 * 
+	 * @param templateId String containing value of template Id to be updated.
+	 * 
+	 * @param list of entity class containing the value of Capacity Model And Capacity 
+	 * 							Template.
+	 * 
+	 * @return List<CapacityModelAndCapacityTemplateEntity> list of entity class containing 
+	 * 						the value of Capacity Model And Capacity Template.
+	 */
+	private List<CapacityModelAndCapacityTemplateEntity> extractingAssignedTemplatesToBeComapred(String templateId,
+			List<CapacityModelAndCapacityTemplateEntity> list) {
+		List<CapacityModelAndCapacityTemplateEntity> assignedModel = list.stream()
+				.filter(templateAssigned -> templateAssigned.getCapacityTemplate().getCapacityTemplateId().equals(new BigInteger(templateId)))
+				.collect(Collectors.toList());
+		list = list.stream()
+				.filter(modelAssignedTemplate -> modelAssignedTemplate.getCapacityModel().getCapacityModelId().equals(assignedModel.get(0).getCapacityModel().getCapacityModelId()))
+				.filter(template -> !template.getCapacityTemplate().getCapacityTemplateId().equals(new BigInteger(templateId)))
+				.collect(Collectors.toList());
+		return list;
+	}
+
+	/**
+	 * This method is used get all assigned template Id.
+	 * 
+	 * @param list of entity class containing the value of Capacity Model And Capacity 
+	 * 							Template.
+	 * 
+	 * @return List<BigInteger> List of BigInteger containing the data of assigned
+	 * 							template Id.
+	 */
+	private List<BigInteger> extractingAllAssignedTemplateId(List<CapacityModelAndCapacityTemplateEntity> list) {
+		List<BigInteger> assignedTemplateId = new ArrayList<>();
+		list.stream().forEach( assignedId -> assignedTemplateId.add(assignedId.getId().getCapacityTemplateId()));
+		return assignedTemplateId;
 	}
 
 	/**

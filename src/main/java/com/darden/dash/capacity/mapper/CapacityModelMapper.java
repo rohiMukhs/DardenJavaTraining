@@ -1,14 +1,18 @@
 package com.darden.dash.capacity.mapper;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 
+import com.darden.dash.capacity.entity.CapacityModelAndLocationEntity;
+import com.darden.dash.capacity.entity.CapacityModelAndLocationPK;
 import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityTemplateNames;
@@ -72,6 +76,43 @@ public interface CapacityModelMapper {
 		model.setLastModifiedBy(mel.getLastModifiedBy());
 		model.setLastModifiedDateTime(mel.getLastModifiedDatetime());
 		return model;
+	}
+	
+	/**
+	 * This mapper method is used to map data to list of Capacity Model And
+	 * Location Entity.
+	 * 
+	 * @param user String contains the user detail from access token.
+	 * 
+	 * @param dateTime Instant containing the value of date and time.
+	 * 
+	 * @param savedEntity entity class containing the value of capacity
+	 * 					model.
+	 * 
+	 * @param notAssignedLocation list of bigInteger containing the 
+	 * 					value of not assigned location Id.
+	 * 
+	 * @return List<CapacityModelAndLocationEntity> list entity class containing
+	 *   data of mapped Capacity Model And Location.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYMODELANDLOCATIONENTITYLIST)
+	default List<CapacityModelAndLocationEntity> mapToCapacityModelAndLocationEntityList(String user, Instant dateTime,
+			CapacityModelEntity savedEntity, ArrayList<BigInteger> notAssignedLocation) {
+		List<CapacityModelAndLocationEntity> capacityModelAndLocationEntites = new ArrayList<>();
+		notAssignedLocation.stream().filter(Objects::nonNull)
+				.forEach(restaurantsAssigned -> {
+					CapacityModelAndLocationEntity capacityModelAndLocationEntity = new CapacityModelAndLocationEntity();
+					CapacityModelAndLocationPK capacityModelAndLocationPK = new CapacityModelAndLocationPK();
+					capacityModelAndLocationPK.setLocationId(restaurantsAssigned);
+					capacityModelAndLocationPK.setCapacityModelId(savedEntity.getCapacityModelId());
+					capacityModelAndLocationEntity.setId(capacityModelAndLocationPK);
+					capacityModelAndLocationEntity.setCreatedBy(user);
+					capacityModelAndLocationEntity.setCreatedDatetime(dateTime);
+					capacityModelAndLocationEntity.setLastModifiedBy(user);
+					capacityModelAndLocationEntity.setLastModifiedDatetime(dateTime);
+					capacityModelAndLocationEntites.add(capacityModelAndLocationEntity);
+				});
+		return capacityModelAndLocationEntites;
 	}
 	
 }

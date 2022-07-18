@@ -155,7 +155,7 @@ public class CapacityValidator implements DashValidator {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 					CapacityConstants.CAPACITY_TEMPLATE_NM);
 		}
-		if(capacityManagementService.validateCapacityModelBusinessDates(createCapacityTemplateRequest)) {
+		if(capacityManagementService.validateCapacityModelBusinessDates(createCapacityTemplateRequest, templateId)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4502));
 		}
 	}

@@ -155,7 +155,7 @@ class CapacityValidatorTest {
 		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
 		Mockito.when(capacityManagementService.validateCapacityTemplateNmForCreate(Mockito.anyString(),Mockito.anyString())).thenReturn(false);
-		Mockito.when(capacityManagementService.validateCapacityModelBusinessDates(Mockito.any())).thenReturn(false);
+		Mockito.when(capacityManagementService.validateCapacityModelBusinessDates(Mockito.any(), Mockito.any())).thenReturn(false);
 		capacityValidator.validate(request, OperationConstants.OPERATION_UPDATE.getCode(),"1");
 		assertNotNull(request);
 	}

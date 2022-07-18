@@ -1,8 +1,6 @@
 package com.darden.dash.capacity.controller;
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,7 +21,6 @@ import com.darden.dash.capacity.client.LocationClient;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityModelResponse;
 import com.darden.dash.capacity.model.CapacityResponse;
-import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateResponse;
@@ -32,7 +29,6 @@ import com.darden.dash.capacity.model.CreateCombineChannelResponse;
 import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.model.EditChannelResponse;
 import com.darden.dash.capacity.model.GetCapacityModelResponse;
-import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.ServiceResponse;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
@@ -114,15 +110,12 @@ public class CapacityManagementController {
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CapacityResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> getAllCapacityTemplates(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
+	public ResponseEntity<Object> getAllCapacityTemplates(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId, @RequestParam Boolean isRefDataReq,
 			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
         // validating the access token
 		jwtUtils.findUserDetail(accessToken);
 		capacityValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
-		List<CapacityTemplate> capacityTemplates = capacityManagementService.getAllCapacityTemplates();
-		ReferenceDatum referenceData = capacityChannelService.getReferenceData();
-		return new CapacityResponse(capacityTemplates, Collections.singletonList(referenceData)).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
-
+		return capacityManagementService.getAllCapacityTemplates(isRefDataReq).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
 	}
 	
 	/**
