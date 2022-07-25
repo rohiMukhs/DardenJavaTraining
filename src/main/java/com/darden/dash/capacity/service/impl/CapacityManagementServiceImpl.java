@@ -180,13 +180,13 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo.findByConceptId(concepId);
 		List<CapacityTemplate> capacityTemplates = new ArrayList<>();
 		capacityTemplateEntities.stream().filter(Objects::nonNull).forEach(capacityTemplateEntity -> {
-			List<Channel> channels = getCapacityTemplateChannels(capacityTemplateEntity);
+			List<Channel> channels = capacityTemplateMapper.getCapacityTemplateChannels(capacityTemplateEntity);
 			List<CapacitySlotEntity> capacitySlots = capacityTemplateEntity.getCapacitySlots();
 			MultiValuedMap<String, SlotDetail> channelSlotDetails = new ArrayListValuedHashMap<>();
 			Set<String> channelIds = new HashSet<>();
 			Map<String, String> channelNames = new HashMap<>();
-			mapCapacitySlots(capacitySlots, channelSlotDetails, channelIds, channelNames);
-			List<SlotChannel> slotChannels = mapSlotChannels(channelSlotDetails, channelIds, channelNames);
+			capacityTemplateMapper.mapCapacitySlots(capacitySlots, channelSlotDetails, channelIds, channelNames);
+			List<SlotChannel> slotChannels = capacityTemplateMapper.mapSlotChannels(channelSlotDetails, channelIds, channelNames);
 			mapCapacityTemplateModel(capacityTemplates, capacityTemplateEntity, channels, slotChannels);
 		});
 		List<ReferenceDatum> referenceData = getReferenceDataBasedOnIsRefDataReq(isRefDataReq,
@@ -272,13 +272,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		capacityTemplateModel.setSlotStartTime(String.valueOf(capacityTemplateEntity.getStartTime()));
 		capacityTemplateModel.setSlotEndTime(String.valueOf(capacityTemplateEntity.getEndTime()));
 		if(capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DAYS)) {
-			capacityTemplateModel.setSunDay(capacityTemplateEntity.getSunFlg());
-			capacityTemplateModel.setMonDay(capacityTemplateEntity.getMonFlg());
-			capacityTemplateModel.setTueDay(capacityTemplateEntity.getTueFlg());
-			capacityTemplateModel.setWedDay(capacityTemplateEntity.getWedFlg());
-			capacityTemplateModel.setThuDay(capacityTemplateEntity.getThuFlg());
-			capacityTemplateModel.setFriDay(capacityTemplateEntity.getFriFlg());
-			capacityTemplateModel.setSatDay(capacityTemplateEntity.getSatFlg());
+			capacityTemplateMapper.mapToCapacityTemplateFromEntity(capacityTemplateEntity, capacityTemplateModel);
 		}
 		else if(capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DATES)) {
 			List<BusinessDate> datesAssigned = new ArrayList<>();
@@ -292,90 +286,6 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		capacityTemplateModel.setSlotChannels(slotChannels);
 		capacityTemplateModel.setChannels(channels);
 		capacityTemplateModels.add(capacityTemplateModel);
-	}
-
-	/**
-	 * 
-	 * This method is used to map capacity channel from capacity template entity
-	 * 
-	 * @param capacityTemplateEntity entity class containing the detail of capacity 
-	 * 									template.
-	 * 
-	 * @return List<Channel> list of model class containing the detail of channel.
-	 */
-
-	private List<Channel> getCapacityTemplateChannels(CapacityTemplateEntity capacityTemplateEntity) {
-		List<Channel> channels = new ArrayList<>();
-		List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannelEntity = capacityTemplateEntity
-				.getCapacityTemplateAndCapacityChannels();
-		capacityTemplateAndCapacityChannelEntity.stream().filter(Objects::nonNull).forEach(ctc -> {
-			Channel channel = new Channel();
-			channel.setCapacityChannelId(ctc.getCapacityChannel().getCapacityChannelId());
-			channel.setCapacityChannelName(ctc.getCapacityChannel().getCapacityChannelNm());
-			channel.setIsSelectedFlag(ctc.getIsSelectedFlag());
-			channels.add(channel);
-		});
-		return channels;
-	}
-
-	/**
-	 * 
-	 * This method is used to map the slots corresponding to this template Id and
-	 * channel Id
-	 * 
-	 * @param capacitySlots list of entity class with the detail of capacity slot.
-	 * 
-	 * @param channelSlotDetails model class containing the value of channel
-	 * 							slot details.
-	 * 
-	 * @param channelIds Set of string containing the channel Id.
-	 * 
-	 * @param channelNames String containing value of channel names.
-	 */
-	private void mapCapacitySlots(List<CapacitySlotEntity> capacitySlots,
-			MultiValuedMap<String, SlotDetail> channelSlotDetails, Set<String> channelIds,
-			Map<String, String> channelNames) {
-		capacitySlots.stream().filter(Objects::nonNull).forEach(cs -> {
-			String channelId = String.valueOf(cs.getCapacityChannel().getCapacityChannelId());
-			channelIds.add(channelId);
-			channelNames.put(channelId, cs.getCapacityChannel().getCapacityChannelNm());
-			SlotDetail slotDetail = new SlotDetail();
-			slotDetail.setSlotId(cs.getCapacitySlotId());
-			slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
-			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
-			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
-			slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
-			slotDetail.setCapacityCount(cs.getCapacityCnt());
-			channelSlotDetails.put(String.valueOf(cs.getCapacityChannel().getCapacityChannelId()), slotDetail);
-		});
-	}
-
-	/**
-	 * This method is used to group slot channels using channel id
-	 * 
-	 * @param channelSlotDetails model class containing the value of channel
-	 * 							slot details.
-	 * 
-	 * @param channelIds Set of string containing the channel Id.
-	 * 
-	 * @param channelNames String containing value of channel names.
-	 * 
-	 * @return List<SlotChannel> returning the list of model class with
-	 * 							mapped values.
-	 */
-	private List<SlotChannel> mapSlotChannels(MultiValuedMap<String, SlotDetail> channelSlotDetails,
-			Set<String> channelIds, Map<String, String> channelNames) {
-		List<SlotChannel> slotChannels = new ArrayList<>();
-		channelIds.stream().filter(StringUtils::isNotBlank).forEach(channelId -> {
-			List<SlotDetail> slotDetails = new ArrayList<>();
-			SlotChannel slotChannel = new SlotChannel();
-			slotChannel.setChannelId(new BigInteger(channelId));
-			slotChannel.setChannelName(channelNames.get(channelId));
-			slotDetails.addAll(channelSlotDetails.get(channelId));
-			slotChannel.setSlotDetails(slotDetails);
-			slotChannels.add(slotChannel);
-		});
-		return slotChannels;
 	}
 
 	/**
@@ -442,7 +352,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 					.save(capacityTemplateAndCapacityChannelEntity);
 			SlotChannel responseChannel = new SlotChannel();
 			responseChannel.setChannelId(savedChannelEntity.getId().getCapacityChannelId());
-			responseChannel.setIsSelectedFlag(savedChannelEntity.getIsSelectedFlag());
+			responseChannel.setIsSelectedFlag(CapacityConstants.Y);
 			List<SlotDetail> responseDetail = new ArrayList<>();
 			List<SlotDetail> slotDetailList = t.getSlotDetails();
 			slotDetailList.stream().forEach(s -> {
@@ -676,8 +586,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		Optional<CapacityTemplateEntity> capacityTemplateEntity = capacityTemplateRepo.findById(templateId);
-		capacityTemplateEntity.ifPresent(existingTemplate -> mapExistingTemplateAndUpdate(templateRequest, createdBy,
-				dateTime, existingTemplate));
+		capacityTemplateEntity.ifPresent(existingTemplate ->{
+			capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(existingTemplate);
+			capacitySlotRepository.deleteAllBycapacityTemplate(existingTemplate);
+			capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(existingTemplate);
+			mapExistingTemplateAndUpdate(templateRequest, createdBy,dateTime, existingTemplate);
+		});
 		Optional<CapacityTemplateEntity> templateData = capacityTemplateRepo.findById(templateId);
 		if (templateData.isPresent()) {
 			CapacityTemplateEntity responseCapacityTemplateEntity = templateData.get();
@@ -712,7 +626,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 				.getCapacityTemplateAndCapacityChannels();
 		capacityTemplateAndCapacityChannelEntites.stream().filter(Objects::nonNull).forEach(ctc -> {
 			CapacityTemplateAndCapacityChannelPK pk = ctc.getId();
-			isSelectedFlags.put(String.valueOf(pk.getCapacityChannelId()), ctc.getIsSelectedFlag());
+			isSelectedFlags.put(String.valueOf(pk.getCapacityChannelId()), CapacityConstants.Y);
 		});
 		mapCapacitySlotsResponseForUpdate(capacitySlots, channelSlotDetails, channelIds);
 		List<SlotChannel> slotChannels = mapSlotChannelsResponseForUpdate(channelSlotDetails, channelIds,isSelectedFlags);
@@ -720,7 +634,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			response.setBusinessDates(templateRequest.getBusinessDates());
 		}
 		response.setSlotChannels(slotChannels);
-		mapTemplateTypeResponse(response, responseCapacityTemplateEntity);
+		capacityTemplateMapper.mapTemplateTypeResponse(response, responseCapacityTemplateEntity);
 		return response;
 	}
 	
@@ -741,13 +655,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		capacitySlots.stream().filter(Objects::nonNull).forEach(cs -> {
 			String channelId = String.valueOf(cs.getCapacityChannel().getCapacityChannelId());
 			channelIds.add(channelId);
-			SlotDetail slotDetail = new SlotDetail();
-			slotDetail.setSlotId(cs.getCapacitySlotId());
-			slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
-			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
-			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
-			slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
-			slotDetail.setCapacityCount(cs.getCapacityCnt());
+			SlotDetail slotDetail = capacityTemplateMapper.mapToUpdateCapacityTemplateSlots(cs);
 			channelSlotDetails.put(String.valueOf(cs.getCapacityChannel().getCapacityChannelId()), slotDetail);
 		});
 	}
@@ -769,33 +677,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	private List<SlotChannel> mapSlotChannelsResponseForUpdate(MultiValuedMap<String, SlotDetail> channelSlotDetails,
 			Set<String> channelIds, Map<String, String> isSeletedFlags) {
-		List<SlotChannel> slotChannels = new ArrayList<>();
-		channelIds.stream().filter(StringUtils::isNotBlank).forEach(channelId -> {
-			List<SlotDetail> slotDetails = new ArrayList<>();
-			SlotChannel slotChannel = new SlotChannel();
-			slotChannel.setChannelId(new BigInteger(channelId));
-			slotChannel.setIsSelectedFlag(isSeletedFlags.get(channelId));
-			slotDetails.addAll(channelSlotDetails.get(channelId));
-			slotChannel.setSlotDetails(slotDetails);
-			slotChannels.add(slotChannel);
-		});
-		return slotChannels;
-	}
-
-	/** 
-	 *  This method is to  retrieve the capacity template type and constructing the response based on
-	 *  capacity template type details 
-	 * 
-	 * @param response model class containing the value of Capacity Template.
-	 * 
-	 * @param test entity class containing the value of Capacity Template.
-	 */
-	public void mapTemplateTypeResponse(CreateTemplateResponse response, CapacityTemplateEntity test) {
-		CapacityTemplateTypeEntity  type=test.getCapacityTemplateType();
-		if(type!=null) {
-		response.setTemplateTypeId(type.getCapacityTemplateTypeId());
-		response.setTemplateTypeName(type.getCapacityTemplateTypeNm());
-		}
+		return capacityTemplateMapper.mapToUpdateSlotChannelResponse(channelSlotDetails, channelIds, isSeletedFlags);
 	}
 
 	/**
@@ -816,21 +698,17 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	private void mapExistingTemplateAndUpdate(CreateCapacityTemplateRequest templateRequest, String createdBy,
 			Instant dateTime, CapacityTemplateEntity existingTemplate) {
 		existingTemplate.setCapacityTemplateNm(templateRequest.getCapacityTemplateName());
-		existingTemplate.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
-		if(templateRequest.getExpiryDate() != null) {
-			existingTemplate.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
-		}
 		existingTemplate.setLastModifiedBy(createdBy);
 		existingTemplate.setLastModifiedDatetime(dateTime);
 		String templateTypeName = templateRequest.getTemplateTypeName();
 		if (CapacityConstants.DAYS.equals(templateTypeName)) {
-			existingTemplate.setSunFlg(templateRequest.getSunDay());
-			existingTemplate.setMonFlg(templateRequest.getMonDay());
-			existingTemplate.setTueFlg(templateRequest.getTueDay());
-			existingTemplate.setWedFlg(templateRequest.getWedDay());
-			existingTemplate.setThuFlg(templateRequest.getThuDay());
-			existingTemplate.setFriFlg(templateRequest.getFriDay());
-			existingTemplate.setSatFlg(templateRequest.getSatDay());
+			existingTemplate.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
+			existingTemplate.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+			capacityTemplateMapper.mapTemplateDaysFromTemplateCreateUpdateRequest(templateRequest, existingTemplate);
+		}
+		else {
+			existingTemplate.setEffectiveDate(DateUtil.stringToDate(CapacityConstants.BLANK));
+			existingTemplate.setExpiryDate(DateUtil.stringToDate(CapacityConstants.BLANK));
 		}
 		existingTemplate.setStartTime(LocalTime.parse(templateRequest.getSlotStartTime()));
 		existingTemplate.setEndTime(LocalTime.parse(templateRequest.getSlotEndTime()));
@@ -842,6 +720,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		capacityTemplateRepo.save(existingTemplate);
 		updateCapacitySlots(templateRequest, createdBy, dateTime, existingTemplate);
 		if (CapacityConstants.DATES.equals(templateTypeName)) {
+			capacityTemplateMapper.setTemplateDaysToNullValue(existingTemplate);
 			updateBusinessDates(templateRequest, createdBy, dateTime, existingTemplate);
 		}
 	}
@@ -860,7 +739,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	private void updateCapacitySlots(CreateCapacityTemplateRequest templateRequest, String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate) {
-		BigInteger templateId = existingTemplate.getCapacityTemplateId();
+		List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannelEntityList = new ArrayList<>();
 		MultiValuedMap<BigInteger, SlotDetail> channelSlotDetails = new ArrayListValuedHashMap<>();
 		if (CollectionUtils.isNotEmpty(templateRequest.getSlotChannels())) {
 			templateRequest.getSlotChannels().forEach(slotChannel -> {
@@ -869,7 +748,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 						.forEach(slotDetail -> channelSlotDetails.put(channelId, slotDetail));
 				Optional<CapacityChannelEntity> channelEntity = capacityChannelRepo.findById(channelId);
 				if (channelEntity.isPresent()) {
-					deleteExistingSlots(templateId, channelEntity);
+					CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = capacityTemplateMapper
+							.mapToTemplateAndChannelEntity(existingTemplate, channelEntity, slotChannel, createdBy, dateTime);
+					capacityTemplateAndCapacityChannelEntityList.add(capacityTemplateAndCapacityChannelEntity);
 					List<CapacitySlotEntity> newSlotEntities = new ArrayList<>();
 					Collection<SlotDetail> slotDetailsReq = channelSlotDetails.get(channelId);
 					slotDetailsReq.stream().filter(Objects::nonNull).forEach(slotDetailReq -> {
@@ -881,6 +762,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 				}
 			});
 		}
+		capacityTemplateAndCapacityChannelRepository.saveAll(capacityTemplateAndCapacityChannelEntityList);
 	}
 
 	/**
@@ -903,46 +785,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	private CapacitySlotEntity mapSlotEntity(String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate, Optional<CapacityChannelEntity> channelEntity,
 			SlotDetail slotDetailReq) {
-		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
-		channelEntity.ifPresent(capacitySlotEntity::setCapacityChannel);
-		capacitySlotEntity.setStartTime(LocalTime.parse(slotDetailReq.getStartTime()));
-		capacitySlotEntity.setEndTime(LocalTime.parse(slotDetailReq.getEndTime()));
-		capacitySlotEntity.setCapacityCnt(slotDetailReq.getCapacityCount());
 		Optional<CapacitySlotTypeEntity> capacitySlotTypeEntity = capacitySlotTypeRepository
 				.findById(new BigInteger(slotDetailReq.getSlotTypeId()));
-		capacitySlotTypeEntity.ifPresent(capacitySlotEntity::setCapacitySlotType);
-		capacitySlotEntity.setCreatedBy(createdBy);
-		capacitySlotEntity.setCreatedDatetime(dateTime);
-		capacitySlotEntity.setLastModifiedBy(createdBy);
-		capacitySlotEntity.setLastModifiedDatetime(dateTime);
-		capacitySlotEntity.setIsDeletedFlg(CapacityConstants.N);
-		capacitySlotEntity.setCapacityTemplate(existingTemplate);
 		Optional<ReferenceEntity> reference = referenceRepository
 				.findById(CapacityConstants.BIG_INT_CONSTANT);
-		reference.ifPresent(capacitySlotEntity::setReference);
-		return capacitySlotEntity;
+		return capacityTemplateMapper.mapToCapacitySlotEntity(createdBy, dateTime, existingTemplate,
+				channelEntity, slotDetailReq, capacitySlotTypeEntity, reference);
 	}
-
-	/**
-	 * This method is to delete existing slots based on channel Id and template Id
-	 * 
-	 * @param templateId BigInteger containing value of template Id of capacity
-	 * 					slots to be deleted.
-	 * 
-	 * @param channelEntity entity class with value of capacity channel to get the 
-	 * 						capacity slots to be deleted.
-	 */
-	private void deleteExistingSlots(BigInteger templateId, Optional<CapacityChannelEntity> channelEntity) {
-		if(channelEntity.isPresent()) {
-		List<CapacitySlotEntity> capacitySlots = capacitySlotRepository
-				.findByCapacityChannel(channelEntity.get());
-		capacitySlots.stream().filter(Objects::nonNull)
-				.filter(t -> t.getCapacityTemplate().getCapacityTemplateId().equals(templateId))
-				.forEach(capacitySlotRepository::delete);
-		}
-				
-	}
-
+	
 	/**
 	 * This method is to update the existing business dates based on capacityTemplateAndBusinessDate Id
 	 * and saving new dates
@@ -958,8 +808,6 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	private void updateBusinessDates(CreateCapacityTemplateRequest templateRequest, String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate) {
-		existingTemplate.getCapacityTemplateAndBusinessDates().stream().filter(Objects::nonNull)
-		.forEach(t -> capacityTemplateAndBusinessDateRepository.deleteById(t.getId()));
 		List<BusinessDate> bList = templateRequest.getBusinessDates();
 		List<CapacityTemplateAndBusinessDateEntity> list = new ArrayList<>();
 		bList.stream().filter(Objects::nonNull).forEach(t -> {
