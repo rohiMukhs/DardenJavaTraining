@@ -11,13 +11,20 @@ import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 
+import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
+import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplatePK;
 import com.darden.dash.capacity.entity.CapacityModelAndLocationEntity;
 import com.darden.dash.capacity.entity.CapacityModelAndLocationPK;
 import com.darden.dash.capacity.entity.CapacityModelEntity;
+import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModel;
+import com.darden.dash.capacity.model.CapacityModelRequest;
+import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.CapacityTemplateNames;
 import com.darden.dash.capacity.model.Locations;
+import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.darden.dash.common.RequestContext;
 
 /**
  * 
@@ -115,4 +122,161 @@ public interface CapacityModelMapper {
 		return capacityModelAndLocationEntites;
 	}
 	
+	/**
+	 * This mapper method is used to map data to Capacity Model Entity.
+	 * 
+	 * @param capacityModelRequest model class containing the value of create capacity model class.
+	 * 
+	 * @param createdBy String contains the user detail from access token.
+	 * 
+	 * @param dateTime Instant containing the value of date and time.
+	 * 
+	 * @return CapacityModelEntity entity class containing the value of
+	 * 					Capacity Model Entity.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYMODELENTITY)
+	default CapacityModelEntity mapToCapacityModelEntity(CapacityModelRequest capacityModelRequest, String createdBy,
+			Instant dateTime) {
+		CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
+		capacityModelEntity.setCapacityModelNm(capacityModelRequest.getTemplateModelName());
+		capacityModelEntity.setCreatedBy(createdBy);
+		capacityModelEntity.setCreatedDatetime(dateTime);
+		capacityModelEntity.setLastModifiedBy(createdBy);
+		capacityModelEntity.setLastModifiedDatetime(dateTime);
+		capacityModelEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
+		capacityModelEntity.setIsDeletedFlg(CapacityConstants.N);
+		return capacityModelEntity;
+	}
+	
+	/**
+	 * This mapper method is used to map data to list of RestaurantsAssigned model class.
+	 * 
+	 * @param modelLocationsList list of entity class containing the values of
+	 * 					Capacity Model And Location.
+	 * 
+	 * @return List<RestaurantsAssigned>  list of model class containing the values of
+	 * 					Restaurants Assigned.
+	 */
+	@Named(CapacityConstants.MAPTORESTAURANTASSIGNEDLIST)
+	default List<RestaurantsAssigned> mapToRestaurantAssignedList(
+			List<CapacityModelAndLocationEntity> modelLocationsList) {
+		List<RestaurantsAssigned> restaurantsAssignedList = new ArrayList<>();
+		modelLocationsList.stream().filter(Objects::nonNull).forEach(restaurantsAssignedEntity -> {
+			RestaurantsAssigned restaurantsAssigned = new RestaurantsAssigned();
+			restaurantsAssigned.setLocationId(String.valueOf(restaurantsAssignedEntity.getId().getLocationId()));
+			restaurantsAssignedList.add(restaurantsAssigned);
+		});
+		return restaurantsAssignedList;
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param capacityTemplateModel model class containing the values of capacity
+	 * 								template model.
+	 * 
+	 * @param responseEntity
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYTEMPLATEMODEL)
+	default void mapToCapacityTemplateModel(CapacityTemplateModel capacityTemplateModel,
+			CapacityModelEntity responseEntity) {
+		capacityTemplateModel.setTemplateModelName(responseEntity.getCapacityModelNm());
+		capacityTemplateModel.setCreatedBy(responseEntity.getCreatedBy());
+		capacityTemplateModel.setCreatedDateTime(responseEntity.getCreatedDatetime());
+		capacityTemplateModel.setLastModifiedBy(responseEntity.getLastModifiedBy());
+		capacityTemplateModel.setLastModifiedDateTime(responseEntity.getLastModifiedDatetime());
+		capacityTemplateModel.setIsDeletedFlg(responseEntity.getIsDeletedFlg());
+	}
+	
+	/**
+	 *  This mapper method is used to map data to list of Capacity Model And Location entity class.
+	 * 
+	 * @param createdBy String contains the user detail from access token.
+	 * 
+	 * @param dateTime Instant containing the value of date and time.
+	 * 
+	 * @param capacityModelEntity entity class containing the value of
+	 * 					 capacity model.
+	 * 
+	 * @param restaurantsAssigned model class containing the value of
+	 * 						restaurant assigned.
+	 * 
+	 * @return CapacityModelAndLocationEntity entity class containing 
+	 * 						the value of Capacity Model And Location.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYMODELANDLOCATIONENTITY)
+	default CapacityModelAndLocationEntity mapToCapacityModelAndLocationEntity(String createdBy, Instant dateTime,
+			CapacityModelEntity capacityModelEntity, RestaurantsAssigned restaurantsAssigned) {
+		CapacityModelAndLocationEntity capacityModelAndLocationEntity = new CapacityModelAndLocationEntity();
+		CapacityModelAndLocationPK capacityModelAndLocationPK = new CapacityModelAndLocationPK();
+		capacityModelAndLocationPK.setLocationId(new BigInteger(restaurantsAssigned.getLocationId()));
+		capacityModelAndLocationPK.setCapacityModelId(capacityModelEntity.getCapacityModelId());
+		capacityModelAndLocationEntity.setId(capacityModelAndLocationPK);
+		capacityModelAndLocationEntity.setCreatedBy(createdBy);
+		capacityModelAndLocationEntity.setCreatedDatetime(dateTime);
+		capacityModelAndLocationEntity.setLastModifiedBy(createdBy);
+		capacityModelAndLocationEntity.setLastModifiedDatetime(dateTime);
+		return capacityModelAndLocationEntity;
+	}
+	
+	/**
+	 *  This mapper method is used to map data to list of Capacity Model And capacity template entity class.
+	 * 
+	 * @param createdByString contains the user detail from access token.
+	 * 
+	 * @param dateTime Instant containing the value of date and time.
+	 * 
+	 * @param capacityModelEntity entity class containing the value of
+	 * 					 capacity model.
+	 * 
+	 * @param capacityTemplateEntites List entity class containing the 
+	 * 					value of capacity template.
+	 *  
+	 * @return List<CapacityModelAndCapacityTemplateEntity> list of 
+	 * 			entity class containing the value of capacity model 
+	 * 			and capacity template.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYMODELANDCAPACITYTEMPLATEENTITYLIST)
+	default List<CapacityModelAndCapacityTemplateEntity> mapToCapacityModelAndCapacityTemplateEntityList(
+			String createdBy, Instant dateTime, CapacityModelEntity capacityModelEntity,
+			List<CapacityTemplateEntity> capacityTemplateEntites) {
+		List<CapacityModelAndCapacityTemplateEntity> capacityModelAndCapacityTemplateEntites = new ArrayList<>();
+		capacityTemplateEntites.stream().forEach(capactityTemplateEntity -> {
+			CapacityModelAndCapacityTemplateEntity capacityModelAndCapacityTemplateEntity = mapToCapacityModelAndCapacityTemplateEntity(
+					createdBy, dateTime, capacityModelEntity, capactityTemplateEntity);
+			capacityModelAndCapacityTemplateEntites.add(capacityModelAndCapacityTemplateEntity);
+		});
+		return capacityModelAndCapacityTemplateEntites;
+	}
+
+	/**
+	 * This mapper method is used to map data to list of Capacity Model And capacity template entity class.
+	 * 
+	 * @param createdBy contains the user detail from access token.
+	 * 
+	 * @param dateTime Instant containing the value of date and time.
+	 * 
+	 * @param capacityModelEntity entity class containing the value of
+	 * 				capacity model.
+	 * 
+	 * @param capactityTemplateEntity entity class containing the value of
+	 * 				capacity template.
+	 * 
+	 * @return CapacityModelAndCapacityTemplateEntity entity class containing the value of
+	 * 				capacity model and capacity template.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYMODELANDCAPACITYTEMPLATEENTITY)
+	default CapacityModelAndCapacityTemplateEntity mapToCapacityModelAndCapacityTemplateEntity(String createdBy,
+			Instant dateTime, CapacityModelEntity capacityModelEntity, CapacityTemplateEntity capactityTemplateEntity) {
+		CapacityModelAndCapacityTemplateEntity capacityModelAndCapacityTemplateEntity = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK capacityModelAndCapacityTemplatePK = new CapacityModelAndCapacityTemplatePK();
+		capacityModelAndCapacityTemplatePK.setCapacityModelId(capacityModelEntity.getCapacityModelId());
+		capacityModelAndCapacityTemplatePK.setCapacityTemplateId(capactityTemplateEntity.getCapacityTemplateId());
+		capacityModelAndCapacityTemplateEntity.setId(capacityModelAndCapacityTemplatePK);
+		capacityModelAndCapacityTemplateEntity.setCreatedBy(createdBy);
+		capacityModelAndCapacityTemplateEntity.setCreatedDatetime(dateTime);
+		capacityModelAndCapacityTemplateEntity.setLastModifiedBy(createdBy);
+		capacityModelAndCapacityTemplateEntity.setLastModifiedDatetime(dateTime);
+		return capacityModelAndCapacityTemplateEntity;
+	}
 }

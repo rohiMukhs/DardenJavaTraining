@@ -4,9 +4,15 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,6 +31,7 @@ import com.darden.dash.capacity.entity.CapacityTemplateTypeEntity;
 import com.darden.dash.capacity.entity.ReferenceEntity;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityTemplate;
+import com.darden.dash.capacity.model.Channel;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.SlotChannel;
@@ -82,9 +89,9 @@ public interface CapacityTemplateMapper {
 	 */
 	@AfterMapping
 	default void map(CapacityTemplateEntity capacityEntity, @MappingTarget CapacityTemplate capacityModel) {
-		capacityModel.setEffectiveDate(DateUtil.dateToString(capacityEntity.getEffectiveDate()));
 		if(capacityEntity.getExpiryDate() != null) {
 			capacityModel.setExpiryDate(DateUtil.dateToString(capacityEntity.getExpiryDate()));
+			capacityModel.setEffectiveDate(DateUtil.dateToString(capacityEntity.getEffectiveDate()));
 		}
 	}
 
@@ -114,14 +121,12 @@ public interface CapacityTemplateMapper {
 		templateEntity.setCreatedDatetime(dateTime);
 		templateEntity.setLastModifiedBy(createdBy);
 		templateEntity.setLastModifiedDatetime(dateTime);
-		if(templateRequest.getExpiryDate() != null) {
-			templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
-		}
-		templateEntity.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
 		templateEntity.setCapacityTemplateType(templateType);
 		templateEntity.setStartTime(LocalTime.parse(templateRequest.getSlotStartTime()));
 		templateEntity.setEndTime(LocalTime.parse(templateRequest.getSlotEndTime()));
-		if (null != templateType.getCapacityTemplateTypeNm() && CapacityConstants.DAYS.equals(templateType.getCapacityTemplateTypeNm())) {
+		if (null != templateRequest.getTemplateTypeName() && CapacityConstants.DAYS.equals(templateRequest.getTemplateTypeName())) {
+			templateEntity.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
+			templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
 			templateEntity.setSunFlg(templateRequest.getSunDay());
 			templateEntity.setMonFlg(templateRequest.getMonDay());
 			templateEntity.setTueFlg(templateRequest.getTueDay());
@@ -240,7 +245,6 @@ public interface CapacityTemplateMapper {
 		id.setCapacityTemplateId(createdTemplateEntity.getCapacityTemplateId());
 		id.setCapacityChannelId(t.getChannelId());
 		capacityTemplateAndCapacityChannelEntity.setId(id);
-		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag(CapacityConstants.Y);
 		capacityTemplateAndCapacityChannelEntity.setCreatedBy(createdBy);
 		capacityTemplateAndCapacityChannelEntity.setCreatedDatetime(dateTime);
 		capacityTemplateAndCapacityChannelEntity.setLastModifiedBy(createdBy);
@@ -315,9 +319,9 @@ public interface CapacityTemplateMapper {
 		createTemplateResponse.setCapacityTemplateName(createdTemplateEntity.getCapacityTemplateNm());
 		createTemplateResponse.setConceptId(createdTemplateEntity.getConceptId());
 		createTemplateResponse.setIsDeletedFlag(createdTemplateEntity.getIsDeletedFlg());
-		createTemplateResponse.setEffectiveDate(createdTemplateEntity.getEffectiveDate().toString());
 		if(createdTemplateEntity.getExpiryDate() != null) {
 			createTemplateResponse.setExpiryDate(createdTemplateEntity.getExpiryDate().toString());
+			createTemplateResponse.setEffectiveDate(createdTemplateEntity.getEffectiveDate().toString());
 		}
 		createTemplateResponse.setSunDay(createdTemplateEntity.getSunFlg());
 		createTemplateResponse.setMonDay(createdTemplateEntity.getMonFlg());
@@ -333,6 +337,261 @@ public interface CapacityTemplateMapper {
 		createTemplateResponse.setLastModifiedBy(createdTemplateEntity.getLastModifiedBy());
 		createTemplateResponse.setLastModifiedDateTime(createdTemplateEntity.getLastModifiedDatetime());
 		return createTemplateResponse;
+	}
+	
+	/**
+	 * This mapper method is used to map data to capacity template slot entity class.
+	 * 
+	 * @param cs entity class containing the value of capacity slot.
+	 * 
+	 * @return SlotDetail model class containing the value of slot detail.
+	 */
+	@Named(CapacityConstants.MAPTOUPDATECAPACITYTEMPLATESLOTS)
+	default SlotDetail mapToUpdateCapacityTemplateSlots(CapacitySlotEntity cs) {
+		SlotDetail slotDetail = new SlotDetail();
+		slotDetail.setSlotId(cs.getCapacitySlotId());
+		slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
+		slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
+		slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
+		slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
+		slotDetail.setCapacityCount(cs.getCapacityCnt());
+		return slotDetail;
+	}
+
+	/**
+	 * This mapper method is used to map data to capacity template slot channel model class.
+	 * 
+	 * @param channelSlotDetails list of  model class containing the value of slot detail.
+	 * 
+	 * @param channelIds Set of string containing the value of channel id.
+	 * 
+	 * @param isSeletedFlags Map containing key value pair as string and string
+	 *            containing the value of is selected flag.
+	 *            
+	 * @return List<SlotChannel> list of model class containing the value of
+	 * 			  slot channel detail.
+	 */
+	@Named(CapacityConstants.MAPTOUPDATESLOTCHANNELRESPONSE)
+	default List<SlotChannel> mapToUpdateSlotChannelResponse(MultiValuedMap<String, SlotDetail> channelSlotDetails,
+			Set<String> channelIds, Map<String, String> isSeletedFlags) {
+		List<SlotChannel> slotChannels = new ArrayList<>();
+		channelIds.stream().filter(StringUtils::isNotBlank).forEach(channelId -> {
+			List<SlotDetail> slotDetails = new ArrayList<>();
+			SlotChannel slotChannel = new SlotChannel();
+			slotChannel.setChannelId(new BigInteger(channelId));
+			slotChannel.setIsSelectedFlag(isSeletedFlags.get(channelId));
+			slotDetails.addAll(channelSlotDetails.get(channelId));
+			slotChannel.setSlotDetails(slotDetails);
+			slotChannels.add(slotChannel);
+		});
+		return slotChannels;
+	}
+	
+	/**
+	 * This mapper method is used to map data to capacity template entity class.
+	 * 
+	 * @param templateRequest model class containing the value of capacity 
+	 * 					template to be created.
+	 * 
+	 * @param existingTemplate entity class containing the value of capacity 
+	 * 					template.
+	 */
+	@Named(CapacityConstants.MAPTEMPLATEDAYSFROMTEMPLATECREATEUPDATEREQUEST)
+	default void mapTemplateDaysFromTemplateCreateUpdateRequest(CreateCapacityTemplateRequest templateRequest,
+			CapacityTemplateEntity existingTemplate) {
+		existingTemplate.setSunFlg(templateRequest.getSunDay());
+		existingTemplate.setMonFlg(templateRequest.getMonDay());
+		existingTemplate.setTueFlg(templateRequest.getTueDay());
+		existingTemplate.setWedFlg(templateRequest.getWedDay());
+		existingTemplate.setThuFlg(templateRequest.getThuDay());
+		existingTemplate.setFriFlg(templateRequest.getFriDay());
+		existingTemplate.setSatFlg(templateRequest.getSatDay());
+	}
+	
+	/**
+	 * This mapper method is used to map data to capacity template entity class.
+	 * 
+	 * @param existingTemplate  entity class containing the value of capacity 
+	 * 					template.
+	 */
+	@Named(CapacityConstants.SETTEMPLATEDAYSTONULLVALUE)
+	default void setTemplateDaysToNullValue(CapacityTemplateEntity existingTemplate) {
+		existingTemplate.setSunFlg(CapacityConstants.NULL);
+		existingTemplate.setMonFlg(CapacityConstants.NULL);
+		existingTemplate.setTueFlg(CapacityConstants.NULL);
+		existingTemplate.setWedFlg(CapacityConstants.NULL);
+		existingTemplate.setThuFlg(CapacityConstants.NULL);
+		existingTemplate.setFriFlg(CapacityConstants.NULL);
+		existingTemplate.setSatFlg(CapacityConstants.NULL);
+	}
+	
+	/**
+	 * This mapper method is used to map data to capacity template slot entity class.
+	 * 
+	 * @param createdBy String with information of user.
+	 * 
+	 * @param dateTime Instant with information of dateTime.
+	 * 
+	 * @param existingTemplate entity class containing the value of capacity 
+	 * 					template.
+	 * 
+	 * @param channelEntity entity class containing the value of capacity
+	 * 					channel.
+	 * 
+	 * @param slotDetailReq model class containing the detail of capacity
+	 * 					slot.
+	 * 
+	 * @param capacitySlotTypeEntity entity class containing the value of
+	 * 					capacity slot type.
+	 * 
+	 * @param reference optional of entity class containing value of reference.
+	 * 
+	 * @return CapacitySlotEntity entity class containing the value of
+	 * 					capacity type.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYSLOTENTITY)
+	default CapacitySlotEntity mapToCapacitySlotEntity(String createdBy, Instant dateTime,
+			CapacityTemplateEntity existingTemplate, Optional<CapacityChannelEntity> channelEntity,
+			SlotDetail slotDetailReq, Optional<CapacitySlotTypeEntity> capacitySlotTypeEntity,
+			Optional<ReferenceEntity> reference) {
+		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
+		channelEntity.ifPresent(capacitySlotEntity::setCapacityChannel);
+		capacitySlotEntity.setStartTime(LocalTime.parse(slotDetailReq.getStartTime()));
+		capacitySlotEntity.setEndTime(LocalTime.parse(slotDetailReq.getEndTime()));
+		capacitySlotEntity.setCapacityCnt(slotDetailReq.getCapacityCount());
+		capacitySlotTypeEntity.ifPresent(capacitySlotEntity::setCapacitySlotType);
+		capacitySlotEntity.setCreatedBy(createdBy);
+		capacitySlotEntity.setCreatedDatetime(dateTime);
+		capacitySlotEntity.setLastModifiedBy(createdBy);
+		capacitySlotEntity.setLastModifiedDatetime(dateTime);
+		capacitySlotEntity.setIsDeletedFlg(CapacityConstants.N);
+		capacitySlotEntity.setCapacityTemplate(existingTemplate);
+		reference.ifPresent(capacitySlotEntity::setReference);
+		return capacitySlotEntity;
+	}
+	
+	/**
+	 * This mapper method is used to map data to capacity template model class.
+	 * 
+	 * @param capacityTemplateEntity entity class containing the value of capacity 
+	 * 					template.
+	 * 
+	 * @param capacityTemplateModel model class containing the value of capacity 
+	 * 					template.
+	 */
+	@Named(CapacityConstants.MAPTOCAPACITYTEMPLATEFROMENTITY)
+	default void mapToCapacityTemplateFromEntity(CapacityTemplateEntity capacityTemplateEntity,
+			CapacityTemplate capacityTemplateModel) {
+		capacityTemplateModel.setSunDay(capacityTemplateEntity.getSunFlg());
+		capacityTemplateModel.setMonDay(capacityTemplateEntity.getMonFlg());
+		capacityTemplateModel.setTueDay(capacityTemplateEntity.getTueFlg());
+		capacityTemplateModel.setWedDay(capacityTemplateEntity.getWedFlg());
+		capacityTemplateModel.setThuDay(capacityTemplateEntity.getThuFlg());
+		capacityTemplateModel.setFriDay(capacityTemplateEntity.getFriFlg());
+		capacityTemplateModel.setSatDay(capacityTemplateEntity.getSatFlg());
+	}
+	
+	/**
+	 * 
+	 * This method is used to map capacity channel from capacity template entity
+	 * 
+	 * @param capacityTemplateEntity entity class containing the detail of capacity 
+	 * 									template.
+	 * 
+	 * @return List<Channel> list of model class containing the detail of channel.
+	 */
+	@Named(CapacityConstants.GETCAPACITYTEMPLATECHANNELS)
+	default List<Channel> getCapacityTemplateChannels(CapacityTemplateEntity capacityTemplateEntity) {
+		List<Channel> channels = new ArrayList<>();
+		List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannelEntity = capacityTemplateEntity
+				.getCapacityTemplateAndCapacityChannels();
+		capacityTemplateAndCapacityChannelEntity.stream().filter(Objects::nonNull).forEach(ctc -> {
+			Channel channel = new Channel();
+			channel.setCapacityChannelId(ctc.getCapacityChannel().getCapacityChannelId());
+			channel.setCapacityChannelName(ctc.getCapacityChannel().getCapacityChannelNm());
+			channel.setIsSelectedFlag(CapacityConstants.Y);
+			channels.add(channel);
+		});
+		return channels;
+	}
+	
+	/**
+	 * 
+	 * This method is used to map the slots corresponding to this template Id and
+	 * channel Id
+	 * 
+	 * @param capacitySlots list of entity class with the detail of capacity slot.
+	 * 
+	 * @param channelSlotDetails model class containing the value of channel
+	 * 							slot details.
+	 * 
+	 * @param channelIds Set of string containing the channel Id.
+	 * 
+	 * @param channelNames String containing value of channel names.
+	 */
+	@Named(CapacityConstants.MAPCAPACITYSLOTS)
+	default void mapCapacitySlots(List<CapacitySlotEntity> capacitySlots,
+			MultiValuedMap<String, SlotDetail> channelSlotDetails, Set<String> channelIds,
+			Map<String, String> channelNames) {
+		capacitySlots.stream().filter(Objects::nonNull).forEach(cs -> {
+			String channelId = String.valueOf(cs.getCapacityChannel().getCapacityChannelId());
+			channelIds.add(channelId);
+			channelNames.put(channelId, cs.getCapacityChannel().getCapacityChannelNm());
+			SlotDetail slotDetail = new SlotDetail();
+			slotDetail.setSlotId(cs.getCapacitySlotId());
+			slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
+			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
+			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
+			slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
+			slotDetail.setCapacityCount(cs.getCapacityCnt());
+			channelSlotDetails.put(String.valueOf(cs.getCapacityChannel().getCapacityChannelId()), slotDetail);
+		});
+	}
+	
+	/**
+	 * This method is used to group slot channels using channel id
+	 * 
+	 * @param channelSlotDetails model class containing the value of channel
+	 * 							slot details.
+	 * 
+	 * @param channelIds Set of string containing the channel Id.
+	 * 
+	 * @param channelNames String containing value of channel names.
+	 * 
+	 * @return List<SlotChannel> returning the list of model class with
+	 * 							mapped values.
+	 */
+	@Named(CapacityConstants.MAPSLOTCHANNELS)
+	default List<SlotChannel> mapSlotChannels(MultiValuedMap<String, SlotDetail> channelSlotDetails,
+			Set<String> channelIds, Map<String, String> channelNames) {
+		List<SlotChannel> slotChannels = new ArrayList<>();
+		channelIds.stream().filter(StringUtils::isNotBlank).forEach(channelId -> {
+			List<SlotDetail> slotDetails = new ArrayList<>();
+			SlotChannel slotChannel = new SlotChannel();
+			slotChannel.setChannelId(new BigInteger(channelId));
+			slotChannel.setChannelName(channelNames.get(channelId));
+			slotDetails.addAll(channelSlotDetails.get(channelId));
+			slotChannel.setSlotDetails(slotDetails);
+			slotChannels.add(slotChannel);
+		});
+		return slotChannels;
+	}
+	
+	/** 
+	 *  This method is to  retrieve the capacity template type and constructing the response based on
+	 *  capacity template type details 
+	 * 
+	 * @param response model class containing the value of Capacity Template.
+	 * 
+	 * @param test entity class containing the value of Capacity Template.
+	 */
+	@Named(CapacityConstants.MAPTEMPLATETYPERESPONSE)
+	default void mapTemplateTypeResponse(CreateTemplateResponse response, CapacityTemplateEntity test) {
+		CapacityTemplateTypeEntity  type=test.getCapacityTemplateType();
+		if(type!=null) {
+		response.setTemplateTypeId(type.getCapacityTemplateTypeId());
+		response.setTemplateTypeName(type.getCapacityTemplateTypeNm());
+		}
 	}
 
 }

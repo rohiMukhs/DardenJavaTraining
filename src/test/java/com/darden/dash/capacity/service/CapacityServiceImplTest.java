@@ -210,7 +210,6 @@ class CapacityServiceImplTest {
 		id.setCapacityChannelId(new BigInteger("1"));
 		id.setCapacityTemplateId(new BigInteger("1"));
 		capacityTemplateAndCapacityChannelEntity.setId(id);
-		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag("N");
 		capacityTemplateAndCapacityChannelEntity.setCapacityChannel(getCapacityChannel());
 		list.add(capacityTemplateAndCapacityChannelEntity);
 		return list;
@@ -294,7 +293,6 @@ class CapacityServiceImplTest {
 		id.setCapacityChannelId(new BigInteger("1"));
 		id.setCapacityTemplateId(new BigInteger("1"));
 		capacityTemplateAndCapacityChannelEntity.setId(id);
-		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag("N");
 		capacityTemplateAndCapacityChannelEntity.setCapacityChannel(getCapacityChannel());
 
 		Optional<CapacitySlotTypeEntity> optSlotType = Optional.of(getCapacitySlotType());
@@ -560,6 +558,9 @@ class CapacityServiceImplTest {
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString()))
 				.thenReturn(tType);
+		Mockito.lenient().doNothing().when(capacityTemplateAndBusinessDateRepository).deleteAllBycapacityTemplate(Mockito.any());
+		Mockito.lenient().doNothing().when(capacitySlotRepository).deleteAllBycapacityTemplate(Mockito.any());
+		Mockito.lenient().doNothing().when(capacityTemplateAndCapacityChannelRepository).deleteAllBycapacityTemplate(Mockito.any());
 		Mockito.when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		Mockito.lenient().when(capacitySlotRepository.findByCapacityChannel(Mockito.any()))
@@ -640,6 +641,9 @@ class CapacityServiceImplTest {
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		Mockito.lenient().when(capacityTemplateTypeRepository.findByCapacityTemplateTypeNm(Mockito.anyString()))
 				.thenReturn(tType);
+		Mockito.lenient().doNothing().when(capacityTemplateAndBusinessDateRepository).deleteAllBycapacityTemplate(Mockito.any());
+		Mockito.lenient().doNothing().when(capacitySlotRepository).deleteAllBycapacityTemplate(Mockito.any());
+		Mockito.lenient().doNothing().when(capacityTemplateAndCapacityChannelRepository).deleteAllBycapacityTemplate(Mockito.any());
 		Mockito.when(capacityTemplateRepo.save(Mockito.any())).thenReturn(capacityTemplateEntity);
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		Mockito.lenient().when(capacitySlotRepository.findByCapacityChannel(Mockito.any()))
@@ -1090,7 +1094,6 @@ class CapacityServiceImplTest {
 		id.setCapacityChannelId(new BigInteger("1"));
 		id.setCapacityTemplateId(new BigInteger("1"));
 		capacityTemplateAndCapacityChannelEntity.setId(id);
-		capacityTemplateAndCapacityChannelEntity.setIsSelectedFlag("N");
 		capacityTemplateAndCapacityChannelEntity.setCapacityChannel(getCapacityChannel());
 
 		Optional<CapacitySlotTypeEntity> optSlotType = Optional.of(getCapacitySlotType());
@@ -1177,6 +1180,7 @@ class CapacityServiceImplTest {
 			assertTrue(e instanceof ApplicationException);
 		}
 	}
+	
 	@Test
 	void testUpdateCapacityTemplateDates() {
 		RequestContext.setConcept("1");

@@ -24,9 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.darden.dash.capacity.client.LocationClient;
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
-import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplatePK;
 import com.darden.dash.capacity.entity.CapacityModelAndLocationEntity;
-import com.darden.dash.capacity.entity.CapacityModelAndLocationPK;
 import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.mapper.CapacityModelMapper;
@@ -154,14 +152,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		CapacityTemplateModel capacityTemplateModel = new CapacityTemplateModel();
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
-		capacityModelEntity.setCapacityModelNm(capacityModelRequest.getTemplateModelName());
-		capacityModelEntity.setCreatedBy(createdBy);
-		capacityModelEntity.setCreatedDatetime(dateTime);
-		capacityModelEntity.setLastModifiedBy(createdBy);
-		capacityModelEntity.setLastModifiedDatetime(dateTime);
-		capacityModelEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
-		capacityModelEntity.setIsDeletedFlg(CapacityConstants.N);
+		CapacityModelEntity capacityModelEntity = capacityModelMapper.mapToCapacityModelEntity(capacityModelRequest, createdBy, dateTime);
 		List<BigInteger> templateIds = extractingAllTemplateIdFromRequest(capacityModelRequest);
 		CapacityModelEntity capacityModelEntityRes = capacityModelRepository.save(capacityModelEntity);
 		BigInteger capacityModelId = capacityModelEntityRes.getCapacityModelId();
@@ -188,12 +179,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	private void mapCapacityModelResponse(CapacityTemplateModel capacityTemplateModel,
 			CapacityModelEntity responseEntity) {
-		capacityTemplateModel.setTemplateModelName(responseEntity.getCapacityModelNm());
-		capacityTemplateModel.setCreatedBy(responseEntity.getCreatedBy());
-		capacityTemplateModel.setCreatedDateTime(responseEntity.getCreatedDatetime());
-		capacityTemplateModel.setLastModifiedBy(responseEntity.getLastModifiedBy());
-		capacityTemplateModel.setLastModifiedDateTime(responseEntity.getLastModifiedDatetime());
-		capacityTemplateModel.setIsDeletedFlg(responseEntity.getIsDeletedFlg());
+		capacityModelMapper.mapToCapacityTemplateModel(capacityTemplateModel, responseEntity);
 		List<CapacityModelAndCapacityTemplateEntity> modelTemplatesList = responseEntity
 				.getCapacityModelAndCapacityTemplates();
 		if (CollectionUtils.isNotEmpty(modelTemplatesList)) {
@@ -213,12 +199,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		}
 		List<CapacityModelAndLocationEntity> modelLocationsList = responseEntity.getCapacityModelAndLocations();
 		if (CollectionUtils.isNotEmpty(modelLocationsList)) {
-			List<RestaurantsAssigned> restaurantsAssignedList = new ArrayList<>();
-			modelLocationsList.stream().filter(Objects::nonNull).forEach(restaurantsAssignedEntity -> {
-				RestaurantsAssigned restaurantsAssigned = new RestaurantsAssigned();
-				restaurantsAssigned.setLocationId(String.valueOf(restaurantsAssignedEntity.getId().getLocationId()));
-				restaurantsAssignedList.add(restaurantsAssigned);
-			});
+			List<RestaurantsAssigned> restaurantsAssignedList = capacityModelMapper.mapToRestaurantAssignedList(modelLocationsList);
 			capacityTemplateModel.setRestaurantsAssigned(restaurantsAssignedList);
 		}
 	}
@@ -251,15 +232,8 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 						applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012), CapacityConstants.LOCATION_ID);
 						applicationErrors.raiseExceptionIfHasErrors();
 					}
-					CapacityModelAndLocationEntity capacityModelAndLocationEntity = new CapacityModelAndLocationEntity();
-					CapacityModelAndLocationPK capacityModelAndLocationPK = new CapacityModelAndLocationPK();
-					capacityModelAndLocationPK.setLocationId(new BigInteger(restaurantsAssigned.getLocationId()));
-					capacityModelAndLocationPK.setCapacityModelId(capacityModelEntity.getCapacityModelId());
-					capacityModelAndLocationEntity.setId(capacityModelAndLocationPK);
-					capacityModelAndLocationEntity.setCreatedBy(createdBy);
-					capacityModelAndLocationEntity.setCreatedDatetime(dateTime);
-					capacityModelAndLocationEntity.setLastModifiedBy(createdBy);
-					capacityModelAndLocationEntity.setLastModifiedDatetime(dateTime);
+					CapacityModelAndLocationEntity capacityModelAndLocationEntity = capacityModelMapper.mapToCapacityModelAndLocationEntity(
+							createdBy, dateTime, capacityModelEntity, restaurantsAssigned);
 					capacityModelAndLocationEntites.add(capacityModelAndLocationEntity);
 				});
 		if (CollectionUtils.isNotEmpty(capacityModelAndLocationEntites)) {
@@ -285,20 +259,9 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	private void mapCapacityModelAndTemplates(String createdBy, Instant dateTime,
 			CapacityModelEntity capacityModelEntity, List<BigInteger> templateIds) {
-		List<CapacityModelAndCapacityTemplateEntity> capacityModelAndCapacityTemplateEntites = new ArrayList<>();
 		List<CapacityTemplateEntity> capacityTemplateEntites = capacityTemplateRepo.findAllById(templateIds);
-		capacityTemplateEntites.stream().forEach(capactityTemplateEntity -> {
-			CapacityModelAndCapacityTemplateEntity capacityModelAndCapacityTemplateEntity = new CapacityModelAndCapacityTemplateEntity();
-			CapacityModelAndCapacityTemplatePK capacityModelAndCapacityTemplatePK = new CapacityModelAndCapacityTemplatePK();
-			capacityModelAndCapacityTemplatePK.setCapacityModelId(capacityModelEntity.getCapacityModelId());
-			capacityModelAndCapacityTemplatePK.setCapacityTemplateId(capactityTemplateEntity.getCapacityTemplateId());
-			capacityModelAndCapacityTemplateEntity.setId(capacityModelAndCapacityTemplatePK);
-			capacityModelAndCapacityTemplateEntity.setCreatedBy(createdBy);
-			capacityModelAndCapacityTemplateEntity.setCreatedDatetime(dateTime);
-			capacityModelAndCapacityTemplateEntity.setLastModifiedBy(createdBy);
-			capacityModelAndCapacityTemplateEntity.setLastModifiedDatetime(dateTime);
-			capacityModelAndCapacityTemplateEntites.add(capacityModelAndCapacityTemplateEntity);
-		});
+		List<CapacityModelAndCapacityTemplateEntity> capacityModelAndCapacityTemplateEntites = capacityModelMapper.mapToCapacityModelAndCapacityTemplateEntityList(
+				createdBy, dateTime, capacityModelEntity, capacityTemplateEntites);
 		if (CollectionUtils.isNotEmpty(capacityModelAndCapacityTemplateEntites)) {
 			capacityModelEntity.setCapacityModelAndCapacityTemplates(capacityModelAndCapacityTemplateEntites);
 			capacityModelAndCapacityTemplateRepo.saveAll(capacityModelAndCapacityTemplateEntites);
@@ -346,6 +309,18 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		return false;
 	}
 
+	/**
+	 * This method is to validate assigned template dates between the assigned 
+	 * template to capacity model.
+	 * 
+	 * @param capacityTemplateEntityRequest entity class containing the detail of
+	 *                                      Capacity Template Model to be created.
+	 *                                      
+	 * @param list of entity class containing the detail of Capacity Template Entity 
+	 * 								to be created.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
 	private boolean validateAssignedTemplateDates(CapacityTemplateEntity capacityTemplateEntityRequest,
 			List<CapacityTemplateEntity> list) {
 		return list.stream().filter(Objects::nonNull).anyMatch(t -> t
@@ -364,6 +339,18 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 				}));
 	}
 
+	/**
+	 * This method is to validate assigned template days between the assigned 
+	 * template to capacity model.
+	 * 
+	 * @param capacityTemplateEntityRequest entity class containing the detail of
+	 *                                      Capacity Template Model to be created.
+	 *                                      
+	 * @param list of entity class containing the detail of Capacity Template Entity 
+	 * 								to be created.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
 	private boolean validateAssignedTemplateDays(CapacityTemplateEntity capacityTemplateEntityRequest,
 			List<CapacityTemplateEntity> list) {
 		return list.stream().filter(Objects::nonNull).anyMatch(t -> {
@@ -420,8 +407,10 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 * from database and value of flag coming from request if it matches it will not
 	 * add that template to the capacity model.
 	 * 
-	 * @param template
-	 * @param sunDayFlg
+	 * @param reqFlg string containing value of resFlg.
+	 * 
+	 * @param resFlg string containing value of resFlg.
+	 * 
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	private boolean validateDay(String reqFlg, String resFlg) {

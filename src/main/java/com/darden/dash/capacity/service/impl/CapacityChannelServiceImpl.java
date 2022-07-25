@@ -350,6 +350,16 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		return referenceDatum;
 	}
 
+	/**
+	 * This method is to map capacity channel entity value to capacity channel
+	 * model class.
+	 * 
+	 * @param ce entity class containing the value of
+	 * 						capacity channel.
+	 * 
+	 * @return CapacityChannel model class containing the value of
+	 * 						capacity channel.
+	 */
 	private CapacityChannel mapToCapacityChannel(CapacityChannelEntity ce) {
 		CapacityChannel channel = new CapacityChannel();
 		channel.setCapacityChannelId(ce.getCapacityChannelId());
