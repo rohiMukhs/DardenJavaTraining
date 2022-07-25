@@ -26,7 +26,7 @@ public class CapacityConstants {
 	public static final String LAST_MODIFIED_BY = "last_modified_by";
 	public static final String IS_DELETED_FLG = "is_deleted_flg";
 	public static final String IS_COMBINED_FLG = "is_combined_flg";
-	public static final String POS_NM = "pos_name";
+	public static final String POS_NM = "pos_nm";
 	public static final String CREATED_DATETIME = "created_datetime";
 	public static final String CREATED_BY = "created_by";
 	public static final String CONCEPT_ID = "concept_id";
@@ -98,7 +98,6 @@ public class CapacityConstants {
 	public static final Integer STATUS_CODE_INT_201 = 201;
 	public static final Integer STATUS_CODE_INT_202 = 202;
 
-	public static final String IS_SELECTED_FLG = "is_selected_flg";
 	public static final String BEARER_ACCESS_TOKEN = "Bearer {accessToken}";
 
 	public static final String AUTHORIZATION = "Authorization";
@@ -316,6 +315,24 @@ public class CapacityConstants {
 	public static final String MAPCREATETEMPLATERESPONSE = "mapCreateTemplateResponse";
 	public static final String CAPACITYTEMPLATETYPE = "capacityTemplateType";
 	public static final String BUSINESSDATE = "businessDate";
+	public static final String NULL = null;
+	public static final String MAPTOCAPACITYMODELENTITY = "mapToCapacityModelEntity";
+	public static final String MAPTORESTAURANTASSIGNEDLIST = "mapToRestaurantAssignedList";
+	public static final String MAPTOCAPACITYTEMPLATEMODEL = "mapToCapacityTemplateModel";
+	public static final String MAPTOCAPACITYMODELANDLOCATIONENTITY = "mapToCapacityModelAndLocationEntity";
+	public static final String MAPTOCAPACITYMODELANDCAPACITYTEMPLATEENTITYLIST = "mapToCapacityModelAndCapacityTemplateEntityList";
+	public static final String MAPTOCAPACITYMODELANDCAPACITYTEMPLATEENTITY = "mapToCapacityModelAndCapacityTemplateEntity";
+	public static final String MAPTOUPDATECAPACITYTEMPLATESLOTS = "mapToUpdateCapacityTemplateSlots";
+	public static final String MAPTOUPDATESLOTCHANNELRESPONSE = "mapToUpdateSlotChannelResponse";
+	public static final String MAPTEMPLATEDAYSFROMTEMPLATECREATEUPDATEREQUEST = "mapTemplateDaysFromTemplateCreateUpdateRequest";
+	public static final String SETTEMPLATEDAYSTONULLVALUE = "setTemplateDaysToNullValue";
+	public static final String MAPTOCAPACITYSLOTENTITY = "mapToCapacitySlotEntity";
+	public static final String MAPTOCAPACITYTEMPLATEFROMENTITY = "mapToCapacityTemplateFromEntity";
+	public static final String GETCAPACITYTEMPLATECHANNELS = "getCapacityTemplateChannels";
+	public static final String MAPCAPACITYSLOTS = "mapCapacitySlots";
+	public static final String MAPSLOTCHANNELS = "mapSlotChannels";
+	public static final String MAPTEMPLATETYPERESPONSE = "mapTemplateTypeResponse";
+	public static final String BLANK = "";
 	
 	private CapacityConstants() {
 

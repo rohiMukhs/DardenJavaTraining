@@ -199,12 +199,10 @@ class EntityTest {
 		CapacitySlotTypeEntity capacitySlotType = new CapacitySlotTypeEntity();
 		entity.setCapacitySlotCalcParamId(new BigInteger("1"));
 		entity.setCapacitySlotType(capacitySlotType);
-		entity.setIsDeletedFlg("Y");
 		entity.setParamKey("key");
 		entity.setParamValue("value");
 		entity.getCapacitySlotCalcParamId();
 		entity.getCapacitySlotType();
-		entity.getIsDeletedFlg();
 		entity.getParamKey();
 		entity.getParamValue();
 		entity.setCreatedBy("aa");
@@ -288,11 +286,9 @@ class EntityTest {
 		entity.setId(id);
 		entity.setCapacityChannel(capacityChannel);
 		entity.setCapacityTemplate(capacityTemplate);
-		entity.setIsSelectedFlag("Y");
 		entity.getCapacityChannel();
 		entity.getCapacityTemplate();
 		entity.getId();
-		entity.getIsSelectedFlag();
 		entity.setCreatedBy("aa");
 		entity.setCreatedDatetime(Instant.now());
 		entity.setLastModifiedBy("aa");

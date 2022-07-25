@@ -35,10 +35,7 @@ public class CapacitySlotCalcParamEntity extends Audit implements Serializable {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name=CapacityConstants.CAPACITY_SLOT_CALC_PARAM_ID)
 	private BigInteger capacitySlotCalcParamId;
-
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
+	
 	@Column(name=CapacityConstants.PARAM_KEY)
 	private String paramKey;
 

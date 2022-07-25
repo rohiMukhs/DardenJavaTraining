@@ -411,4 +411,5 @@ public class CapacityManagementController {
 		capacityTemplateModelValidator.validate(capacityModelRequest, OperationConstants.OPERATION_UPDATE.getCode(), modelId);
 		return new CapacityModelResponse(capacityTemplateModelService.updateCapacityModel(modelId, capacityModelRequest, user)).build(CapacityConstants.CAPACITY_MODEL_UPDATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_202);
 	}
+	
 }
