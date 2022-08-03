@@ -15,8 +15,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -154,11 +156,23 @@ class CapacityServiceImplTest {
 
 	private List<CapacityTemplateEntity> getAllCapacityTemplates() {
 		List<CapacityTemplateEntity> capacityList = new ArrayList<>();
+		List<CapacityModelAndCapacityTemplateEntity> cteList = new ArrayList<>();
+		CapacityModelEntity model = new CapacityModelEntity();
+		model.setCapacityModelId(BigInteger.ONE);
+		model.setCapacityModelNm("hhijhihxss");
+		CapacityModelAndCapacityTemplateEntity cte  = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK pid = new CapacityModelAndCapacityTemplatePK();
+		pid.setCapacityModelId(BigInteger.ONE);
+		pid.setCapacityTemplateId(BigInteger.ONE);
+		cte.setId(pid);
+		cte.setCapacityModel(model);
+		cteList.add(cte);
 		CapacityTemplateTypeEntity type = new CapacityTemplateTypeEntity();
 		type.setCapacityTemplateTypeId(new BigInteger("1"));
 		type.setCapacityTemplateTypeNm("Date");
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
+		capacityTemplateEntity.setCapacityModelAndCapacityTemplates(cteList);
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
 		capacityTemplateEntity.setEffectiveDate(new Date());
 		capacityTemplateEntity.setExpiryDate(new Date());
@@ -814,6 +828,43 @@ class CapacityServiceImplTest {
 	@Test
 	void testValidateDate() {
 
+		List<CapacityModelAndCapacityTemplateEntity> list = getListOfCapacityModelAndCapacityTemplate();
+
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount(4);
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("Dates");
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/10/2011");
+		List<BusinessDate> dat = new ArrayList<>();
+		BusinessDate date = new BusinessDate();
+		date.setDate("01/01/2011");
+		dat.add(date);
+		request.setCapacityTemplateName("Dates");
+		request.setBusinessDates(dat);
+		when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
+		boolean res2 = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request,"1");
+		assertEquals(false, res2);
+	}
+
+	private List<CapacityModelAndCapacityTemplateEntity> getListOfCapacityModelAndCapacityTemplate() {
+		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
 		CapacityTemplateTypeEntity dates = new CapacityTemplateTypeEntity();
 		dates.setCapacityTemplateTypeId(BigInteger.valueOf(2));
 		dates.setCapacityTemplateTypeNm("Dates");
@@ -859,8 +910,7 @@ class CapacityServiceImplTest {
 		CapacityModelEntity model = new CapacityModelEntity();
 		model.setCapacityModelId(new BigInteger("1"));
 		model.setCapacityModelNm("model");
-
-		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
+		
 		CapacityModelAndCapacityTemplateEntity cm3 = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK id3 = new CapacityModelAndCapacityTemplatePK();
 		id3.setCapacityModelId(new BigInteger("1"));
@@ -880,38 +930,7 @@ class CapacityServiceImplTest {
 		cm4.setCapacityModel(model);
 
 		list.add(cm4);
-
-		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
-		List<SlotDetail> detailList = new ArrayList<>();
-		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount(4);
-		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
-		detail.setSlotId(new BigInteger("1"));
-		detail.setSlotTypeId("1");
-		detail.setStartTime("01:01");
-		detailList.add(detail);
-		List<SlotChannel> slotList = new ArrayList<>();
-		SlotChannel slot = new SlotChannel();
-		slot.setChannelId(new BigInteger("1"));
-		slot.setIsSelectedFlag("Y");
-		slot.setSlotDetails(detailList);
-		slotList.add(slot);
-		request.setConceptId(new BigInteger("1"));
-		request.setCapacityTemplateName("name");
-		request.setTemplateTypeId(new BigInteger("1"));
-		request.setTemplateTypeName("Dates");
-		request.setEffectiveDate("01/01/2011");
-		request.setExpiryDate("01/10/2011");
-		List<BusinessDate> dat = new ArrayList<>();
-		BusinessDate date = new BusinessDate();
-		date.setDate("01/01/2011");
-		dat.add(date);
-		request.setCapacityTemplateName("Dates");
-		request.setBusinessDates(dat);
-		when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
-		boolean res2 = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request,"1");
-		assertEquals(false, res2);
+		return list;
 	}
 
 	@Test
@@ -998,6 +1017,13 @@ class CapacityServiceImplTest {
 
 		list.add(cm4);
 
+		CreateCapacityTemplateRequest request = getTemplateRequestWithDates();
+		when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
+		boolean res2 = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request,"1");
+		assertEquals(false, res2);
+	}
+
+	private CreateCapacityTemplateRequest getTemplateRequestWithDates() {
 		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
 		List<SlotDetail> detailList = new ArrayList<>();
 		SlotDetail detail = new SlotDetail();
@@ -1033,9 +1059,7 @@ class CapacityServiceImplTest {
 		dat.add(date);
 		request.setCapacityTemplateName("Days");
 		request.setBusinessDates(dat);
-		when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
-		boolean res2 = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request,"1");
-		assertEquals(false, res2);
+		return request;
 	}
 
 	@Test
@@ -1270,6 +1294,56 @@ class CapacityServiceImplTest {
 				new BigInteger("1"));
 		assertNotNull(res);
 	}
-
+	
+	@Test
+	void testGetAllModelsRelatingToTemplateIdList() {
+		RequestContext.setConcept("1");
+		Set<BigInteger> temp = new HashSet<>();
+		temp.add(BigInteger.ONE);
+		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(getAllCapacityTemplates());
+		assertNotNull(capacityManagementServiceImpl.getAllModelsRelatingToTemplateIdList(temp));
+	}
+	
+	@Test
+	void testValidateTemplateDates() {
+		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+		List<SlotDetail> detailList = new ArrayList<>();
+		SlotDetail detail = new SlotDetail();
+		detail.setCapacityCount(4);
+		detail.setEndTime("01:01");
+		detail.setIsDeletedFlg("N");
+		detail.setSlotId(new BigInteger("1"));
+		detail.setSlotTypeId("1");
+		detail.setStartTime("01:01");
+		detailList.add(detail);
+		List<SlotChannel> slotList = new ArrayList<>();
+		SlotChannel slot = new SlotChannel();
+		slot.setChannelId(new BigInteger("1"));
+		slot.setIsSelectedFlag("Y");
+		slot.setSlotDetails(detailList);
+		slotList.add(slot);
+		request.setConceptId(new BigInteger("1"));
+		request.setCapacityTemplateName("name");
+		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("Dates");
+		request.setEffectiveDate("01/01/2011");
+		request.setExpiryDate("01/10/2011");
+		request.setMonDay("Y");
+		request.setTueDay("Y");
+		request.setWedDay("Y");
+		request.setThuDay("Y");
+		request.setFriDay("Y");
+		request.setSatDay("Y");
+		request.setSunDay("Y");
+		List<BusinessDate> dat = new ArrayList<>();
+		BusinessDate date = new BusinessDate();
+		date.setDate("01/01/2011");
+		dat.add(date);
+		request.setCapacityTemplateName("Days");
+		request.setBusinessDates(dat);
+		Mockito.when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(getListOfCapacityModelAndCapacityTemplate());
+		boolean res = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request, "3");
+		assertEquals(true, res);
+	}
 	
 }

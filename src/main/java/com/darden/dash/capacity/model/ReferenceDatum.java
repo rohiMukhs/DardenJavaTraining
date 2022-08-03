@@ -17,5 +17,4 @@ import lombok.Setter;
 @Setter
 public class ReferenceDatum implements Serializable{
 	private List<CapacityChannel> capacityChannel = new ArrayList<>();
-	private List<CapacityTemplate> assignTemplate  = new ArrayList<>();
 }

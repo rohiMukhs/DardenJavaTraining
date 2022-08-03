@@ -8,7 +8,6 @@ import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.ConceptForCache;
-import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.common.error.ApplicationErrors;
 
 /**
@@ -101,20 +100,6 @@ public interface CapacityTemplateModelService {
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateModelTemplateNmForUpdate(String capacityModelNm, String id);
-	
-	/**
-	 * This service method is written for purpose of validating restaurant 
-	 * list to be assigned to check whether any restaurant is being unassigned 
-	 * it will not allow previous restaurants to be unassigned.
-	 * 
-	 * @param restaurantsAssigned list of model class containing the value 
-	 * 					of restaurants to be assigned.
-	 * 
-	 * @param id String contains the value of capacity template model id.
-	 * 
-	 * @return boolean returns the boolean value based on the condition.
-	 */
-	public boolean validateIfRestaurantIsUnassigned(List<RestaurantsAssigned> restaurantsAssigned, String id);
 	
 	/**
 	 * This service method is to validate if capacity template is already assigned to other

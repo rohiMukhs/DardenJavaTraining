@@ -19,8 +19,8 @@ import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
+import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
-import com.darden.dash.capacity.model.CapacityTemplateNames;
 import com.darden.dash.capacity.model.Locations;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.util.CapacityConstants;
@@ -59,10 +59,11 @@ public interface CapacityModelMapper {
 		CapacityModel model = new CapacityModel();
 		model.setCapacityModelId(mel.getCapacityModelId());
 		model.setCapacityModelName(mel.getCapacityModelNm());
-		List<CapacityTemplateNames> templateNames = new ArrayList<>();
+		List<CapacityTemplate> templateNames = new ArrayList<>();
 		mel.getCapacityModelAndCapacityTemplates().stream().forEach(cmct -> {
 			if(cmct.getCapacityTemplate().getCapacityTemplateNm() != null){
-				CapacityTemplateNames tempName = new CapacityTemplateNames();
+				CapacityTemplate tempName = new CapacityTemplate();
+				tempName.setCapacityTemplateId(cmct.getCapacityTemplate().getCapacityTemplateId().toString());
 				tempName.setTemplateName(cmct.getCapacityTemplate().getCapacityTemplateNm());
 				templateNames.add(tempName);
 			}

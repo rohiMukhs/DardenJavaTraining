@@ -35,5 +35,14 @@ public interface CapacityModelAndLocationRepository extends JpaRepository<Capaci
 	 * 		of entity class with the value of model and location assigned.
 	 */
 	List<CapacityModelAndLocationEntity> findByCapacityModel(CapacityModelEntity capacitymodel);
+	
+	/**
+	 * This method to delete all CapacityModel And Location Entity based on the
+	 * value of capacity model entity.
+	 * 
+	 * @param capacitymodel entity class containing the value of capacity
+	 * 				model.
+	 */
+	void deleteAllByCapacityModel(CapacityModelEntity capacitymodel);
 
 }

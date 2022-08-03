@@ -1,5 +1,7 @@
 package com.darden.dash.capacity.model;
 
+import com.darden.dash.common.model.ServiceResponse;
+
 import lombok.Getter;
 import lombok.Setter;
 /**
