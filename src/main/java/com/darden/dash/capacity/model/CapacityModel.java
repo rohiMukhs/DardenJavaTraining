@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,11 +22,12 @@ import lombok.Setter;
  */
 @Setter
 @Getter
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CapacityModel implements Serializable{
 	
 	private String capacityModelName;
 	private BigInteger capacityModelId;
-	private List<CapacityTemplateNames> capacityTemplateList ;
+	private List<CapacityTemplate> capacityTemplateList ;
 	private Set<BigInteger> restaurants;
 	private String isDeletedFlg;
 	private String createdBy;

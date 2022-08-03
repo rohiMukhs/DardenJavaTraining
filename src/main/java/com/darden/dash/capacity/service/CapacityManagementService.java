@@ -1,9 +1,12 @@
 package com.darden.dash.capacity.service;
 
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
+import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
@@ -135,5 +138,15 @@ public interface CapacityManagementService {
 	* @return boolean returns the boolean value based on the condition.
 	*/
 	public boolean validateCapacityTemplateNmForCreate(String capacityTemplateNm, String templateId);
+	
+	/**
+	 * This method is to fetch all model list based on the template id list passed
+	 * in the parameter.
+	 * 
+	 * @param templateIds Set of bigInteger containing the value of template id.
+	 * 
+	 * @return List<CapacityModel> list of model containing the value of capacity model.
+	 */
+	public List<CapacityModel> getAllModelsRelatingToTemplateIdList(Set<BigInteger> templateIds);
 	
 }

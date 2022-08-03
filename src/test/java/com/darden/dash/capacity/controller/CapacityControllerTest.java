@@ -392,8 +392,8 @@ public class CapacityControllerTest {
 		CapacityModel mr = new CapacityModel();
 		mr.setCapacityModelId(new BigInteger("1"));
 		mr.setCapacityModelName("name");
-		List<CapacityTemplateNames> templateName = new ArrayList<>();
-		CapacityTemplateNames tempNm = new CapacityTemplateNames();
+		List<CapacityTemplate> templateName = new ArrayList<>();
+		CapacityTemplate tempNm = new CapacityTemplate();
 		tempNm.setTemplateName("name");
 		templateName.add(tempNm);
 		mr.setCapacityTemplateList(templateName);

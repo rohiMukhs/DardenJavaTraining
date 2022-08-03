@@ -5,17 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.darden.dash.capacity.entity.CapacityModelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.TemplatesAssigned;
-import com.darden.dash.capacity.repository.CapacityModelRepository;
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.util.CapacityConstants;
@@ -47,7 +44,6 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	
 	private CapacityTemplateModelService capacityTemplateModelService;
 	private CapacityTemplateRepo capacityTemplateRepo;
-	private CapacityModelRepository capacityModelRepository;
 	private CapacityManagementUtils capacityManagementUtils;
 	
 	/**
@@ -59,11 +55,10 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 * @param capacityManagementUtils
 	 */
 	@Autowired
-	public CapacityTemplateModelValidator(CapacityTemplateModelService capacityTemplateModelService, CapacityTemplateRepo capacityTemplateRepo,CapacityModelRepository capacityModelRepository,CapacityManagementUtils capacityManagementUtils) {
+	public CapacityTemplateModelValidator(CapacityTemplateModelService capacityTemplateModelService, CapacityTemplateRepo capacityTemplateRepo,CapacityManagementUtils capacityManagementUtils) {
 		super();
 		this.capacityTemplateModelService = capacityTemplateModelService;
 		this.capacityTemplateRepo = capacityTemplateRepo;
-		this.capacityModelRepository=capacityModelRepository;
 		this.capacityManagementUtils=capacityManagementUtils;
 	}
 	
@@ -145,7 +140,6 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 */
 	private void validateInDbForCreate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors) {
 		validateRequestTemplateIds(capacityModelRequest, applicationErrors);
-		validateAssignedTemplates(capacityModelRequest, applicationErrors);
 		if (capacityTemplateModelService.validateModelTemplateNm(capacityModelRequest.getTemplateModelName())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 					CapacityConstants.CAPACITY_MODEL_NM);
@@ -170,10 +164,7 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 */
 	private void validateInDbForUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id) {
 		capacityTemplateModelService.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, id);
-		if(capacityTemplateModelService.validateIfRestaurantIsUnassigned(capacityModelRequest.getRestaurantsAssigned(), id)) {
-			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4505));
-		}
-		else if(capacityTemplateModelService.validateModelTemplateNmForUpdate(capacityModelRequest.getTemplateModelName(), id)) {
+		if(capacityTemplateModelService.validateModelTemplateNmForUpdate(capacityModelRequest.getTemplateModelName(), id)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 					CapacityConstants.CAPACITY_MODEL_NM);
 		}
@@ -199,33 +190,6 @@ public class CapacityTemplateModelValidator implements DashValidator {
 				applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4503), t.getTemplateId());
 			}
 		});
-		applicationErrors.raiseExceptionIfHasErrors();
-	}
-	
-	/**
-	 * This method validates capacity template model using provided Id if already
-	 * present in database
-	 * 
-	 * @param CapacityModelRequest request class containing the value of capacity
-	 *                             template model to be created is validated.
-	 * 
-	 * @param applicationErrors    error class is used to raise application errors
-	 *                             for invalid condition.
-	 */
-	private void validateAssignedTemplates(CapacityModelRequest capacityModelRequest,
-			ApplicationErrors applicationErrors) {
-		List<CapacityModelEntity> capacityModelEntityList = capacityModelRepository.findByConceptId(new BigInteger(RequestContext.getConcept()));
-		List<String> templateIds =capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull)
-				.map(TemplatesAssigned::getTemplateId).collect(Collectors.toList());
-		if (CollectionUtils.isNotEmpty(capacityModelEntityList)) {
-			capacityModelEntityList.stream().filter(Objects::nonNull).forEach(capacityModelEntity -> capacityModelEntity
-					.getCapacityModelAndCapacityTemplates().stream().forEach(t -> {
-						BigInteger templateId = t.getId().getCapacityTemplateId();
-						if (templateIds.contains(String.valueOf(templateId))) {
-							applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4506),String.valueOf(templateId));
-						}
-					}));
-		}
 		applicationErrors.raiseExceptionIfHasErrors();
 	}
 

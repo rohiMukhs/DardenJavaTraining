@@ -122,14 +122,6 @@ class ModelTest {
 		assertEquals(r1, r2);
 		assertEquals(r1.hashCode(), r2.hashCode());
 		
-		ServiceResponse s1 = new ServiceResponse();
-		ServiceResponse s2 = new ServiceResponse();
-		s1.canEqual(s2);
-		assertNotEquals(null, s1);
-		assertEquals(s1, s2);
-		assertEquals(s1.hashCode(), s2.hashCode());
-		
-		
 		GetCapacityModelResponse m1 = new GetCapacityModelResponse();
 		GetCapacityModelResponse m2 = new GetCapacityModelResponse();
 		m1.canEqual(m2);
