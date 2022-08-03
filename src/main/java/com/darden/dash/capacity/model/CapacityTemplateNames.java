@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 public class CapacityTemplateNames implements Serializable{
 	
+	private String templateId;
 	private String templateName;
 	
 }

@@ -29,7 +29,8 @@ import com.darden.dash.capacity.model.CreateCombineChannelResponse;
 import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.model.EditChannelResponse;
 import com.darden.dash.capacity.model.GetCapacityModelResponse;
-import com.darden.dash.capacity.model.ServiceResponse;
+import com.darden.dash.capacity.model.ListOfCapacityTemplateIds;
+import com.darden.dash.capacity.model.ListOfModelResponse;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
@@ -39,6 +40,7 @@ import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.capacity.validation.ChannelValidator;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.model.ErrorResponse;
+import com.darden.dash.common.model.ServiceResponse;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -412,4 +414,32 @@ public class CapacityManagementController {
 		return new CapacityModelResponse(capacityTemplateModelService.updateCapacityModel(modelId, capacityModelRequest, user)).build(CapacityConstants.CAPACITY_MODEL_UPDATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_202);
 	}
 	
+	/**
+	 * This method is used for post operation to get all model list detail based on the value of list of
+	 * templates provided in request body.
+	 * 
+	 * @param conceptId String contains the value of concept id from headers.
+	 * 
+	 * @param listOfCapacityTemplateIds model class containing the list of capacity templates
+	 * 								id.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @return ResponseEntity<Object> Response class with information of the
+	 *         						  Object containing model list detail.
+	 *         
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	@PostMapping(value = CapacityConstants.CAPACITYMODELLIST ,produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CapacityModelResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> createCapacityTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@RequestBody ListOfCapacityTemplateIds listOfCapacityTemplateIds,
+			@Parameter @RequestHeader (name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
+		jwtUtils.findUserDetail(accessToken);
+		return new ListOfModelResponse(capacityManagementService.getAllModelsRelatingToTemplateIdList(listOfCapacityTemplateIds.getTemplateIdList())).build(CapacityConstants.ALL_MODELS_LOADED_SUCESSFULLY, CapacityConstants.STATUS_CODE_200);
+	}	
 }

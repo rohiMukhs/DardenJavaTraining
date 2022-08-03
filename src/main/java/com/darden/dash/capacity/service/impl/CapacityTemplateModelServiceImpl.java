@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -323,7 +322,9 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	private boolean validateAssignedTemplateDates(CapacityTemplateEntity capacityTemplateEntityRequest,
 			List<CapacityTemplateEntity> list) {
-		return list.stream().filter(Objects::nonNull).anyMatch(t -> t
+		return list.stream().filter(Objects::nonNull)
+				.filter(templateType -> templateType.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DATES))
+				.anyMatch(t -> t
 				.getCapacityTemplateAndBusinessDates().stream().filter(Objects::nonNull).anyMatch(s -> {
 					LocalDate businessDate = DateUtil.convertDatetoLocalDate(s.getId().getBusinessDate());
 					return capacityTemplateEntityRequest.getCapacityTemplateAndBusinessDates().stream()
@@ -353,7 +354,9 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	private boolean validateAssignedTemplateDays(CapacityTemplateEntity capacityTemplateEntityRequest,
 			List<CapacityTemplateEntity> list) {
-		return list.stream().filter(Objects::nonNull).anyMatch(t -> {
+		return list.stream().filter(Objects::nonNull)
+				.filter(templateType -> templateType.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DAYS))
+				.anyMatch(t -> {
 			LocalDate dbTemplateEffectiveDate = DateUtil
 					.convertDatetoLocalDate(t.getEffectiveDate());
 			LocalDate dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getExpiryDate());
@@ -459,54 +462,14 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		dbModelEntity.setLastModifiedDatetime(dateTime);
 		CapacityModelEntity savedEntity = capacityModelRepository.save(dbModelEntity);
 		capacityModelAndCapacityTemplateRepo.deleteByCapacityModel(savedEntity);
-		List<CapacityModelAndLocationEntity> modelAndLocationDb = capacityModelAndLocationRepo.findByCapacityModel(savedEntity);
+		capacityModelAndLocationRepo.deleteAllByCapacityModel(savedEntity);
 		List<BigInteger> templateIds = extractingAllTemplateIdFromRequest(capacityModelRequest);
-		List<BigInteger> alreadyAssignedLocation = extractingAlreadyAssignedLocationsToModelFromDB(modelAndLocationDb);
-		List<BigInteger> requestAssignedLocation = extractingAllLocationIdFromRequest(capacityModelRequest);
-		ArrayList<BigInteger> notAssignedLocation = new ArrayList<>(requestAssignedLocation);
-		notAssignedLocation.removeAll(alreadyAssignedLocation);
-		addUniqueCapacityModelAndLocations(user, dateTime, savedEntity, notAssignedLocation);
+		mapCapacityModelAndLocations(capacityModelRequest, user, dateTime, savedEntity);
 		mapCapacityModelAndTemplates(user, dateTime, savedEntity, templateIds);
 		mapCapacityModelResponse(capacityTemplateModel, savedEntity);
 		return capacityTemplateModel;
 	}
 
-	/**
-	 * This method is used to get all location id from request.
-	 * 
-	 * @param capacityModelRequest request class containing detail of
-	 * 								Capacity Model Template to be created.
-	 * 
-	 * @return List<BigInteger> list of bigInteger containing all the 
-	 * 				value of location id from request.
-	 */
-	private List<BigInteger> extractingAllLocationIdFromRequest(CapacityModelRequest capacityModelRequest) {
-		List<BigInteger> requestAssignedLocation = new ArrayList<>();
-		if(CollectionUtils.isNotEmpty(capacityModelRequest.getRestaurantsAssigned())) {
-			capacityModelRequest.getRestaurantsAssigned().stream().filter(Objects::nonNull)
-					.forEach(locationAssigned -> requestAssignedLocation.add(new BigInteger(locationAssigned.getLocationId())));
-		}
-		return requestAssignedLocation;
-	}
-
-	/**
-	 * This method is used to get all assigned location id from database.
-	 * 
-	 * @param modelAndLocationDb list if entity class containing values of
-	 * 				Capacity Model And Location.
-	 * 
-	 * @return List<BigInteger> list of bigInteger containing all the 
-	 * 				value of assigned location id from database.
-	 */
-	private List<BigInteger> extractingAlreadyAssignedLocationsToModelFromDB(
-			List<CapacityModelAndLocationEntity> modelAndLocationDb) {
-		List<BigInteger> alreadyAssignedLocation = new ArrayList<>();
-		if(CollectionUtils.isNotEmpty(modelAndLocationDb)) {
-			modelAndLocationDb.stream().filter(Objects::nonNull)
-					.forEach(locationAssignedDB -> alreadyAssignedLocation.add(locationAssignedDB.getId().getLocationId()));
-		}
-		return alreadyAssignedLocation;
-	}
 	
 	/**
 	 * This method is used to get all template id from request.
@@ -524,31 +487,6 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 					.forEach(templatesAssigned -> templateIds.add(new BigInteger(templatesAssigned.getTemplateId())));
 		}
 		return templateIds;
-	}
-
-	/**
-	 * This service method is written for purpose of mapping the data to
-	 * capacity model and location entity and to save the data.This method
-	 * is used while updating the capacity model for assigning the location 
-	 * to the capacity template model.
-	 * 
-	 * @param user String contains the value of user extracted from the accesstoken.
-	 * 
-	 * @param dateTime Instant contains the value of dateTime while performing the 
-	 * 					operation.
-	 * 
-	 * @param savedEntity Entity class contains the value of updated capacity template model.
-	 * 
-	 * @param notAssignedLocation List of BigInteger contains the value of unassigned
-	 * 						locations to the capacity template model.
-	 */
-	private void addUniqueCapacityModelAndLocations(String user, Instant dateTime, CapacityModelEntity savedEntity,
-			ArrayList<BigInteger> notAssignedLocation) {
-		List<CapacityModelAndLocationEntity> capacityModelAndLocationEntites = capacityModelMapper.mapToCapacityModelAndLocationEntityList(
-				user, dateTime, savedEntity, notAssignedLocation);
-		if (CollectionUtils.isNotEmpty(capacityModelAndLocationEntites)) {
-			capacityModelAndLocationRepo.saveAll(capacityModelAndLocationEntites);
-		}
 	}
 
 	/**
@@ -570,49 +508,6 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 			return CapacityConstants.FALSE;
 		}
 		return !capacityModelEntity.isEmpty();
-	}
-
-	/**
-	 * This service method is written for purpose of validating restaurant 
-	 * list to be assigned to check whether any restaurant is being unassigned 
-	 * it will not allow previous restaurants to be unassigned.
-	 * 
-	 * @param restaurantsAssigned list of model class containing the value 
-	 * 					of restaurants to be assigned.
-	 * 
-	 * @param id String contains the value of capacity template model id.
-	 * 
-	 * @return boolean returns the boolean value based on the condition.
-	 */
-	@Override
-	public boolean validateIfRestaurantIsUnassigned(List<RestaurantsAssigned> restaurantsAssigned, String id) {
-		ApplicationErrors applicationErrors = new ApplicationErrors();
-		Optional<CapacityModelEntity> dbCapacityModel =  capacityModelRepository
-				.findByCapacityModelIdAndIsDeletedFlgAndConceptId(new BigInteger(id), CapacityConstants.N, new BigInteger(RequestContext.getConcept()));
-		if(dbCapacityModel.isEmpty()) {
-			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012), CapacityConstants.CAPACITY_MODEL_ID);
-			applicationErrors.raiseExceptionIfHasErrors();
-		}
-		List<CapacityModelAndLocationEntity> modelAndLocationDb = new ArrayList<>();
-		if(dbCapacityModel.isPresent()){
-			modelAndLocationDb = capacityModelAndLocationRepo.findByCapacityModel(dbCapacityModel.get());
-		}
-		List<BigInteger> alreadyAssignedLocation = extractingAlreadyAssignedLocationsToModelFromDB(modelAndLocationDb);
-		List<Locations> restaurantInDB = locationClient.getAllRestaurants();
-		List<BigInteger> requestAssignedLocation = new ArrayList<>();
-		if(CollectionUtils.isNotEmpty(restaurantsAssigned)) {
-			restaurantsAssigned.stream().filter(Objects::nonNull)
-					.forEach(locationAssigned -> {
-						if(isLocationIdValid(locationAssigned.getLocationId(), restaurantInDB)) {
-							applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012), CapacityConstants.LOCATION_ID);
-							applicationErrors.raiseExceptionIfHasErrors();
-						}
-						requestAssignedLocation.add(new BigInteger(locationAssigned.getLocationId()));
-					});
-		}
-		ArrayList<BigInteger> unAssignedLocation = new ArrayList<>(alreadyAssignedLocation);
-		unAssignedLocation.removeAll(requestAssignedLocation);
-		return !unAssignedLocation.isEmpty();
 	}
 	
 	/**
@@ -652,16 +547,6 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 					.findById(new BigInteger(t.getTemplateId()));
 			if (dbTemplate.isEmpty()) {
 				applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4503), t.getTemplateId());
-			}
-			else if(dbTemplate.isPresent()) {
-				List<CapacityModelAndCapacityTemplateEntity> list = capacityModelAndCapacityTemplateRepo.findAll();
-				List<CapacityModelAndCapacityTemplateEntity> listFiltered = list.stream()
-						.filter(entity -> entity.getCapacityTemplate().equals(dbTemplate.get()))
-						.filter(entity -> !entity.getCapacityModel().getCapacityModelId().equals(new BigInteger(id)))
-						.collect(Collectors.toList());
-				if(!listFiltered.isEmpty()) {
-					applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4506),t.getTemplateId());
-				}
 			}
 		});
 		applicationErrors.raiseExceptionIfHasErrors();

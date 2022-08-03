@@ -2,6 +2,8 @@ package com.darden.dash.capacity.model;
 
 import java.util.List;
 
+import com.darden.dash.common.model.ServiceResponse;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
