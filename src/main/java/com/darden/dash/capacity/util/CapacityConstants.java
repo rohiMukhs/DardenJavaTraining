@@ -335,6 +335,9 @@ public class CapacityConstants {
 	public static final String BLANK = "";
 	public static final String CAPACITYMODELLIST = "/capacitymodel-list";
 	public static final String ALL_MODELS_LOADED_SUCESSFULLY = "All template model relating to capacity template loaded successfully";
+	public static final String EC_4507 = "4507";
+	public static final String CAPACITY_TEMPLATE_MODEL_ID = "capacity template model id";
+	public static final String COMBINE_CAPACITY_TEMPLATE_CACHE_KEY = "{#isRefDataReq, #conceptId}";
 	
 	private CapacityConstants() {
 

@@ -37,7 +37,6 @@ import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
-import com.darden.dash.capacity.model.CapacityTemplateNames;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CombineChannel;
@@ -104,7 +103,7 @@ public class CapacityControllerTest {
 	@Test
 	void getAllCapacityTemplates() throws Exception {
 		CapacityResponse capacityResponse = new CapacityResponse();
-		Mockito.when(capacityManagementService.getAllCapacityTemplates(Mockito.anyBoolean()))
+		Mockito.when(capacityManagementService.getAllCapacityTemplates(Mockito.anyBoolean(),Mockito.any()))
 				.thenReturn(capacityResponse);
 		mockMvc.perform(get("/api/v1/capacity-templates/")
 				.param("isRefDataReq", "false")

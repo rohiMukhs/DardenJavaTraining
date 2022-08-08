@@ -66,7 +66,8 @@ public interface CapacityTemplateModelService {
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	
-	public boolean validateCapacityModelTemplateBusinessDates(CapacityTemplateEntity capacityTemplateEntityRequest, List<BigInteger> otherTemplateId);
+	public boolean validateCapacityModelTemplateBusinessDates(CapacityTemplateEntity capacityTemplateEntityRequest, List<BigInteger> otherTemplateId
+			,List<String> matchingTemplatesId);
 	
 	/**
 	 * This service method is used to update capacity model based on the 

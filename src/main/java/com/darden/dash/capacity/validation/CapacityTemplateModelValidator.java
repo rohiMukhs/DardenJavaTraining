@@ -140,11 +140,13 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 */
 	private void validateInDbForCreate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors) {
 		validateRequestTemplateIds(capacityModelRequest, applicationErrors);
+		List<String> matchingTemplatesId = new ArrayList<>();
 		if (capacityTemplateModelService.validateModelTemplateNm(capacityModelRequest.getTemplateModelName())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 					CapacityConstants.CAPACITY_MODEL_NM);
-		} else if (validateBusinessDatesAndDays(capacityModelRequest)) {
-			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4502));
+		} else if (validateBusinessDatesAndDays(capacityModelRequest,matchingTemplatesId)) {
+			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4507),
+					matchingTemplatesId.toString());
 		}
 	}
 	
@@ -164,12 +166,14 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 */
 	private void validateInDbForUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id) {
 		capacityTemplateModelService.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, id);
+		List<String> matchingTemplatesId = new ArrayList<>();
 		if(capacityTemplateModelService.validateModelTemplateNmForUpdate(capacityModelRequest.getTemplateModelName(), id)) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4009),
 					CapacityConstants.CAPACITY_MODEL_NM);
 		}
-		else if(validateBusinessDatesAndDays(capacityModelRequest)) {
-			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4502));
+		else if(validateBusinessDatesAndDays(capacityModelRequest, matchingTemplatesId)) {
+			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4507),
+					matchingTemplatesId.toString());
 		}
 	}
 
@@ -200,19 +204,26 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 *                             template model to be created is validated.
 	 * @return boolean returns the boolean value based on the condition.
 	 */
-	private boolean validateBusinessDatesAndDays(CapacityModelRequest capacityModelRequest) {
+	private boolean validateBusinessDatesAndDays(CapacityModelRequest capacityModelRequest, List<String> matchingTemplatesId) {
 		List<BigInteger> templateAssigned = new ArrayList<>();
 		if(CollectionUtils.isNotEmpty(capacityModelRequest.getTemplatesAssigned())) {
 			capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull)
 					.forEach(templatesAssigned -> templateAssigned.add(new BigInteger(templatesAssigned.getTemplateId())));
 		}
-		return capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull).anyMatch(t -> {
+		capacityModelRequest.getTemplatesAssigned().stream().filter(Objects::nonNull).forEach(t -> {
 			List<BigInteger> otherTemplateId = extractingOtherAssignedTemplateIdToModel(templateAssigned, t);
 			Optional<CapacityTemplateEntity> dbTemplate = capacityTemplateRepo
 					.findById(new BigInteger(t.getTemplateId()));
-			return dbTemplate.isPresent()
-					&& capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(dbTemplate.get(), otherTemplateId);
+			capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(dbTemplate.get(), otherTemplateId, matchingTemplatesId);
 		});
+		boolean validation = true;
+		if(matchingTemplatesId.isEmpty()) {
+			validation = false;
+			return validation;
+		}
+		else {
+			return validation;
+		}
 	}
 
 	private List<BigInteger> extractingOtherAssignedTemplateIdToModel(List<BigInteger> templateAssigned,

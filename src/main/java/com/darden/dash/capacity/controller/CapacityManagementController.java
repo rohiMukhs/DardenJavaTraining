@@ -38,6 +38,7 @@ import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.capacity.validation.CapacityTemplateModelValidator;
 import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.capacity.validation.ChannelValidator;
+import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.model.ErrorResponse;
 import com.darden.dash.common.model.ServiceResponse;
@@ -117,7 +118,7 @@ public class CapacityManagementController {
         // validating the access token
 		jwtUtils.findUserDetail(accessToken);
 		capacityValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
-		return capacityManagementService.getAllCapacityTemplates(isRefDataReq).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
+		return capacityManagementService.getAllCapacityTemplates(isRefDataReq, RequestContext.getConcept()).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
 	}
 	
 	/**
