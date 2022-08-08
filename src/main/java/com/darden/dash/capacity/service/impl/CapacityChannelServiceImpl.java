@@ -16,7 +16,6 @@ import javax.transaction.Transactional;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
@@ -98,8 +97,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	@Transactional
-	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME, key = CapacityConstants.CAPACITY_CHANNEL_CACHE_KEY),
-            @CacheEvict(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME, allEntries = true) })
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key = CapacityConstants.CAPACITY_CHANNEL_CACHE_KEY),
+            @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
 	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user) throws JsonProcessingException{
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		Map<BigInteger,ChannelInformationRequest> editChannelsMap=editChannelInformationRequest.stream().collect(Collectors.toMap(ChannelInformationRequest::getCapacityChannelId,o->o));
@@ -157,7 +156,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 *                                 runtime e.g json parsing.
 	 */
 	@Override
-	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME, allEntries = true) })
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
 	public CombineChannel addCombinedChannel(CreateCombineChannelRequest createCombinedChannelRequest,
 			String userDetail) throws JsonProcessingException {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
@@ -337,7 +336,6 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * 
 	 */
 	@Override
-	@Cacheable(value = CapacityConstants.CAPACITY_CHANNEL_CACHENAME)
 	public ReferenceDatum getReferenceData() {
 		List<CapacityChannelEntity> channelEntities = capacityChannelRepository.findAll();
 		ReferenceDatum referenceDatum = new ReferenceDatum();

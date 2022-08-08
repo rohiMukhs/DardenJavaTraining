@@ -171,14 +171,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * 
 	 */
 	@Override
-	@Cacheable(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE)
-	public CapacityResponse getAllCapacityTemplates(Boolean isRefDataReq) {
+	@Cacheable(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key= CapacityConstants.COMBINE_CAPACITY_TEMPLATE_CACHE_KEY)
+	public CapacityResponse getAllCapacityTemplates(Boolean isRefDataReq, String conceptId ) {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		if (StringUtils.isBlank(RequestContext.getConcept())) {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4421));
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
-		BigInteger concepId = new BigInteger(RequestContext.getConcept());
+		BigInteger concepId = new BigInteger(conceptId);
 		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo.findByConceptId(concepId);
 		List<CapacityTemplate> capacityTemplates = new ArrayList<>();
 		capacityTemplateEntities.stream().filter(Objects::nonNull).forEach(capacityTemplateEntity -> {
@@ -412,10 +412,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		}
 		else if (appParameterEntity != null
 				&& CharacterConstants.N.getCode().toString().equals(appParameterEntity.getParameterValue())) {
-			capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-			capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-			capacitySlotRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-			capacityTemplateRepo.delete(capacityTemplateEntity);
+			if(capacityTemplateEntity.getCapacityTemplateId() != null) {
+				capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+				capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+				capacitySlotRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+				capacityTemplateRepo.deleteById(capacityTemplateEntity.getCapacityTemplateId());
+			}
 			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_HARD, null, capacityTemplateEntity, userDetail);
 		}
 		return capacityTemplateEntity.getCapacityTemplateNm();
@@ -926,7 +928,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	private boolean validationForTemplateDays(CreateCapacityTemplateRequest createCapacityTemplateRequest, List<CapacityModelAndCapacityTemplateEntity> list) {
 		return list.stream().filter(Objects::nonNull)
-				.filter(templateType -> templateType.getCapacityTemplate().getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DATES))
+				.filter(templateType -> templateType.getCapacityTemplate().getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DAYS))
 				.anyMatch(t -> {
 			LocalDate dbTemplateEffectiveDate = DateUtil
 					.convertDatetoLocalDate(t.getCapacityTemplate().getEffectiveDate());

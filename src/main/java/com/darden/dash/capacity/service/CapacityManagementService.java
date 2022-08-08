@@ -30,7 +30,7 @@ public interface CapacityManagementService {
 	 * 							capacity Template.
 	 */
 
-	CapacityResponse getAllCapacityTemplates(Boolean assignedTemplate);
+	CapacityResponse getAllCapacityTemplates(Boolean assignedTemplate, String conceptId);
 
 	/**
 	 * This method to create Capacity Template, CapacityTemplateAndBusinessDates,CapacityTemplateAndCapacityChannel,

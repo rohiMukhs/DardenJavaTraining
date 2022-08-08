@@ -297,13 +297,14 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
-	public boolean validateCapacityModelTemplateBusinessDates(CapacityTemplateEntity capacityTemplateEntityRequest, List<BigInteger> otherTemplateId) {
+	public boolean validateCapacityModelTemplateBusinessDates(CapacityTemplateEntity capacityTemplateEntityRequest, List<BigInteger> otherTemplateId
+			,List<String> matchingTemplatesId) { 
 		List<CapacityTemplateEntity> list = capacityTemplateRepo.findAllById(otherTemplateId);
 		String templateTypeNm = capacityTemplateEntityRequest.getCapacityTemplateType().getCapacityTemplateTypeNm();
 		if (CapacityConstants.DAYS.equalsIgnoreCase(templateTypeNm)) {
-			return validateAssignedTemplateDays(capacityTemplateEntityRequest, list);
+			return validateAssignedTemplateDays(capacityTemplateEntityRequest, list, matchingTemplatesId);
 		} else if (CapacityConstants.DATES.equalsIgnoreCase(templateTypeNm)) {
-			return validateAssignedTemplateDates(capacityTemplateEntityRequest, list);
+			return validateAssignedTemplateDates(capacityTemplateEntityRequest, list, matchingTemplatesId);
 		}
 		return false;
 	}
@@ -321,7 +322,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	private boolean validateAssignedTemplateDates(CapacityTemplateEntity capacityTemplateEntityRequest,
-			List<CapacityTemplateEntity> list) {
+			List<CapacityTemplateEntity> list, List<String> matchingTemplatesId) {
 		return list.stream().filter(Objects::nonNull)
 				.filter(templateType -> templateType.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DATES))
 				.anyMatch(t -> t
@@ -334,6 +335,12 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 								boolean isSameBusinessDate = false;
 								if (businessDate.equals(reqBusinessDate)) {
 									isSameBusinessDate = true;
+									if(!matchingTemplatesId.contains(bDate.getCapacityTemplate().getCapacityTemplateNm())) {
+										matchingTemplatesId.add(bDate.getCapacityTemplate().getCapacityTemplateNm());
+									}
+									if(!matchingTemplatesId.contains(t.getCapacityTemplateNm())) {
+										matchingTemplatesId.add(t.getCapacityTemplateNm());
+									}
 								}
 								return isSameBusinessDate;
 							});
@@ -353,7 +360,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	private boolean validateAssignedTemplateDays(CapacityTemplateEntity capacityTemplateEntityRequest,
-			List<CapacityTemplateEntity> list) {
+			List<CapacityTemplateEntity> list, List<String> matchingTemplatesId) {
 		return list.stream().filter(Objects::nonNull)
 				.filter(templateType -> templateType.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DAYS))
 				.anyMatch(t -> {
@@ -367,7 +374,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 				CapacityTemplateEntity template = t;
 				if (CapacityConstants.DAYS
 						.equalsIgnoreCase(template.getCapacityTemplateType().getCapacityTemplateTypeNm())) {
-					return validateDays(capacityTemplateEntityRequest, template);
+					 validateDays(capacityTemplateEntityRequest, template, matchingTemplatesId);
 				}
 				return false;
 			}
@@ -391,7 +398,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 * @param template
 	 * @return boolean returns the boolean value based on the condition.
 	 */
-	public boolean validateDays(CapacityTemplateEntity capacityTemplateEntityRequest, CapacityTemplateEntity template) {
+	public void validateDays(CapacityTemplateEntity capacityTemplateEntityRequest, CapacityTemplateEntity template, List<String> matchingTemplatesId) {
 		String sunDayFlg = capacityTemplateEntityRequest.getSunFlg();
 		String monDayFlg = capacityTemplateEntityRequest.getMonFlg();
 		String tueDayFlg = capacityTemplateEntityRequest.getTueFlg();
@@ -399,10 +406,17 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		String thuDayFlg = capacityTemplateEntityRequest.getThuFlg();
 		String friDayFlg = capacityTemplateEntityRequest.getFriFlg();
 		String satDayFlg = capacityTemplateEntityRequest.getSatFlg();
-		return validateDay(template.getSunFlg(), sunDayFlg) || validateDay(template.getMonFlg(), monDayFlg)
+		if(validateDay(template.getSunFlg(), sunDayFlg) || validateDay(template.getMonFlg(), monDayFlg)
 				|| validateDay(template.getTueFlg(), tueDayFlg) || validateDay(template.getWedFlg(), wedDayFlg)
 				|| validateDay(template.getThuFlg(), thuDayFlg) || validateDay(template.getFriFlg(), friDayFlg)
-				|| validateDay(template.getSatFlg(), satDayFlg);
+				|| validateDay(template.getSatFlg(), satDayFlg)) {
+			if(!matchingTemplatesId.contains(capacityTemplateEntityRequest.getCapacityTemplateNm())) {
+				matchingTemplatesId.add(capacityTemplateEntityRequest.getCapacityTemplateNm());
+			}
+			if(!matchingTemplatesId.contains(template.getCapacityTemplateNm())) {
+				matchingTemplatesId.add(template.getCapacityTemplateNm());
+			}
+		}
 	}
 
 	/**
@@ -449,6 +463,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
             @CachePut(value = CapacityConstants.CAPACITY_MODEL_CACHE, key = CapacityConstants.CAPACITY_MODEL_CACHE_KEY) })
 	public CapacityTemplateModel updateCapacityModel(String modelId, CapacityModelRequest capacityModelRequest,
 			String user) {
+		ApplicationErrors applicationErrors = new ApplicationErrors();
 		CapacityTemplateModel capacityTemplateModel = new CapacityTemplateModel();
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		Optional<CapacityModelEntity> dbModelEntityOptional = capacityModelRepository
@@ -456,6 +471,10 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		CapacityModelEntity dbModelEntity = new CapacityModelEntity();
 		if(dbModelEntityOptional.isPresent()) {
 			dbModelEntity = dbModelEntityOptional.get();
+		}
+		else {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012), CapacityConstants.CAPACITY_TEMPLATE_MODEL_ID);
+			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		dbModelEntity.setCapacityModelNm(capacityModelRequest.getTemplateModelName());
 		dbModelEntity.setLastModifiedBy(user);

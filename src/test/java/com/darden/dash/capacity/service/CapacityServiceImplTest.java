@@ -141,7 +141,7 @@ class CapacityServiceImplTest {
 		lenient().when(capacityTemplateRepo.findByConceptId(BigInteger.ONE)).thenReturn((getAllCapacityTemplates()));
 		lenient().when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
 		lenient().when(capacityChannelService.getReferenceData()).thenReturn(new ReferenceDatum());
-		CapacityResponse res = capacityManagementServiceImpl.getAllCapacityTemplates(false);
+		CapacityResponse res = capacityManagementServiceImpl.getAllCapacityTemplates(false, "1");
 		assertNotNull(res);
 	}
 
@@ -149,7 +149,7 @@ class CapacityServiceImplTest {
 	void testGetAllCapacityTemplatesForInvalidConcept() {
 		RequestContext.setConcept(null);
 		Exception exception = assertThrows(RuntimeException.class, () -> {
-			capacityManagementServiceImpl.getAllCapacityTemplates(true);
+			capacityManagementServiceImpl.getAllCapacityTemplates(true, "1");
 		});
 		assertTrue(instanceOf(ApplicationException.class).matches(exception));
 	}
