@@ -193,7 +193,7 @@ class CapacityTemplateModelValidatorTest {
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
-		when(capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(Mockito.any(), Mockito.any())).thenReturn(true);
+		when(capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
 		capacityModelRequest.setRestaurantsAssigned(restaurantsAssignedList);
 		when(capacityTemplateModelService.validateModelTemplateNm(Mockito.any())).thenReturn(false);
 		try {
@@ -230,7 +230,7 @@ class CapacityTemplateModelValidatorTest {
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		lenient().when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
-		lenient().when(capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(Mockito.any(), Mockito.any())).thenReturn(true);
+		lenient().when(capacityTemplateModelService.validateCapacityModelTemplateBusinessDates(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
 		lenient().when(capacityTemplateModelService.validateModelTemplateNmForUpdate(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
 		capacityModelRequest.setRestaurantsAssigned(restaurantsAssignedList);	
 		try {

@@ -477,11 +477,12 @@ class CapacityModelServiceImplTest {
 		request.setSunFlg("Y");
 		request.setIsDeletedFlg("N");	
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
+		List<String> matchingTemplate = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("2"));
 		otherTemplateId.add(new BigInteger("3"));
 		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(list);
-		boolean res = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId);
-		assertEquals(true, res);
+		boolean res = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId,matchingTemplate);
+		assertEquals(false, res);
 	}
 	
 	@Test
@@ -543,6 +544,7 @@ class CapacityModelServiceImplTest {
 		CapacityTemplateTypeEntity capacityTemplateTypeEntity=new CapacityTemplateTypeEntity();
 		capacityTemplateTypeEntity.setCapacityTemplateTypeId(BigInteger.ONE);
 		capacityTemplateTypeEntity.setCapacityTemplateTypeNm("Dates");
+		request.setCapacityTemplateNm("name");
 		request.setCapacityTemplateType(capacityTemplateTypeEntity);
 		List<CapacityTemplateAndBusinessDateEntity> capacityTemplateAndBusinessDateEntityList = new ArrayList<>();
 		CapacityTemplateAndBusinessDateEntity capacityTemplateAndBusinessDateEntity = new CapacityTemplateAndBusinessDateEntity();
@@ -550,17 +552,19 @@ class CapacityModelServiceImplTest {
 		capacityTemplateAndBusinessDatePK.setCapacityTemplateId(BigInteger.valueOf(3));
 		capacityTemplateAndBusinessDatePK.setBusinessDate(DateUtil.stringToDate("01/01/2011"));
 		capacityTemplateAndBusinessDateEntity.setId(capacityTemplateAndBusinessDatePK);
+		capacityTemplateAndBusinessDateEntity.setCapacityTemplate(request);
 		capacityTemplateAndBusinessDateEntityList.add(capacityTemplateAndBusinessDateEntity);
 		request.setCapacityTemplateAndBusinessDates(capacityTemplateAndBusinessDateEntityList);
 		request.setConceptId(new BigInteger("1"));
-		request.setCapacityTemplateNm("name");
 		request.setCapacityTemplateId(new BigInteger("1"));
 		request.setEffectiveDate(DateUtil.stringToDate("01/01/2011"));
 		request.setExpiryDate(DateUtil.stringToDate("01/10/2011"));
+		request.setCapacityTemplateAndBusinessDates(capacityTemplateAndBusinessDateEntityList);
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
+		List<String> matchingTemplate = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("4"));
 		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(list);
-		assertEquals(true, capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId));
+		assertEquals(true, capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId, matchingTemplate));
 	}
 	
 	@Test
@@ -638,10 +642,11 @@ class CapacityModelServiceImplTest {
 		request.setSunFlg("Y");
 		request.setIsDeletedFlg("N");
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
+		List<String> matchingTemplate = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("3"));
 		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(list);
-		boolean res2 = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId);
-		assertEquals(true, res2);
+		boolean res2 = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId, matchingTemplate);
+		assertEquals(false, res2);
 
 	}
 	@Test
@@ -711,7 +716,8 @@ class CapacityModelServiceImplTest {
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("3"));
 		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(list);
-		boolean res2 = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId);
+		List<String> matchingTemplate = new ArrayList<>();
+		boolean res2 = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId, matchingTemplate);
 		assertEquals(false, res2);
 	}
 
@@ -783,7 +789,8 @@ class CapacityModelServiceImplTest {
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("3"));
 		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(list);
-		boolean res2 = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId);
+		List<String> matchingTemplate = new ArrayList<>();
+		boolean res2 = capacityTemplateModelServiceImpl.validateCapacityModelTemplateBusinessDates(request, otherTemplateId, matchingTemplate);
 		assertEquals(false, res2);
 	}
 	
