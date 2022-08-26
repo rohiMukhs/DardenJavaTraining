@@ -27,6 +27,7 @@ import com.darden.dash.capacity.model.CreateCapacityTemplateResponse;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelResponse;
 import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
+import com.darden.dash.capacity.model.DeleteModelTemplateRequest;
 import com.darden.dash.capacity.model.EditChannelResponse;
 import com.darden.dash.capacity.model.GetCapacityModelResponse;
 import com.darden.dash.capacity.model.ListOfCapacityTemplateIds;
@@ -443,4 +444,42 @@ public class CapacityManagementController {
 		jwtUtils.findUserDetail(accessToken);
 		return new ListOfModelResponse(capacityManagementService.getAllModelsRelatingToTemplateIdList(listOfCapacityTemplateIds.getTemplateIdList())).build(CapacityConstants.ALL_MODELS_LOADED_SUCESSFULLY, CapacityConstants.STATUS_CODE_200);
 	}	
+	
+	/**
+	 * Method is used for DELETE Capacity model Template  for the respective concept. The
+	 * parameters are sent to CapacityModelTemplate service. Before sending the parameters,
+	 * those are validated based on the validation if parameter doesn't match validation
+	 * applicationError is thrown with specific error code. 
+	 * The Delete status response code is created for dynamic response whether the Model is deleted or Ready for the delete  
+	 *  At last the API successful response is built and returned.
+	 * 
+	 * @param templateId Id of a capacity model that needs to be deleted.
+	 * 
+	 * @param confirm Flag containing confirmation regarding deleting flag or checking dependency.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @return ServiceResponse ServiceResponse Response class returned after successful deletion
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	
+	@PatchMapping(value = CapacityConstants.CAPACITY_MODEL_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_202, description = CapacityConstants.CAPACITY_TEMPLATE_DELETED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ServiceResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> deleteTemplateModel(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@PathVariable String templateId,@RequestParam String deletedConfirm,
+			@RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
+			throws JsonProcessingException {
+		String userDetail = jwtUtils.findUserDetail(accessToken);
+		
+		capacityTemplateModelValidator.validate(new DeleteModelTemplateRequest(templateId,deletedConfirm), OperationConstants.OPERATION_DELETE.getCode());
+		
+		capacityTemplateModelService.deleteTemplateModel(templateId, userDetail,deletedConfirm);
+		String deleteStatus = (CapacityConstants.Y.equals(deletedConfirm))? CapacityConstants.CAPACITY_TEMPLATE_DELETED: CapacityConstants.CAPACITY_MODEL_READY_FOR_DELETE;
+		return new ServiceResponse().build(deleteStatus, CapacityConstants.STATUS_CODE_200);
+	}
 }

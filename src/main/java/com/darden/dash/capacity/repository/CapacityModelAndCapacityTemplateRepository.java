@@ -59,4 +59,12 @@ public interface CapacityModelAndCapacityTemplateRepository extends JpaRepositor
 	 */
 	void deleteByCapacityModel(CapacityModelEntity capacitymodel);
 	
+	/**
+	 * his repository method is to deleted the value of Capacity Model And CapacityTempla Entity based on the value of 
+	 * capacityModelEntity 
+	 * mode
+	 * @param capacityModelEntity
+	 */
+	void deleteAllByCapacityModel(CapacityModelEntity capacityModelEntity);
+	
 }

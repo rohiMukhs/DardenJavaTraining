@@ -9,6 +9,7 @@ import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.ConceptForCache;
 import com.darden.dash.common.error.ApplicationErrors;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * 
@@ -125,5 +126,8 @@ public interface CapacityTemplateModelService {
 	 * 				concept data.
 	 */
 	public List<ConceptForCache> getCacheConceptData();
+	
+	public void deleteTemplateModel(String templateId, String userDetail, String deletedConfirm) throws JsonProcessingException;
+
 
 }
