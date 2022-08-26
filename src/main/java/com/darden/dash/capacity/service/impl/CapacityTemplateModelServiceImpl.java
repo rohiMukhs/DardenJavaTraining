@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -22,6 +23,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.darden.dash.capacity.client.LocationClient;
+import com.darden.dash.capacity.client.OrderClient;
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
 import com.darden.dash.capacity.entity.CapacityModelAndLocationEntity;
 import com.darden.dash.capacity.entity.CapacityModelEntity;
@@ -32,6 +34,7 @@ import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.ConceptForCache;
 import com.darden.dash.capacity.model.Locations;
+import com.darden.dash.capacity.model.OrderTemplate;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.model.TemplatesAssigned;
 import com.darden.dash.capacity.repository.CapacityModelAndCapacityTemplateRepository;
@@ -44,7 +47,9 @@ import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.client.service.ConceptClient;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.error.ApplicationErrors;
+import com.darden.dash.common.model.DeleteResponseBodyFormat;
 import com.darden.dash.common.util.DateUtil;
+import com.darden.dash.common.util.GlobalDataCall;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -75,6 +80,12 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	private CapacityModelAndLocationRepository capacityModelAndLocationRepo;
 	
 	private ConceptClient conceptClient;
+	
+    private OrderClient orderClient;
+	
+	private GlobalDataCall globalDataCall;
+	
+	
 	/**
 	 * Autowiring required properties
 	 * 
@@ -91,7 +102,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 			LocationClient locationClient, JwtUtils jwtUtils,
 			CapacityModelAndLocationRepository capacityModelAndLocationRepo, CapacityTemplateRepo capacityTemplateRepo,
 			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepo,
-			ConceptClient conceptClient) {
+			ConceptClient conceptClient,OrderClient orderClient,GlobalDataCall globalDataCall) {
 		this.jwtUtils = jwtUtils;
 		this.capacityModelRepository = capacityModelRepository;
 		this.locationClient = locationClient;
@@ -99,6 +110,8 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		this.capacityModelAndLocationRepo = capacityModelAndLocationRepo;
 		this.capacityTemplateRepo = capacityTemplateRepo;
 		this.conceptClient = conceptClient;
+		this.orderClient = orderClient;
+		this.globalDataCall = globalDataCall;
 	}
 
 	/**
@@ -590,5 +603,145 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		});
 		return cachedConceptList;
 	}
+	
+	/**
+	 * This method is used for DELETE operationIn this the Capacity Model Data is fetch by 
+	 * Capacity model id and concept id.Then we rest call the location data and orderTemplate
+	 * data for dependency check.If the confirm Flag is N the model data is checked with 
+	 * the dependency present or not and If the confirm flag is Y then it confirms if 
+	 * there is no dependency present and if its not present it hard deletes the model data.
+	 * 
+	 * @param ModelId Department List Id of department List to be 
+	 * 							deleted.
+	 * 
+	 * @param confirm Flag containing confirmation regarding deleting flag or checking dependency.
+	 * 
+	 * @param userDetail information of user operating on the delete action.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	
+	public void deleteTemplateModel(String templateId, String userDetail,String deletedConfirm) throws JsonProcessingException {
+	    ApplicationErrors applicationErrors = new ApplicationErrors();
+		CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
+		Optional<CapacityModelEntity> dbTemplateModelEntityOptional = capacityModelRepository
+				.findByCapacityModelIdAndConceptId(new BigInteger(templateId),new BigInteger(RequestContext.getConcept()));
+		List<Locations> restaurantInDB = locationClient.getAllRestaurants();
+		List<OrderTemplate> orderTemplates = orderClient.getAllOrderTemplates();
+		
+		if(dbTemplateModelEntityOptional.isEmpty()) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
+					CapacityConstants.CAPACITY_MODEL_ID);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		if (dbTemplateModelEntityOptional.isPresent()) {
+			capacityModelEntity = dbTemplateModelEntityOptional.get();
+			}
+		if(CapacityConstants.N.equals(deletedConfirm)) {
+		  	validationForPresentOrderTemplateAndLocationList(restaurantInDB,capacityModelEntity,orderTemplates);
+		} else if(CapacityConstants.Y.equals(deletedConfirm)){
+		  	validationForPresentOrderTemplateAndLocationList(restaurantInDB,capacityModelEntity,orderTemplates);		
+			hardDeleteCapacityModel(capacityModelEntity);
+			}
+		}		
+	
+	
+	
+	/**
+	 * This method Deletes the model Data.
+	 * 
+	 * @param capacityModelEntity contains capacityModelEntity modelLIstData.
+	 * @param userDetail contains details of the user
+	 @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+
+	private void hardDeleteCapacityModel(CapacityModelEntity capacityModelEntity) {
+		capacityModelAndCapacityTemplateRepo.deleteAllByCapacityModel(capacityModelEntity);
+		capacityModelAndLocationRepo.deleteAllByCapacityModel(capacityModelEntity);
+		capacityModelRepository.delete(capacityModelEntity);	
+	}
+	
+	/**
+	 * This method contains validation of dependency present for model delete.
+	 * Its checks if modelTemplate consist of restaurant asssigned and orderTemplate assigned 
+	 * if the dependency is not present it set isDeleted flag to Y so that it can be deleted 
+	 * when user sends delete confirm request. 
+	 * @param restaurantInDB contains data of restaurant list.
+	 * @param capacityModelEntity contains capacityModelEntity modelLIstData.
+	 * @param orderTemplates contains data of orderTemplate list.
+	 */
+
+	private void validationForPresentOrderTemplateAndLocationList(List<Locations> restaurantInDB,
+			CapacityModelEntity capacityModelEntity, List<OrderTemplate> orderTemplates) {
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		List<DeleteResponseBodyFormat> deleteResponseBodyFormatList = new ArrayList<>();
+		List<String> headerFooterList = new ArrayList<>();
+		List<String> restaurantNumberList = new ArrayList<>();
+		restaurantInDB.stream()
+			.forEach(restaurantInDB1 -> capacityModelEntity.getCapacityModelAndLocations().stream()
+					.forEach(capacityModelEntity1 -> {
+						if(restaurantInDB1.getLocationId().equals(capacityModelEntity1.getId().getLocationId()))
+							restaurantNumberList.add(restaurantInDB1.getRestaurantNumber().toString());
+					})
+		);		
+		
+		List<OrderTemplate> orderTemplates1 = orderTemplates.stream().filter(orderTemplate->orderTemplate.getOrderLists()
+				.stream().anyMatch(list->list.getListType().equals(CapacityConstants.ORDER_TEMPLATE_TYPE)))
+				.filter(orderTemplate->orderTemplate.getOrderLists().stream()
+						.anyMatch(list->list.getListId().equals(capacityModelEntity.getCapacityModelId())))
+				.collect(Collectors.toList());
+		
+		if(!orderTemplates1.isEmpty()||!restaurantNumberList.isEmpty()) {
+			restaurantMapper(restaurantNumberList,headerFooterList,deleteResponseBodyFormatList);
+			orderTemplateMapper(orderTemplates1,headerFooterList,deleteResponseBodyFormatList);
+			globalDataCall.raiseException(headerFooterList, deleteResponseBodyFormatList, capacityModelEntity.getCapacityModelNm(), applicationErrors);			
+		}else {
+			capacityModelEntity.setIsDeletedFlg(CapacityConstants.Y);
+			capacityModelRepository.save(capacityModelEntity);
+		}
+		
+	}
+   
+	/**
+	 * Model Template which is present in orderTemplate is checked and set the DeleteResponseBody
+	 * @param orderTemplates1 - order templates dependency present in modelTemplate
+	 * @param headerFooterList - header FooterList to be sent in response to set in DeleteResponseBody
+	 * @param deleteResponseBodyFormatList Response te be send while model template containing any dependency
+	 */
+	private void orderTemplateMapper(List<OrderTemplate> orderTemplates1, List<String> headerFooterList,
+			List<DeleteResponseBodyFormat> deleteResponseBodyFormatList) {
+		if(!orderTemplates1.isEmpty()) {
+			List<String> orderTemplateName = new ArrayList<>();
+			orderTemplates1.stream().forEach(orderTemplates->orderTemplateName.add(orderTemplates.getOrderTemplateName()));
+		DeleteResponseBodyFormat orderTemplate = DeleteResponseBodyFormat.builder().build();
+		orderTemplate.setTitle(CapacityConstants.ORDER_TEMPLATE);
+		orderTemplate.setListOfData(orderTemplateName);
+		headerFooterList.add(CapacityConstants.ORDER_TEMPLATE);
+		deleteResponseBodyFormatList.add(orderTemplate);
+		
+		}
+	}
+
+	/**
+	 * 
+	 * @param restaurantNumberList - restaurantNumber List dependency present in model Template
+	 * @param headerFooterList -header FooterList to be sent in response to set in DeleteResponseBody
+	 * @param deleteResponseBodyFormatList Response te be send while model template containing any dependency
+	 */
+	
+	private void restaurantMapper(List<String> restaurantNumberList, List<String> headerFooterList,
+			List<DeleteResponseBodyFormat> deleteResponseBodyFormatList) {
+		if(!restaurantNumberList.isEmpty()) {
+		DeleteResponseBodyFormat restaurantList = DeleteResponseBodyFormat.builder().build();
+		restaurantList.setTitle(CapacityConstants.RESTAURANT_LIST);
+		restaurantList.setListOfData(restaurantNumberList);
+		headerFooterList.add(CapacityConstants.RESTAURANT_LIST);
+		deleteResponseBodyFormatList.add(restaurantList);
+		}
+	}
+
+	
 
 }
