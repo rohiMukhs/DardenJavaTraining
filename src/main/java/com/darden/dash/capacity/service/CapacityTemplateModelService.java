@@ -127,6 +127,24 @@ public interface CapacityTemplateModelService {
 	 */
 	public List<ConceptForCache> getCacheConceptData();
 	
+	/**
+	 * This method is used for DELETE operationIn this the Capacity Model Data is fetch by 
+	 * Capacity model id and concept id.Then we rest call the location data and orderTemplate
+	 * data for dependency check.If the confirm Flag is N the model data is checked with 
+	 * the dependency present or not and If the confirm flag is Y then it confirms if 
+	 * there is no dependency present and if its not present it hard deletes the model data.
+	 * 
+	 * @param ModelId Department List Id of department List to be 
+	 * 							deleted.
+	 * 
+	 * @param confirm Flag containing confirmation regarding deleting flag or checking dependency.
+	 * 
+	 * @param userDetail information of user operating on the delete action.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	
 	public void deleteTemplateModel(String templateId, String userDetail, String deletedConfirm) throws JsonProcessingException;
 
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityModelRequest;
+import com.darden.dash.capacity.model.DeleteModelTemplateRequest;
 import com.darden.dash.capacity.model.TemplatesAssigned;
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
@@ -125,6 +126,23 @@ public class CapacityTemplateModelValidator implements DashValidator {
 					applicationErrors.raiseExceptionIfHasErrors();
 				}
 			}
+		}
+		
+		/**
+		 * This validation method is used to validate if the values passed in request
+		 * body are not null, not blank ,min and max value for specific fields
+		 * ,alphanumeric for specific fields and so on if any of the validation fails
+		 * certain application error is raised with respect to the failed validation.
+		 * This validation method is used for the database validation of the request
+		 * body which is used for the DELETE operation. Based on the requirement of
+		 * validation on specific field is checked if validation fails application error
+		 * is raised.
+		 * 
+		 */
+		if (OperationConstants.OPERATION_DELETE.getCode().equals(operation)) {
+			DeleteModelTemplateRequest deleteCapacityTemplateRequest = buildDeleteObject(object);
+			applicationErrors.isValidObject(deleteCapacityTemplateRequest);
+			applicationErrors.raiseExceptionIfHasErrors();
 		}
 	}
 
@@ -252,6 +270,23 @@ public class CapacityTemplateModelValidator implements DashValidator {
 		String json = mapper.writeValueAsString(object);
 		Gson gson = new Gson();
 		return gson.fromJson(json, CapacityModelRequest.class);
+	}
+	
+
+	/**
+	 * This method is for validating the delete request
+	 * @param object Class Object is the root of the class hierarchy.
+	 * @return DeleteModelTemplateRequest returns request class with after
+	 *         converting it to json and deserialized into the model class.
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	private DeleteModelTemplateRequest buildDeleteObject(Object object) throws JsonProcessingException  {
+		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
+				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
+		String json = mapper.writeValueAsString(object);
+		Gson gson = new Gson();
+		return gson.fromJson(json, DeleteModelTemplateRequest.class);
 	}
 
 }

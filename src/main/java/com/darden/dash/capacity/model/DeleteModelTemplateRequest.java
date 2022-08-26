@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- *This is the model class for delete Course Request. This class is used to
+ *This is the model class for delete Model Request. This class is used to
  * take and validate the request data entered while DELETE api takes place
  * 
  * @author asdattat
@@ -18,7 +18,7 @@ import lombok.Getter;
 public class DeleteModelTemplateRequest {
 
 	@Pattern(regexp = CommonConstants.PATTERN_NUMERIC, message = "4004")
-	private String courseId;
+	private String modelId;
 	@Pattern(regexp = CommonConstants.PATTERN_DELETE_COMPLETE_FLAG, message = "4013")
 	private String  deleteConfirmed;
 
