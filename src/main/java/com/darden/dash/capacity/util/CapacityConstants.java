@@ -300,6 +300,12 @@ public class CapacityConstants {
 	
 	public static final String HEADER_CONCEPT_ID = "Concept-Id";
 	
+	public static final String CAPACITY_MODEL_LIST = "/capacity-model-list/{templateId}";
+	public static final String CAPACITY_MODEL_READY_FOR_DELETE = " ready for delete";
+	public static final String ORDER_TEMPLATE_TYPE = "CAPACITY MODEL LIST";
+	public static final String RESTAURANT_LIST = "restaurant list";
+	public static final String ORDER_TEMPLATE = "order template";
+	
 	public static final String RESTAURANTS_CACHE = "restaurants";
 	public static final String CAPACITY_CHANNEL_CACHENAME = "capacityChannel";
 	public static final String CAPACITY_CHANNEL_CACHE_KEY = "#editChannelInformationRequest.toString()";
