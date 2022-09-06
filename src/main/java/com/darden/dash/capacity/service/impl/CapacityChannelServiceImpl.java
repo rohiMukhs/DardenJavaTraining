@@ -109,7 +109,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		List<CapacityChannelEntity> updatedCapacityChannelEntityList=capacityChannelRepository.findAllByCapacityChannelIdInAndConceptId(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()));
 		List<CapacityChannel> response = capacityChannelMapper.mapChannels(updatedCapacityChannelEntityList);
 		if(!capacityChannelEntityList.isEmpty()) {
-			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.UPDATE, null, capacityChannelEntityList, user);
+			auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, capacityChannelEntityList, user);
 		}
 		return response;
 	}
