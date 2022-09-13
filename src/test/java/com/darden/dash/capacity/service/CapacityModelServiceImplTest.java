@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.darden.dash.capacity.client.LocationClient;
+import com.darden.dash.capacity.client.OrderClient;
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplateEntity;
 import com.darden.dash.capacity.entity.CapacityModelAndCapacityTemplatePK;
 import com.darden.dash.capacity.entity.CapacityModelAndLocationEntity;
@@ -37,6 +38,8 @@ import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.ConceptForCache;
 import com.darden.dash.capacity.model.Locations;
+import com.darden.dash.capacity.model.OrderList;
+import com.darden.dash.capacity.model.OrderTemplate;
 import com.darden.dash.capacity.model.Region;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.model.TemplatesAssigned;
@@ -85,6 +88,8 @@ class CapacityModelServiceImplTest {
 	@Mock
 	private ConceptClient conceptClient;
 
+	@Mock
+	private OrderClient orderClient;
 	
 	public static CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
 	
@@ -851,4 +856,37 @@ class CapacityModelServiceImplTest {
 		List<ConceptForCache> res = capacityTemplateModelServiceImpl.getCacheConceptData();
 		assertNotNull(res);
 	}
+	
+	@Test
+	void DeleteCapacityModel()throws JsonProcessingException {
+		CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
+		capacityModelEntity.setCapacityModelId(BigInteger.ONE);
+		capacityModelEntity.setCapacityModelNm("name");
+		capacityModelEntity.setConceptId(BigInteger.ONE);
+		capacityModelEntity.setIsDeletedFlg("Y");
+		List<OrderList> orderList1 = new ArrayList<>();
+		OrderList orderList = new OrderList();
+		orderList.setListId(BigInteger.ONE);
+		orderList.setListNm("name");
+		orderList.setListType("user");
+		orderList1.add(orderList);
+		List<OrderTemplate> OrderTemplateList = new ArrayList<>();
+		OrderTemplate OrderTemplate = new OrderTemplate();
+		OrderTemplate.setConceptId(BigInteger.ONE);
+		OrderTemplate.setId(BigInteger.ONE);
+		OrderTemplate.setOrderTemplateName("name");
+		OrderTemplate.setOrderLists(orderList1);
+		OrderTemplateList.add(OrderTemplate);
+				Mockito.when(capacityModelRepository
+				.findByCapacityModelIdAndConceptId(new BigInteger("1"),new BigInteger("1")))
+		        .thenReturn(Optional.of(capacityModelEntity));
+		Mockito.when(orderClient.getAllOrderTemplates())
+		        .thenReturn(OrderTemplateList);
+		Mockito.lenient().doNothing().when(capacityModelRepository).delete(Mockito.any());
+		Mockito.lenient().doNothing().when(capacityModelAndLocationRepo).deleteAllByCapacityModel(Mockito.any());
+		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
+		capacityTemplateModelServiceImpl.deleteTemplateModel("1","USER","Y");
+		assertEquals("Y",capacityModelEntity.getIsDeletedFlg());
+	}
+	
 }

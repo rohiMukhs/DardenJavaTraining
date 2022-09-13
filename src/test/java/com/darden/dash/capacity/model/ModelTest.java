@@ -137,4 +137,52 @@ class ModelTest {
 		assertEquals(cc1, cc2);
 		assertEquals(cc1.hashCode(), cc2.hashCode());
 	}
+	
+	@Test
+	void OrderTemplateTest() {
+		List<OrderList> orderList1 = new ArrayList<>();
+		OrderList orderList = new OrderList();
+		orderList.setListId(BigInteger.ONE);
+		orderList.setListNm("name");
+		orderList.setListType("user");
+		orderList1.add(orderList);
+		OrderTemplate OrderTemplate = new OrderTemplate();
+		OrderTemplate.setConceptId(BigInteger.ONE);
+		OrderTemplate.setId(BigInteger.ONE);
+		OrderTemplate.setOrderTemplateName("name");
+		OrderTemplate.setOrderLists(orderList1);
+		OrderTemplate.getConceptId();
+		OrderTemplate.getId();
+		OrderTemplate.getOrderLists();
+		OrderTemplate.getOrderTemplateName();
+		assertNotNull(OrderTemplate);
+		
+	}
+
+@Test
+	void OrderTemplateResponseTest() {
+		List<OrderList> orderList1 = new ArrayList<>();
+		OrderList orderList = new OrderList();
+		orderList.setListId(BigInteger.ONE);
+		orderList.setListNm("name");
+		orderList.setListType("user");
+		orderList1.add(orderList);
+		List<OrderTemplate> orderTemplateList= new ArrayList<>();
+		OrderTemplate OrderTemplate = new OrderTemplate();
+		OrderTemplate.setConceptId(BigInteger.ONE);
+		OrderTemplate.setId(BigInteger.ONE);
+		OrderTemplate.setOrderTemplateName("name");
+		OrderTemplate.setOrderLists(orderList1);
+		OrderTemplateResponse orderTemplateResponse = new OrderTemplateResponse();
+		orderTemplateResponse.setCorrelationId("abc");
+		orderTemplateResponse.setOrderTemplate(orderTemplateList);
+		orderTemplateResponse.setStatus(new BigInteger("200"));
+		orderTemplateResponse.setTitle("name");
+		orderTemplateResponse.getCorrelationId();
+		orderTemplateResponse.getOrderTemplate();
+		orderTemplateResponse.getStatus();
+		orderTemplateResponse.getTitle();
+		assertNotNull(orderTemplateResponse);
+		
+	}
 }
