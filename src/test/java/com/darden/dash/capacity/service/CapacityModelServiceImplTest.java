@@ -181,7 +181,7 @@ class CapacityModelServiceImplTest {
 	}
 	
 	@Test
-	void createModelTemplateTest() {
+	void createModelTemplateTest() throws JsonProcessingException {
 		RequestContext.setConcept("1");
 		
 		List<Locations> locations = new ArrayList<>();
@@ -277,7 +277,7 @@ class CapacityModelServiceImplTest {
 	}
 	
 	@Test
-	void updateModelTemplateTest() {
+	void updateModelTemplateTest() throws JsonProcessingException {
 		RequestContext.setConcept("1");
 		Mockito.lenient().when(jwtUtils.findUserDetail(Mockito.anyString())).thenReturn("TestUser");
 		CapacityModelRequest capacityModelRequest = new CapacityModelRequest();
