@@ -43,9 +43,10 @@ public interface CapacityTemplateModelService {
 	 * @param accessToken Token used to authenticate the user and extract the
 	 *                      userDetails for this API
 	 * @return CapacityTemplateModel 
+	 * @throws JsonProcessingException 
 	 */
 
-	CapacityTemplateModel createCapacityModel(CapacityModelRequest capacityModelRequest, String accessToken);
+	CapacityTemplateModel createCapacityModel(CapacityModelRequest capacityModelRequest, String accessToken) throws JsonProcessingException;
 	/**
 	 * This method is to validate capacity model name using provided capacity model name
 	 * It returns boolean values based on the condition if the
@@ -87,8 +88,9 @@ public interface CapacityTemplateModelService {
 	 * 
 	 * @return CapacityTemplateModel model class containing the value of
 	 * 						data of updated capacity template model.
+	 * @throws JsonProcessingException 
 	 */
-	public CapacityTemplateModel updateCapacityModel(String modelId, CapacityModelRequest capacityModelRequest, String user);
+	public CapacityTemplateModel updateCapacityModel(String modelId, CapacityModelRequest capacityModelRequest, String user) throws JsonProcessingException;
 	
 	/**
 	 * This service method is written for purpose of validating capacity
