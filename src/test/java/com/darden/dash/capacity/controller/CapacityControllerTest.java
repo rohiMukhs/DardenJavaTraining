@@ -1,6 +1,7 @@
 package com.darden.dash.capacity.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -510,5 +511,37 @@ public class CapacityControllerTest {
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isAccepted());
 	}
+	
+	@Test
+    void shouldDeletePeriodListWhenIsDeletedFlagTrue() throws Exception {
+
+
+
+       Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
+        doNothing().when(capacityTemplateModelService).deleteTemplateModel("1", "User", "Y");
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-model-list/{templateId}", 1)
+                .param("deletedConfirm", "Y")
+                .headers(getHeaders())
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("status", is(200)));
+    }
+
+
+
+	@Test
+    void shouldDeletePeriodListWhenIsDeletedFlagFalse() throws Exception {
+
+
+
+       Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
+        doNothing().when(capacityTemplateModelService).deleteTemplateModel("1", "User", "Y");
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-model-list/{templateId}", 1)
+                .param("deletedConfirm", "N")
+                .headers(getHeaders())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is(200)));
+    }
+
 
 }

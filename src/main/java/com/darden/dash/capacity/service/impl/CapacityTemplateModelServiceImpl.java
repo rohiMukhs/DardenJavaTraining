@@ -46,8 +46,10 @@ import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.client.service.ConceptClient;
 import com.darden.dash.common.constant.ErrorCodeConstants;
+import com.darden.dash.common.enums.AuditActionValues;
 import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.model.DeleteResponseBodyFormat;
+import com.darden.dash.common.service.AuditService;
 import com.darden.dash.common.util.DateUtil;
 import com.darden.dash.common.util.GlobalDataCall;
 import com.darden.dash.common.util.JwtUtils;
@@ -85,6 +87,9 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	
 	private GlobalDataCall globalDataCall;
 	
+	private AuditService auditService;
+
+	
 	
 	/**
 	 * Autowiring required properties
@@ -102,7 +107,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 			LocationClient locationClient, JwtUtils jwtUtils,
 			CapacityModelAndLocationRepository capacityModelAndLocationRepo, CapacityTemplateRepo capacityTemplateRepo,
 			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepo,
-			ConceptClient conceptClient,OrderClient orderClient,GlobalDataCall globalDataCall) {
+			ConceptClient conceptClient,OrderClient orderClient,GlobalDataCall globalDataCall,AuditService auditService) {
 		this.jwtUtils = jwtUtils;
 		this.capacityModelRepository = capacityModelRepository;
 		this.locationClient = locationClient;
@@ -112,6 +117,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		this.conceptClient = conceptClient;
 		this.orderClient = orderClient;
 		this.globalDataCall = globalDataCall;
+		this.auditService = auditService;
 	}
 
 	/**
@@ -160,13 +166,17 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	@Override
 	@Transactional(rollbackOn = Exception.class)
 	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_MODEL_CACHE, allEntries = true) })
-	public CapacityTemplateModel createCapacityModel(CapacityModelRequest capacityModelRequest, String accessToken) {
+	public CapacityTemplateModel createCapacityModel(CapacityModelRequest capacityModelRequest, String accessToken) throws JsonProcessingException {
 		CapacityTemplateModel capacityTemplateModel = new CapacityTemplateModel();
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacityModelEntity capacityModelEntity = capacityModelMapper.mapToCapacityModelEntity(capacityModelRequest, createdBy, dateTime);
 		List<BigInteger> templateIds = extractingAllTemplateIdFromRequest(capacityModelRequest);
 		CapacityModelEntity capacityModelEntityRes = capacityModelRepository.save(capacityModelEntity);
+		if (null != capacityModelEntityRes.getCapacityModelNm()) {
+            auditService.addAuditData(CapacityConstants.CAPACITY_MODEL, AuditActionValues.INSERT, null,
+                    capacityModelEntityRes, createdBy);
+        }
 		BigInteger capacityModelId = capacityModelEntityRes.getCapacityModelId();
 		mapCapacityModelAndTemplates(createdBy, dateTime, capacityModelEntityRes, templateIds);
 		mapCapacityModelAndLocations(capacityModelRequest, createdBy, dateTime, capacityModelEntityRes);
@@ -469,13 +479,14 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 * 
 	 * @return CapacityTemplateModel model class containing the value of
 	 * 						data of updated capacity template model.
+	 * @throws JsonProcessingException 
 	 */
 	@Override
 	@Transactional(rollbackOn = Exception.class)
 	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_MODEL_CACHE, allEntries = true) }, put = {
             @CachePut(value = CapacityConstants.CAPACITY_MODEL_CACHE, key = CapacityConstants.CAPACITY_MODEL_CACHE_KEY) })
 	public CapacityTemplateModel updateCapacityModel(String modelId, CapacityModelRequest capacityModelRequest,
-			String user) {
+			String user) throws JsonProcessingException {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		CapacityTemplateModel capacityTemplateModel = new CapacityTemplateModel();
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
@@ -493,6 +504,10 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		dbModelEntity.setLastModifiedBy(user);
 		dbModelEntity.setLastModifiedDatetime(dateTime);
 		CapacityModelEntity savedEntity = capacityModelRepository.save(dbModelEntity);
+		if (null != savedEntity.getCapacityModelNm()) {
+            auditService.addAuditData(CapacityConstants.CAPACITY_MODEL, AuditActionValues.UPDATE, null, savedEntity,
+                    user);
+        }
 		capacityModelAndCapacityTemplateRepo.deleteByCapacityModel(savedEntity);
 		capacityModelAndLocationRepo.deleteAllByCapacityModel(savedEntity);
 		List<BigInteger> templateIds = extractingAllTemplateIdFromRequest(capacityModelRequest);
