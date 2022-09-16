@@ -502,9 +502,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
                });
               DeleteResponseBodyFormat capacityModel = DeleteResponseBodyFormat.builder().build();
               if (CollectionUtils.isNotEmpty(capacityNames)) {
-                  capacityModel.setTitle("model");
+                  capacityModel.setTitle(CapacityConstants.MODEL);
                   capacityModel.setListOfData(capacityNames);
-                  headerFooterList.add("model");
+                  headerFooterList.add(CapacityConstants.MODEL);
                   deleteResponseBodyFormatList.add(capacityModel);
               }
          }
