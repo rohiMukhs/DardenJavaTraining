@@ -659,6 +659,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		  	validationForPresentOrderTemplateAndLocationList(restaurantInDB,capacityModelEntity,orderTemplates);		
 			hardDeleteCapacityModel(capacityModelEntity);
 			}
+		if (null != capacityModelEntity.getCapacityModelNm()) { auditService.addAuditData(CapacityConstants.CAPACITY_MODEL, AuditActionValues.DELETE_HARD, null, capacityModelEntity, userDetail); }
 		}		
 	
 	

@@ -122,8 +122,9 @@ public interface CapacityManagementService {
 	 * @param templateId Template Id of Capacity template to be updated.
 	 * 
 	 * @return CreateTemplateResponse response class containing detail of 
+	 * @throws JsonProcessingException 
 	 */
-	CreateTemplateResponse updateCapacityTemplate(@Valid CreateCapacityTemplateRequest createCapacityTemplateRequest,String accessToken,BigInteger templateId);
+	CreateTemplateResponse updateCapacityTemplate(@Valid CreateCapacityTemplateRequest createCapacityTemplateRequest,String accessToken,BigInteger templateId) throws JsonProcessingException;
 	
 	/**
 	* This method is validate existing CapacityTemplate name in the database for the

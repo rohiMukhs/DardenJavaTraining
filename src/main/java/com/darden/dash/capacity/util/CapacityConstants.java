@@ -208,7 +208,7 @@ public class CapacityConstants {
 
 	public static final String YYYY_MM_DD = "yyyy-MM-dd";
 	
-	public static final BigInteger BIG_INT_CONSTANT = BigInteger.valueOf(1);
+	public static final BigInteger BIG_INT_CONSTANT = BigInteger.valueOf(6);
 	
 	public static final String MAP_TO_TEMPLATE_ENTITY = "mapToCapacityTemplateEntity";
 	

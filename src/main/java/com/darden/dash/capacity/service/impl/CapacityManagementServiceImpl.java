@@ -72,9 +72,11 @@ import com.darden.dash.common.entity.AppParameterEntity;
 import com.darden.dash.common.enums.AuditActionValues;
 import com.darden.dash.common.enums.CharacterConstants;
 import com.darden.dash.common.error.ApplicationErrors;
+import com.darden.dash.common.model.DeleteResponseBodyFormat;
 import com.darden.dash.common.service.AppParameterService;
 import com.darden.dash.common.service.AuditService;
 import com.darden.dash.common.util.DateUtil;
+import com.darden.dash.common.util.GlobalDataCall;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -112,7 +114,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	private AppParameterService appParameterService;
 	
 	private AuditService auditService;
-
+	
+	private GlobalDataCall globalDataCall;
+	
 	private CapacityTemplateMapper capacityTemplateMapper = Mappers.getMapper(CapacityTemplateMapper.class);
 
 	/**
@@ -142,7 +146,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			CapacityModelAndCapacityTemplateRepository capacityModelAndCapacityTemplateRepository,
 			CapacityChannelService capacityChannelService,
 			@Qualifier(CapacityConstants.APP_PARAMETER_SERVICE) AppParameterService appParameterService,
-			AuditService auditService) {
+			AuditService auditService,GlobalDataCall globalDataCall) {
 		super();
 		this.jwtUtils = jwtUtils;
 		this.capacityTemplateRepo = capacityTemplateRepo;
@@ -157,6 +161,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		this.capacityChannelService = capacityChannelService;
 		this.appParameterService = appParameterService;
 		this.auditService = auditService;
+		this.globalDataCall = globalDataCall;
 	}
 
 	/**
@@ -314,7 +319,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		List<SlotChannel> responseChannelList = new ArrayList<>();
 		List<SlotChannel> slotChannelList = templateRequest.getSlotChannels();
 		slotChannelList.stream().forEach(t -> {
-			Optional<ReferenceEntity> reference = referenceRepository.findById(CapacityConstants.BIG_INT_CONSTANT);
+			Optional<ReferenceEntity> reference = referenceRepository.findById(BigInteger.TEN);
 			Optional<CapacityChannelEntity> channelEntity = capacityChannelRepo.findById(t.getChannelId());
 			CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = capacityTemplateMapper
 					.mapToTemplateAndChannelEntity(createdTemplateEntity, channelEntity, t, createdBy, dateTime);
@@ -477,26 +482,35 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	@Override
-	public boolean validateCapacityTemplateId(String templateId, ApplicationErrors applicationErrors) {
-
-		Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo.findById(new BigInteger(templateId));
-		if(dbTemplateValue.isEmpty()) {
-			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
-					CapacityConstants.CAPACITY_TEMPLATE_ID);
-			applicationErrors.raiseExceptionIfHasErrors();
-		}
-		
-		List<CapacityModelAndCapacityTemplateEntity> dbModelAndTemplate = new ArrayList<>();
-		if(dbTemplateValue.isPresent()) {
-			dbModelAndTemplate = capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(dbTemplateValue.get());
-		}
-		if(!dbModelAndTemplate.isEmpty()) {
-			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4501), dbModelAndTemplate.get(0).getCapacityTemplate().getCapacityTemplateNm(),
-					dbModelAndTemplate.get(0).getCapacityModel().getCapacityModelNm());
-		}
-
-		return true;
-	}
+    public boolean validateCapacityTemplateId(String templateId, ApplicationErrors applicationErrors) {
+        Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo.findById(new BigInteger(templateId));
+         if(dbTemplateValue.isEmpty()) {
+             applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
+                     CapacityConstants.CAPACITY_TEMPLATE_ID);
+             applicationErrors.raiseExceptionIfHasErrors();
+         }
+         List<String> headerFooterList = new ArrayList<>();
+         List<DeleteResponseBodyFormat> deleteResponseBodyFormatList = new ArrayList<>();
+         List<CapacityModelAndCapacityTemplateEntity> dbModelAndTemplate = new ArrayList<>();
+         if(dbTemplateValue.isPresent()) {
+             dbModelAndTemplate = capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(dbTemplateValue.get());
+         }
+         if(!dbModelAndTemplate.isEmpty()) {
+              List<String> capacityNames = new ArrayList<>();
+              dbModelAndTemplate.stream().forEach(dbModelAndTemplate1->{
+                     capacityNames.add(dbModelAndTemplate1.getCapacityModel().getCapacityModelNm());
+               });
+              DeleteResponseBodyFormat capacityModel = DeleteResponseBodyFormat.builder().build();
+              if (CollectionUtils.isNotEmpty(capacityNames)) {
+                  capacityModel.setTitle("model");
+                  capacityModel.setListOfData(capacityNames);
+                  headerFooterList.add("model");
+                  deleteResponseBodyFormatList.add(capacityModel);
+              }
+         }
+         globalDataCall.raiseException(headerFooterList, deleteResponseBodyFormatList, dbTemplateValue.get().getCapacityTemplateNm(), applicationErrors);
+        return true;
+     }
 	
 	/**
 	* This method is validate existing CapacityTemplate name in the database for the
@@ -547,13 +561,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 * @param templateId Template Id of Capacity template to be updated.
 	 * 
 	 * @return CreateTemplateResponse response class containing detail of 
+	 * @throws JsonProcessingException 
 	 */
 	@Override
 	@Transactional(rollbackOn = Exception.class)
 	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) }, put = {
             @CachePut(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key = CapacityConstants.CAPACITY_TEMPLATE_CACHE_KEY) })
 	public CreateTemplateResponse updateCapacityTemplate(@Valid CreateCapacityTemplateRequest templateRequest,
-			String accessToken, BigInteger templateId) {
+			String accessToken, BigInteger templateId) throws JsonProcessingException {
 		CreateTemplateResponse response = new CreateTemplateResponse();
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
@@ -565,10 +580,15 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			mapExistingTemplateAndUpdate(templateRequest, createdBy,dateTime, existingTemplate);
 		});
 		Optional<CapacityTemplateEntity> templateData = capacityTemplateRepo.findById(templateId);
+		CapacityTemplateEntity responseCapacityTemplateEntity = null;
 		if (templateData.isPresent()) {
-			CapacityTemplateEntity responseCapacityTemplateEntity = templateData.get();
+		     responseCapacityTemplateEntity = templateData.get();
 			response = mapUpdateResponse(templateRequest, responseCapacityTemplateEntity);
 		}
+		if (null != responseCapacityTemplateEntity.getCapacityTemplateNm()) {
+            auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.UPDATE, null, responseCapacityTemplateEntity,
+                    createdBy);
+        }
 		return response;
 	}
 
