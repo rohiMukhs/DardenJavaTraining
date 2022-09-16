@@ -208,7 +208,7 @@ public class CapacityConstants {
 
 	public static final String YYYY_MM_DD = "yyyy-MM-dd";
 	
-	public static final BigInteger BIG_INT_CONSTANT = BigInteger.valueOf(1);
+	public static final BigInteger BIG_INT_CONSTANT = BigInteger.valueOf(6);
 	
 	public static final String MAP_TO_TEMPLATE_ENTITY = "mapToCapacityTemplateEntity";
 	
@@ -344,6 +344,7 @@ public class CapacityConstants {
 	public static final String EC_4507 = "4507";
 	public static final String CAPACITY_TEMPLATE_MODEL_ID = "capacity template model id";
 	public static final String COMBINE_CAPACITY_TEMPLATE_CACHE_KEY = "{#isRefDataReq, #conceptId}";
+	public static final String MODEL = "Capacity Template";
 	
 	private CapacityConstants() {
 

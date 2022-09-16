@@ -337,7 +337,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public ReferenceDatum getReferenceData() {
-		List<CapacityChannelEntity> channelEntities = capacityChannelRepository.findAll();
+		
+		List<CapacityChannelEntity> channelEntities = capacityChannelRepository.findByConceptId(new BigInteger(RequestContext.getConcept()));
 		ReferenceDatum referenceDatum = new ReferenceDatum();
 		List<CapacityChannel> channels = new ArrayList<>();
 		channelEntities.stream().forEach(ce -> {

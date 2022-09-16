@@ -200,7 +200,7 @@ class CapacityChannelServiceImplTest {
 	
 	@Test
 	void testGetReferenceData() {
-		Mockito.when(capacityChannelRepository.findAll()).thenReturn(channelList);
+		Mockito.when(capacityChannelRepository.findByConceptId(Mockito.any())).thenReturn(channelList);
 		ReferenceDatum res =  capacityChannelServiceImpl.getReferenceData();
 		assertNotNull(res);
 	}
