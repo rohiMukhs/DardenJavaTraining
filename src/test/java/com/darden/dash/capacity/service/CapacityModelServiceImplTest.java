@@ -54,6 +54,7 @@ import com.darden.dash.common.client.service.ConceptClient;
 import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.exception.ApplicationException;
 import com.darden.dash.common.model.Concept;
+import com.darden.dash.common.service.AuditService;
 import com.darden.dash.common.util.DateUtil;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -90,6 +91,9 @@ class CapacityModelServiceImplTest {
 
 	@Mock
 	private OrderClient orderClient;
+	
+	@Mock
+	private AuditService auditService;
 	
 	public static CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
 	
@@ -885,6 +889,7 @@ class CapacityModelServiceImplTest {
 		Mockito.lenient().doNothing().when(capacityModelRepository).delete(Mockito.any());
 		Mockito.lenient().doNothing().when(capacityModelAndLocationRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
+		Mockito.lenient().doNothing().when(auditService).addAuditData(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		capacityTemplateModelServiceImpl.deleteTemplateModel("1","USER","Y");
 		assertEquals("Y",capacityModelEntity.getIsDeletedFlg());
 	}

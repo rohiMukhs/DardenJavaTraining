@@ -69,6 +69,7 @@ import com.darden.dash.common.exception.ApplicationException;
 import com.darden.dash.common.service.AppParameterService;
 import com.darden.dash.common.service.AuditService;
 import com.darden.dash.common.util.DateUtil;
+import com.darden.dash.common.util.GlobalDataCall;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -113,6 +114,9 @@ class CapacityServiceImplTest {
 
 	@Mock
 	private AuditService auditService;
+	
+	@Mock
+	private GlobalDataCall globalDataCall;
 	
 	@Mock
 	private CapacityChannelService capacityChannelService;
@@ -475,6 +479,7 @@ class CapacityServiceImplTest {
 		mAndT.setCapacityTemplate(test);
 		mAndT.setCapacityModel(model);
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(test));
+		Mockito.lenient().doNothing().when(globalDataCall).raiseException(Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any());
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test))
 				.thenReturn(Collections.singletonList(mAndT));
 		ApplicationErrors applicationErrors = new ApplicationErrors();
@@ -506,7 +511,7 @@ class CapacityServiceImplTest {
 	}
 
 	@Test
-	void testUpdateCapacityTemplate() {
+	void testUpdateCapacityTemplate() throws JsonProcessingException {
 		RequestContext.setConcept("1");
 
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
@@ -586,7 +591,7 @@ class CapacityServiceImplTest {
 	}
 	
 	@Test
-	void testUpdateCapacityTemplateDays() {
+	void testUpdateCapacityTemplateDays() throws JsonProcessingException {
 		RequestContext.setConcept("1");
 
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
@@ -1206,7 +1211,7 @@ class CapacityServiceImplTest {
 	}
 	
 	@Test
-	void testUpdateCapacityTemplateDates() {
+	void testUpdateCapacityTemplateDates() throws JsonProcessingException {
 		RequestContext.setConcept("1");
 
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
