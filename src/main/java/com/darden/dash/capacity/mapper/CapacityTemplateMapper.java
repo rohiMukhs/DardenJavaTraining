@@ -126,7 +126,8 @@ public interface CapacityTemplateMapper {
 		templateEntity.setEndTime(LocalTime.parse(templateRequest.getSlotEndTime()));
 		if (null != templateRequest.getTemplateTypeName() && CapacityConstants.DAYS.equals(templateRequest.getTemplateTypeName())) {
 			templateEntity.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
-			templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+			if(templateRequest.getExpiryDate() != null)
+				templateEntity.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
 			templateEntity.setSunFlg(templateRequest.getSunDay());
 			templateEntity.setMonFlg(templateRequest.getMonDay());
 			templateEntity.setTueFlg(templateRequest.getTueDay());
