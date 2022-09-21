@@ -291,17 +291,12 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
 	public CreateTemplateResponse createTemplate(@Valid CreateCapacityTemplateRequest templateRequest,
 			String accessToken) throws JsonProcessingException {
-		ApplicationErrors applicationErrors = new ApplicationErrors();
 		String createdBy = jwtUtils.findUserDetail(accessToken);
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacityTemplateTypeEntity templateType = capacityTemplateTypeRepository
 				.findByCapacityTemplateTypeNm(templateRequest.getTemplateTypeName());
 		CapacityTemplateEntity templateEntity = capacityTemplateMapper.mapToTemplate(templateRequest, templateType,
 				createdBy, dateTime);
-		if(templateRequest.getTemplateTypeName().equals(CapacityConstants.DAYS) && templateEntity.getExpiryDate() ==  null) {
-			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
-			applicationErrors.raiseExceptionIfHasErrors();
-		}
 		CapacityTemplateEntity createdTemplateEntity = capacityTemplateRepo.save(templateEntity);
 		List<BusinessDate> responseDate = new ArrayList<>();
 		if (CapacityConstants.DATES.equals(templateType.getCapacityTemplateTypeNm())) {
@@ -491,24 +486,23 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
          }
          List<String> headerFooterList = new ArrayList<>();
          List<DeleteResponseBodyFormat> deleteResponseBodyFormatList = new ArrayList<>();
-         List<CapacityModelAndCapacityTemplateEntity> dbModelAndTemplate = new ArrayList<>();
+         List<CapacityModelAndCapacityTemplateEntity> dbModelAndTemplate = null;
          if(dbTemplateValue.isPresent()) {
              dbModelAndTemplate = capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(dbTemplateValue.get());
+	         if(!dbModelAndTemplate.isEmpty()) {
+	              List<String> capacityNames = new ArrayList<>();
+	              dbModelAndTemplate.stream().forEach(dbModelAndTemplate1->
+	                     capacityNames.add(dbModelAndTemplate1.getCapacityModel().getCapacityModelNm()));
+	              DeleteResponseBodyFormat capacityModel = DeleteResponseBodyFormat.builder().build();
+	              if (CollectionUtils.isNotEmpty(capacityNames)) {
+	                  capacityModel.setTitle(CapacityConstants.MODEL);
+	                  capacityModel.setListOfData(capacityNames);
+	                  headerFooterList.add(CapacityConstants.MODEL);
+	                  deleteResponseBodyFormatList.add(capacityModel);
+	              }
+	         }
+	         globalDataCall.raiseException(headerFooterList, deleteResponseBodyFormatList, dbTemplateValue.get().getCapacityTemplateNm(), applicationErrors);
          }
-         if(!dbModelAndTemplate.isEmpty()) {
-              List<String> capacityNames = new ArrayList<>();
-              dbModelAndTemplate.stream().forEach(dbModelAndTemplate1->{
-                     capacityNames.add(dbModelAndTemplate1.getCapacityModel().getCapacityModelNm());
-               });
-              DeleteResponseBodyFormat capacityModel = DeleteResponseBodyFormat.builder().build();
-              if (CollectionUtils.isNotEmpty(capacityNames)) {
-                  capacityModel.setTitle(CapacityConstants.MODEL);
-                  capacityModel.setListOfData(capacityNames);
-                  headerFooterList.add(CapacityConstants.MODEL);
-                  deleteResponseBodyFormatList.add(capacityModel);
-              }
-         }
-         globalDataCall.raiseException(headerFooterList, deleteResponseBodyFormatList, dbTemplateValue.get().getCapacityTemplateNm(), applicationErrors);
         return true;
      }
 	
@@ -585,7 +579,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		     responseCapacityTemplateEntity = templateData.get();
 			response = mapUpdateResponse(templateRequest, responseCapacityTemplateEntity);
 		}
-		if (null != responseCapacityTemplateEntity.getCapacityTemplateNm()) {
+		if (responseCapacityTemplateEntity != null && responseCapacityTemplateEntity.getCapacityTemplateNm() != null) {
             auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.UPDATE, null, responseCapacityTemplateEntity,
                     createdBy);
         }
@@ -695,7 +689,10 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		String templateTypeName = templateRequest.getTemplateTypeName();
 		if (CapacityConstants.DAYS.equals(templateTypeName)) {
 			existingTemplate.setEffectiveDate(DateUtil.stringToDate(templateRequest.getEffectiveDate()));
-			existingTemplate.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+			if(templateRequest.getExpiryDate() != null)
+				existingTemplate.setExpiryDate(DateUtil.stringToDate(templateRequest.getExpiryDate()));
+			else
+				existingTemplate.setExpiryDate(DateUtil.stringToDate(CapacityConstants.BLANK));
 			capacityTemplateMapper.mapTemplateDaysFromTemplateCreateUpdateRequest(templateRequest, existingTemplate);
 		}
 		else {
@@ -856,10 +853,6 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EFFECTIVE_DATE);
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
-		if(createCapacityTemplateRequest.getExpiryDate() == null) {
-			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4001),CapacityConstants.EXPIRY_DATE);
-			applicationErrors.raiseExceptionIfHasErrors();
-		}
 	}
 
 	/**
@@ -950,18 +943,22 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		return list.stream().filter(Objects::nonNull)
 				.filter(templateType -> templateType.getCapacityTemplate().getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DAYS))
 				.anyMatch(t -> {
+			LocalDate dbTemplateExpDate = null;
+			LocalDate expReq = null;
 			LocalDate dbTemplateEffectiveDate = DateUtil
 					.convertDatetoLocalDate(t.getCapacityTemplate().getEffectiveDate());
-			LocalDate dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getCapacityTemplate().getExpiryDate());
+			if(t.getCapacityTemplate().getExpiryDate() != null)
+				dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getCapacityTemplate().getExpiryDate());
 			LocalDate effectiveDateReq = DateUtil
 					.convertStringtoLocalDate(createCapacityTemplateRequest.getEffectiveDate());
-			LocalDate expReq = DateUtil.convertStringtoLocalDate(createCapacityTemplateRequest.getExpiryDate());
-			if (effectiveDateReq.isBefore(dbTemplateExpDate) && expReq.isAfter(dbTemplateEffectiveDate)) {
+			if(createCapacityTemplateRequest.getExpiryDate() != null)
+				expReq = DateUtil.convertStringtoLocalDate(createCapacityTemplateRequest.getExpiryDate());
+			if ((dbTemplateExpDate == null && expReq == null) 
+					|| (expReq == null && dbTemplateExpDate != null && effectiveDateReq.isBefore(dbTemplateExpDate)) 
+					|| (dbTemplateExpDate == null && expReq != null && expReq.isAfter(dbTemplateEffectiveDate))
+					|| (dbTemplateExpDate != null && expReq != null && effectiveDateReq.isBefore(dbTemplateExpDate) && expReq.isAfter(dbTemplateEffectiveDate))) {
 				CapacityTemplateEntity template=t.getCapacityTemplate();
-				if (CapacityConstants.DAYS.equalsIgnoreCase(template.getCapacityTemplateType().getCapacityTemplateTypeNm())) {
-				 return validateDays(createCapacityTemplateRequest,template);
-				}
-				return false;
+				return validateDays(createCapacityTemplateRequest,template);
 			}
 			return false;
 		});
