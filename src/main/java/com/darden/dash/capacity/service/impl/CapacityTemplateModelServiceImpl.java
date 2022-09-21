@@ -387,19 +387,22 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		return list.stream().filter(Objects::nonNull)
 				.filter(templateType -> templateType.getCapacityTemplateType().getCapacityTemplateTypeNm().equals(CapacityConstants.DAYS))
 				.anyMatch(t -> {
+			LocalDate dbTemplateExpDate = null;
+			LocalDate expModelReq = null;
 			LocalDate dbTemplateEffectiveDate = DateUtil
 					.convertDatetoLocalDate(t.getEffectiveDate());
-			LocalDate dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getExpiryDate());
+			if(t.getExpiryDate() != null)
+				dbTemplateExpDate = DateUtil.convertDatetoLocalDate(t.getExpiryDate());
 			LocalDate effectiveDateModelReq = DateUtil
 					.convertDatetoLocalDate(capacityTemplateEntityRequest.getEffectiveDate());
-			LocalDate expModelReq = DateUtil.convertDatetoLocalDate(capacityTemplateEntityRequest.getExpiryDate());
-			if (effectiveDateModelReq.isBefore(dbTemplateExpDate) && expModelReq.isAfter(dbTemplateEffectiveDate)) {
+			if(capacityTemplateEntityRequest.getExpiryDate() != null)
+				expModelReq = DateUtil.convertDatetoLocalDate(capacityTemplateEntityRequest.getExpiryDate());
+			if ((expModelReq == null && dbTemplateExpDate == null) 
+					|| (expModelReq == null && dbTemplateExpDate != null && effectiveDateModelReq.isBefore(dbTemplateExpDate))
+					|| (dbTemplateExpDate == null && expModelReq != null && expModelReq.isAfter(dbTemplateEffectiveDate))
+					|| (expModelReq != null && dbTemplateExpDate != null && effectiveDateModelReq.isBefore(dbTemplateExpDate) && expModelReq.isAfter(dbTemplateEffectiveDate))) {
 				CapacityTemplateEntity template = t;
-				if (CapacityConstants.DAYS
-						.equalsIgnoreCase(template.getCapacityTemplateType().getCapacityTemplateTypeNm())) {
-					 validateDays(capacityTemplateEntityRequest, template, matchingTemplatesId);
-				}
-				return false;
+				validateDays(capacityTemplateEntityRequest, template, matchingTemplatesId);
 			}
 			return false;
 		});
