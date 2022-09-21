@@ -22,7 +22,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Generated
 public class CapacityTemplate implements Serializable{
 
