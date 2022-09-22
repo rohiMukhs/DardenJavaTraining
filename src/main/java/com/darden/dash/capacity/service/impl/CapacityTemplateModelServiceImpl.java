@@ -132,14 +132,35 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	@Cacheable(value = CapacityConstants.CAPACITY_MODEL_CACHE)
 	public List<CapacityModel> getAllCapacityModels() {
 		List<CapacityModelEntity> modelEntityList = capacityModelRepository
-				.findByConceptId(new BigInteger(RequestContext.getConcept()));
-		List<Locations> restaurantList = locationClient.getAllRestaurants();
+				.findByConceptIdAndIsDeletedFlg(new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+		List<Locations> restaurantList = validatingLocationRestCall();
 		List<CapacityModel> modelResponseList = new ArrayList<>();
 		modelEntityList.stream().forEach(mel -> {
 			CapacityModel model = capacityModelMapper.mapToCapacityModel(mel, restaurantList);
 			modelResponseList.add(model);
 		});
 		return modelResponseList;
+	}
+
+	/**
+	 * This service method is to get all location details.
+	 * 
+	 * @return List<Locations> list of model class containing the data of locations.
+	 */
+	private List<Locations> validatingLocationRestCall() {
+		List<Locations> restaurantList =  null;
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+		int i = 0;
+		do {
+			restaurantList = locationClient.getAllRestaurants();
+			i++;
+		}
+		while(restaurantList.isEmpty() && i < 3);
+		if(restaurantList.isEmpty()) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012), CapacityConstants.LOCATION_CONNECTION);
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+		return restaurantList;
 	}
 
 	/**
@@ -301,7 +322,8 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	@Override
 	public boolean validateModelTemplateNm(String capacityModelNm) {
-		List<CapacityModelEntity> capacityModelEntity = capacityModelRepository.findByCapacityModelNm(capacityModelNm);
+		List<CapacityModelEntity> capacityModelEntity = capacityModelRepository
+				.findByCapacityModelNmAndConceptIdAndIsDeletedFlg(capacityModelNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		return CollectionUtils.isNotEmpty(capacityModelEntity);
 
 	}
@@ -640,6 +662,9 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 *                                 runtime e.g json parsing.
 	 */
 	
+	@Transactional(rollbackOn = Exception.class)
+	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_MODEL_CACHE, key = CapacityConstants.CAPACITY_TEMPLATE_CACHE_KEY),
+            @CacheEvict(value = CapacityConstants.CAPACITY_MODEL_CACHE, allEntries = true) })
 	public void deleteTemplateModel(String templateId, String userDetail,String deletedConfirm) throws JsonProcessingException {
 	    ApplicationErrors applicationErrors = new ApplicationErrors();
 		CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
@@ -679,7 +704,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	private void hardDeleteCapacityModel(CapacityModelEntity capacityModelEntity) {
 		capacityModelAndCapacityTemplateRepo.deleteAllByCapacityModel(capacityModelEntity);
 		capacityModelAndLocationRepo.deleteAllByCapacityModel(capacityModelEntity);
-		capacityModelRepository.delete(capacityModelEntity);	
+		capacityModelRepository.deleteById(capacityModelEntity.getCapacityModelId());	
 	}
 	
 	/**

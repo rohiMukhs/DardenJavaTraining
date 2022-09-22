@@ -33,7 +33,7 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findByConceptId(BigInteger conceptId);
+	List<CapacityTemplateEntity> findByConceptIdAndIsDeletedFlg(BigInteger conceptId, String isDeletedFlg);
 	
 	/**
 	 * This method is used to get capacity template using capacity Template name.
@@ -56,6 +56,6 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return CapacityTemplateEntity Capacity Template entity class retrieved 
 	 * 							based on the parameters passed.
 	 */
-	Optional<CapacityTemplateEntity> findByCapacityTemplateIdAndConceptId(BigInteger templateId, BigInteger conceptId);
+	Optional<CapacityTemplateEntity> findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(BigInteger templateId, BigInteger conceptId, String isDeletedFlg);
 
 }

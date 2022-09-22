@@ -345,6 +345,7 @@ public class CapacityConstants {
 	public static final String CAPACITY_TEMPLATE_MODEL_ID = "capacity template model id";
 	public static final String COMBINE_CAPACITY_TEMPLATE_CACHE_KEY = "{#isRefDataReq, #conceptId}";
 	public static final String MODEL = "Capacity Template";
+	public static final String LOCATION_CONNECTION = "Location connection ";
 	
 	private CapacityConstants() {
 
