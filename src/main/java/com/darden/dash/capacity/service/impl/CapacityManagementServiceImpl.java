@@ -184,7 +184,8 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		BigInteger concepId = new BigInteger(conceptId);
-		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo.findByConceptId(concepId);
+		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo
+				.findByConceptIdAndIsDeletedFlg(concepId, CapacityConstants.N);
 		List<CapacityTemplate> capacityTemplates = new ArrayList<>();
 		capacityTemplateEntities.stream().filter(Objects::nonNull).forEach(capacityTemplateEntity -> {
 			List<Channel> channels = capacityTemplateMapper.getCapacityTemplateChannels(capacityTemplateEntity);
@@ -442,7 +443,8 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
-		Optional<CapacityTemplateEntity> dbTemplateEntityOptional = capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(templateId, new BigInteger(RequestContext.getConcept()));
+		Optional<CapacityTemplateEntity> dbTemplateEntityOptional = capacityTemplateRepo
+				.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(templateId, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		if(dbTemplateEntityOptional.isEmpty()) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
 					CapacityConstants.CAPACITY_TEMPLATE_NM);
@@ -451,12 +453,6 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		
 		if(dbTemplateEntityOptional.isPresent()) {
 			capacityTemplateEntity = dbTemplateEntityOptional.get();
-		}
-		
-		if (!(CapacityConstants.N.equals(capacityTemplateEntity.getIsDeletedFlg()))) {
-			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
-					CapacityConstants.CAPACITY_TEMPLATE_NM);
-			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		
 		return capacityTemplateEntity;
@@ -478,7 +474,8 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	@Override
     public boolean validateCapacityTemplateId(String templateId, ApplicationErrors applicationErrors) {
-        Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo.findById(new BigInteger(templateId));
+        Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo
+        		.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(new BigInteger(templateId),  new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
          if(dbTemplateValue.isEmpty()) {
              applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
                      CapacityConstants.CAPACITY_TEMPLATE_ID);
@@ -520,6 +517,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	*/
 	@Override
 	public boolean validateCapacityTemplateNmForCreate(String capacityTemplateNm, String templateId) {
+		ApplicationErrors applicationErrors = new ApplicationErrors();
 		boolean isCapacityTemplateNameExists = true;
 		if (StringUtils.isNotBlank(templateId)) {
 			Optional<CapacityTemplateEntity> template = capacityTemplateRepo.findById(new BigInteger(templateId));
@@ -531,6 +529,11 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 				} else {
 					isCapacityTemplateNameExists = validateCapacityTemplateNm(capacityTemplateNm);
 				}
+			}
+			else {
+				applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
+					CapacityConstants.CAPACITY_TEMPLATE_ID);
+				applicationErrors.raiseExceptionIfHasErrors();
 			}
 		} else {
 			isCapacityTemplateNameExists = validateCapacityTemplateNm(capacityTemplateNm);

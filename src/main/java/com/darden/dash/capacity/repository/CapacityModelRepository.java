@@ -34,7 +34,7 @@ public interface CapacityModelRepository extends JpaRepository<CapacityModelEnti
 	 *  entity class containing the value of capacity
 	 *  model.
 	 */
-	List<CapacityModelEntity> findByConceptId(BigInteger conceptId);
+	List<CapacityModelEntity> findByConceptIdAndIsDeletedFlg(BigInteger conceptId, String isDeletedFlg);
 
 	/**
 	 * 
@@ -45,7 +45,7 @@ public interface CapacityModelRepository extends JpaRepository<CapacityModelEnti
 	 * @return List<CapacityModelEntity>List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityModelEntity> findByCapacityModelNm(String capacityModelNm);
+	List<CapacityModelEntity> findByCapacityModelNmAndConceptIdAndIsDeletedFlg(String capacityModelNm, BigInteger conceptId, String isDeletedFlg);
 	
 	/**
 	 * This repository method is to retrieve the optional value of capacity Model

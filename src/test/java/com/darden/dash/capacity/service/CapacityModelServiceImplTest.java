@@ -183,7 +183,7 @@ class CapacityModelServiceImplTest {
 		region.setRegionName("region");
 		location.setRegion(region);
 		locations.add(location);
-		Mockito.when(capacityModelRepository.findByConceptId(Mockito.any())).thenReturn(modelEntityList);
+		Mockito.when(capacityModelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn(modelEntityList);
 		Mockito.when(locationClient.getAllRestaurants()).thenReturn(locations);
 		List<CapacityModel> res = capacityTemplateModelServiceImpl.getAllCapacityModels();
 		assertNotNull(res);
@@ -579,9 +579,11 @@ class CapacityModelServiceImplTest {
 	@Test
 	void testValidateModelTemplateNm() {
 		CapacityModelEntity capacityModelEntity=new CapacityModelEntity();
-		capacityModelEntity.setConceptId(BigInteger.ONE);
 		capacityModelEntity.setCapacityModelNm("test");
-		when(capacityModelRepository.findByCapacityModelNm(Mockito.any())).thenReturn(Collections.singletonList(capacityModelEntity));
+		RequestContext.setConcept("1");
+		Mockito.when(capacityModelRepository
+				.findByCapacityModelNmAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
+				.thenReturn(Collections.singletonList(capacityModelEntity));
 		assertEquals(true, capacityTemplateModelServiceImpl.validateModelTemplateNm("test"));
 	}
 	
