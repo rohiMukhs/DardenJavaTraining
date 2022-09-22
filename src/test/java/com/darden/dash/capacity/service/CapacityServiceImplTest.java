@@ -142,7 +142,7 @@ class CapacityServiceImplTest {
 		entity.setLastModifiedBy("uouo");
 		entity.setLastModifiedDatetime(Instant.now());
 		list.add(entity);
-		lenient().when(capacityTemplateRepo.findByConceptId(BigInteger.ONE)).thenReturn((getAllCapacityTemplates()));
+		lenient().when(capacityTemplateRepo.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn((getAllCapacityTemplates()));
 		lenient().when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
 		lenient().when(capacityChannelService.getReferenceData()).thenReturn(new ReferenceDatum());
 		CapacityResponse res = capacityManagementServiceImpl.getAllCapacityTemplates(false, "1");
@@ -422,7 +422,7 @@ class CapacityServiceImplTest {
 		test.setConceptId(new BigInteger("1"));
 
 		Mockito.when(
-				capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
+				capacityTemplateRepo.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(Optional.of(test));
 		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
 
@@ -449,7 +449,7 @@ class CapacityServiceImplTest {
 		test.setConceptId(new BigInteger("1"));
 		Mockito.lenient().doNothing().when(capacityTemplateRepo).deleteById(Mockito.any());
 		Mockito.when(
-				capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(new BigInteger("1"), new BigInteger("1")))
+				capacityTemplateRepo.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
 				.thenReturn(Optional.of(test));
 		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
 
@@ -478,7 +478,9 @@ class CapacityServiceImplTest {
 		mAndT.setId(id);
 		mAndT.setCapacityTemplate(test);
 		mAndT.setCapacityModel(model);
-		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(test));
+		Mockito.when(capacityTemplateRepo
+				.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
+				.thenReturn(Optional.of(test));
 		Mockito.lenient().doNothing().when(globalDataCall).raiseException(Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any());
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test))
 				.thenReturn(Collections.singletonList(mAndT));
@@ -1191,7 +1193,8 @@ class CapacityServiceImplTest {
 
 	@Test
 	void testValidateCapacityTemplateIdNegative() {
-		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.empty());
+		when(capacityTemplateRepo
+				.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
 		try {
 			ApplicationErrors applicationErrors = new ApplicationErrors();
 			capacityManagementServiceImpl.validateCapacityTemplateId("1", applicationErrors);

@@ -103,10 +103,10 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		Map<BigInteger,ChannelInformationRequest> editChannelsMap=editChannelInformationRequest.stream().collect(Collectors.toMap(ChannelInformationRequest::getCapacityChannelId,o->o));
 		List<BigInteger> allCapacityChannelIdList=editChannelInformationRequest.stream().map(ChannelInformationRequest::getCapacityChannelId).collect(Collectors.toList());
-		List<CapacityChannelEntity> capacityChannelEntityList=capacityChannelRepository.findAllByCapacityChannelIdInAndConceptId(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()));
+		List<CapacityChannelEntity> capacityChannelEntityList=capacityChannelRepository
+				.findAllByCapacityChannelIdInAndConceptIdAndIsDeletedFlg(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		capacityChannelMapper.mapToCapacityChannelEntityList(user, dateTime, editChannelsMap, capacityChannelEntityList);
-		capacityChannelRepository.saveAll(capacityChannelEntityList);
-		List<CapacityChannelEntity> updatedCapacityChannelEntityList=capacityChannelRepository.findAllByCapacityChannelIdInAndConceptId(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()));
+		List<CapacityChannelEntity> updatedCapacityChannelEntityList = capacityChannelRepository.saveAll(capacityChannelEntityList);
 		List<CapacityChannel> response = capacityChannelMapper.mapChannels(updatedCapacityChannelEntityList);
 		if(!capacityChannelEntityList.isEmpty()) {
 			auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, capacityChannelEntityList, user);
@@ -127,7 +127,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel) {
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptId(validateChannel.getPosName(), new BigInteger(RequestContext.getConcept()));
+		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository
+				.findByPosNameAndConceptIdAndIsDeletedFlg(validateChannel.getPosName(), new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		if(capacityChannelEntity != null && capacityChannelEntity.getCapacityChannelId().equals(validateChannel.getCapacityChannelId()))
 			return CapacityConstants.FALSE;
 		else
@@ -231,7 +232,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannelEntityList,
 			CapacityChannelEntity capacityChannelFromDB) {
 		for (String channleNm : createCombinedChannelRequest.getChannels()) {
-			Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository.findByCapacityChannelNmAndConceptId(channleNm, new BigInteger(RequestContext.getConcept()));
+			Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository
+					.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(channleNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 			capacityChannelFromDB = validateOptionalCapacityChannelEntity(applicationErrors, capacityChannelFromDB,
 					optionalCapacityChannelEntity);
 			CapacityChannelAndCombinedChannelEntity capacityChannelAndCombinedChannelEntity = addCapacityChannelAndCombinedChannel(
@@ -307,7 +309,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean validateChannelNmValidation(String capacityChannelNm) {
-		Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository.findByCapacityChannelNmAndConceptId(capacityChannelNm, new BigInteger(RequestContext.getConcept()));
+		Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository
+				.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(capacityChannelNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		return optionalCapacityChannelEntity.isPresent();
 	}
 
@@ -322,7 +325,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean validateChannelFriendlyNmValidation(String friendlyNm) {
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptId(friendlyNm, new BigInteger(RequestContext.getConcept()));
+		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptIdAndIsDeletedFlg(friendlyNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		return capacityChannelEntity != null;
 	}
 	
@@ -338,7 +341,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	@Override
 	public ReferenceDatum getReferenceData() {
 		
-		List<CapacityChannelEntity> channelEntities = capacityChannelRepository.findByConceptId(new BigInteger(RequestContext.getConcept()));
+		List<CapacityChannelEntity> channelEntities = capacityChannelRepository
+				.findByConceptIdAndIsDeletedFlg(new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		ReferenceDatum referenceDatum = new ReferenceDatum();
 		List<CapacityChannel> channels = new ArrayList<>();
 		channelEntities.stream().forEach(ce -> {

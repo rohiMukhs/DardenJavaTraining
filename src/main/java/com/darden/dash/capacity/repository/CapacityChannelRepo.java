@@ -37,7 +37,7 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * @return List<CapacityChannelEntity> List of Capacity Channel entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityChannelEntity> findAllByCapacityChannelIdInAndConceptId(List<BigInteger> capacityChannelIdList, BigInteger conceptId);
+	List<CapacityChannelEntity> findAllByCapacityChannelIdInAndConceptIdAndIsDeletedFlg(List<BigInteger> capacityChannelIdList, BigInteger conceptId, String isDeletedFlg);
 	
 	/**
 	 * This method is used to fetch the value of capacity channel based on the value 
@@ -50,7 +50,7 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * @return CapacityChannelEntity Capacity Channel entity class retrieved 
 	 * 									   based on the parameters passed. 
 	 */
-	CapacityChannelEntity findByPosNameAndConceptId(String firendlynm, BigInteger conceptId);
+	CapacityChannelEntity findByPosNameAndConceptIdAndIsDeletedFlg(String firendlynm, BigInteger conceptId, String isDeletedFlg);
 	
 	/**
 	 * This method is used to fetch the value of capacity channel based on the value 
@@ -63,7 +63,7 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	 * @return Optional<CapacityChannelEntity> Capacity Channel entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	Optional<CapacityChannelEntity> findByCapacityChannelNmAndConceptId(String capacityChannelNm, BigInteger conceptId);
+	Optional<CapacityChannelEntity> findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(String capacityChannelNm, BigInteger conceptId, String isDeletedFlg);
 	
 	/**
 	 * This method is used to fetch the value of list of capacity channel based on the value 
@@ -73,7 +73,7 @@ public interface CapacityChannelRepo extends JpaRepository<CapacityChannelEntity
 	
 	 */
 
-	List<CapacityChannelEntity> findByConceptId(BigInteger conceptId);
+	List<CapacityChannelEntity> findByConceptIdAndIsDeletedFlg(BigInteger conceptId, String isDeletedFlg);
 	
 	
 }

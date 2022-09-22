@@ -125,9 +125,10 @@ class CapacityChannelServiceImplTest {
 		
 		RequestContext.setConcept("1");
 		
-		Mockito.when(capacityChannelRepository.findAllByCapacityChannelIdInAndConceptId(Mockito.anyList(), Mockito.any())).thenReturn(channelList);
+		Mockito.when(capacityChannelRepository
+				.findAllByCapacityChannelIdInAndConceptIdAndIsDeletedFlg(Mockito.anyList(), Mockito.any(), Mockito.any()))
+				.thenReturn(channelList);
 		Mockito.when(capacityChannelRepository.saveAll(Mockito.anyList())).thenReturn(editedList);
-		Mockito.when(capacityChannelRepository.findAllByCapacityChannelIdInAndConceptId(Mockito.anyList(), Mockito.any())).thenReturn(editedList);
 		
 		List<CapacityChannel> res = capacityChannelServiceImpl.editChannelInformation(requestList, "user");
 		
@@ -144,7 +145,9 @@ class CapacityChannelServiceImplTest {
 		request.setOperationHourStartTime("30:30:30");
 		request.setOperationHourEndTime("30:30:30");
 		RequestContext.setConcept("1");
-		Mockito.when(capacityChannelRepository.findByPosNameAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
+		Mockito.when(capacityChannelRepository
+				.findByPosNameAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.thenReturn(channelEntity);
 		boolean res = capacityChannelServiceImpl.friendlyNmValidation(request);
 		assertEquals(true, res);
 	}
@@ -178,7 +181,9 @@ class CapacityChannelServiceImplTest {
 		request.setStartTime("00:00");
 		request.setInterval(1);
 		Mockito.when(capacityChannelRepository.save(Mockito.any())).thenReturn(channelEntity);
-		Mockito.when(capacityChannelRepository.findByCapacityChannelNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(channel));
+		Mockito.when(capacityChannelRepository
+				.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.thenReturn(Optional.of(channel));
 		Mockito.when(capacityChannelAndCombinedChannelRepository.saveAll(Mockito.anyIterable())).thenReturn(list);
 		CombineChannel res = capacityChannelServiceImpl.addCombinedChannel(request, "aaa");
 		assertNotNull(res);
@@ -186,21 +191,25 @@ class CapacityChannelServiceImplTest {
 	
 	@Test
 	void testValidateChannelNmValidation() {
-		Mockito.when(capacityChannelRepository.findByCapacityChannelNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(channelEntity));
+		Mockito.when(capacityChannelRepository
+				.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.thenReturn(Optional.of(channelEntity));
 		boolean res = capacityChannelServiceImpl.validateChannelNmValidation("ch");
 		assertEquals(true, res);
 	}
 	
 	@Test
 	void testValidateChannelFriendlyNmValidation() {
-		Mockito.when(capacityChannelRepository.findByPosNameAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(channelEntity);
+		Mockito.when(capacityChannelRepository
+				.findByPosNameAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.thenReturn(channelEntity);
 		boolean res = capacityChannelServiceImpl.validateChannelFriendlyNmValidation("a");
 		assertEquals(true, res);
 	}
 	
 	@Test
 	void testGetReferenceData() {
-		Mockito.when(capacityChannelRepository.findByConceptId(Mockito.any())).thenReturn(channelList);
+		Mockito.when(capacityChannelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn(channelList);
 		ReferenceDatum res =  capacityChannelServiceImpl.getReferenceData();
 		assertNotNull(res);
 	}
