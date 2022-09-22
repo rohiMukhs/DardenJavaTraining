@@ -679,7 +679,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	private void hardDeleteCapacityModel(CapacityModelEntity capacityModelEntity) {
 		capacityModelAndCapacityTemplateRepo.deleteAllByCapacityModel(capacityModelEntity);
 		capacityModelAndLocationRepo.deleteAllByCapacityModel(capacityModelEntity);
-		capacityModelRepository.delete(capacityModelEntity);	
+		capacityModelRepository.deleteById(capacityModelEntity.getCapacityModelId());	
 	}
 	
 	/**

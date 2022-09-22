@@ -886,7 +886,7 @@ class CapacityModelServiceImplTest {
 		        .thenReturn(Optional.of(capacityModelEntity));
 		Mockito.when(orderClient.getAllOrderTemplates())
 		        .thenReturn(OrderTemplateList);
-		Mockito.lenient().doNothing().when(capacityModelRepository).delete(Mockito.any());
+		Mockito.lenient().doNothing().when(capacityModelRepository).deleteById(Mockito.any());
 		Mockito.lenient().doNothing().when(capacityModelAndLocationRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(auditService).addAuditData(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
