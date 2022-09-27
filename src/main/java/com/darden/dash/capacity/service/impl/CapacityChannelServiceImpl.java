@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class CapacityChannelServiceImpl implements CapacityChannelService{
-	
+
 	private CapacityChannelRepo  capacityChannelRepository;
 	
 	private CapacityChannelAndCombinedChannelRepository capacityChannelAndCombinedChannelRepository;
@@ -131,7 +131,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			try {
 				auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, channel, user);
 			} catch (JsonProcessingException e) {
-				log.info("failed to add data to audit");
+				log.info(CapacityConstants.FAILED_TO_ADD_DATA_TO_AUDIT);
 			}
 		});
 	}
