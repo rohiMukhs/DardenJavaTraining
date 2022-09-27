@@ -32,6 +32,7 @@ import com.darden.dash.capacity.model.EditChannelResponse;
 import com.darden.dash.capacity.model.GetCapacityModelResponse;
 import com.darden.dash.capacity.model.ListOfCapacityTemplateIds;
 import com.darden.dash.capacity.model.ListOfModelResponse;
+import com.darden.dash.capacity.model.ViewCapacityChannels;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
@@ -481,5 +482,31 @@ public class CapacityManagementController {
 		capacityTemplateModelService.deleteTemplateModel(templateId, userDetail,deletedConfirm);
 		String deleteStatus = (CapacityConstants.Y.equals(deletedConfirm))? CapacityConstants.CAPACITY_TEMPLATE_DELETED: CapacityConstants.CAPACITY_MODEL_READY_FOR_DELETE;
 		return new ServiceResponse().build(deleteStatus, CapacityConstants.STATUS_CODE_200);
+	}
+	
+	/**
+	 * This Get method is used to get all the capacity channel and combine channel data based on the concept
+	 * Id.ViewCapacityChannels is used to build response entity to display all the capacity and combine 
+	 * channels.
+	 * 
+	 * @param accessToken Token used to authenticate the user and extract the
+	 *                      userDetails for this API
+	 *                      
+	 * @return ViewCapacityChannels model class used to build response entity to
+	 * 						display all the static and combine channels.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	@GetMapping(value = CapacityConstants.CAPACITY_CHANNELS_PATH ,produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_CHANNELS_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ViewCapacityChannels.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> getAllCapacityChannels(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId, 
+			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken) throws JsonProcessingException {
+		jwtUtils.findUserDetail(accessToken);
+		channelValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
+		return new ViewCapacityChannels(capacityChannelService.getReferenceData()).build(CapacityConstants.CAPACITY_CHANNELS_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
 	}
 }

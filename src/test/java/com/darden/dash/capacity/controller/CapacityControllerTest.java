@@ -45,6 +45,7 @@ import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.Locations;
+import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.Region;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.model.SlotChannel;
@@ -543,5 +544,14 @@ public class CapacityControllerTest {
                 .andExpect(jsonPath("status", is(200)));
     }
 
+	@Test
+	void getAllCapacityChannels() throws Exception {
+		ReferenceDatum viewCapacityChannels = new ReferenceDatum();
+		Mockito.when(capacityChannelService.getReferenceData())
+				.thenReturn(viewCapacityChannels);
+		mockMvc.perform(get("/api/v1/capacity-channels/")
+				.headers(getHeaders())).andExpect(status().isOk())
+				.andExpect(result -> result.getResponse());
+	}
 
 }
