@@ -346,6 +346,9 @@ public class CapacityConstants {
 	public static final String COMBINE_CAPACITY_TEMPLATE_CACHE_KEY = "{#isRefDataReq, #conceptId}";
 	public static final String MODEL = "Models";
 	public static final String LOCATION_CONNECTION = "Location connection ";
+	public static final String CAPACITY_CHANNELS_PATH = "/capacity-channels";
+	public static final String CAPACITY_CHANNELS_LOADED_SUCCESSFULLY = "Capacity channels loaded successfully";
+	public static final String FAILED_TO_ADD_DATA_TO_AUDIT = "failed to add data to audit";
 	
 	private CapacityConstants() {
 
