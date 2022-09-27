@@ -39,6 +39,8 @@ import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.service.AuditService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * @author skashala
@@ -48,6 +50,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  *       with Capacity channel or any business logic related to Capacity
  *       channel
  */
+@Slf4j
 @Service
 public class CapacityChannelServiceImpl implements CapacityChannelService{
 	
@@ -128,7 +131,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			try {
 				auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, channel, user);
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				log.info("failed to add data to audit");
 			}
 		});
 	}
