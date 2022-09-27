@@ -5,8 +5,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;

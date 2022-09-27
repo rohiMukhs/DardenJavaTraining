@@ -39,6 +39,8 @@ import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.service.AuditService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * @author skashala
@@ -48,9 +50,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  *       with Capacity channel or any business logic related to Capacity
  *       channel
  */
+@Slf4j
 @Service
 public class CapacityChannelServiceImpl implements CapacityChannelService{
-	
+
 	private CapacityChannelRepo  capacityChannelRepository;
 	
 	private CapacityChannelAndCombinedChannelRepository capacityChannelAndCombinedChannelRepository;
@@ -108,10 +111,29 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		capacityChannelMapper.mapToCapacityChannelEntityList(user, dateTime, editChannelsMap, capacityChannelEntityList);
 		List<CapacityChannelEntity> updatedCapacityChannelEntityList = capacityChannelRepository.saveAll(capacityChannelEntityList);
 		List<CapacityChannel> response = capacityChannelMapper.mapChannels(updatedCapacityChannelEntityList);
-		if(!capacityChannelEntityList.isEmpty()) {
-			auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, capacityChannelEntityList, user);
+		if(!updatedCapacityChannelEntityList.isEmpty()) {
+			addToAuditTable(user, capacityChannelEntityList);
 		}
 		return response;
+	}
+
+	/**
+	 * This method is to iterate throught multiple updated capacity channel and to 
+	 * add it to audit table for each channel entity.
+	 * 
+	 * @param user	information of user operating on the update action.
+	 * 
+	 * @param capacityChannelEntityList entity class contains the list of entities.
+	 * 
+	 */
+	private void addToAuditTable(String user, List<CapacityChannelEntity> capacityChannelEntityList) {
+		capacityChannelEntityList.stream().forEach(channel -> {
+			try {
+				auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, channel, user);
+			} catch (JsonProcessingException e) {
+				log.info(CapacityConstants.FAILED_TO_ADD_DATA_TO_AUDIT);
+			}
+		});
 	}
 
 	/**
