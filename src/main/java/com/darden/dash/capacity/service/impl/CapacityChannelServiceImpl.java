@@ -108,10 +108,29 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		capacityChannelMapper.mapToCapacityChannelEntityList(user, dateTime, editChannelsMap, capacityChannelEntityList);
 		List<CapacityChannelEntity> updatedCapacityChannelEntityList = capacityChannelRepository.saveAll(capacityChannelEntityList);
 		List<CapacityChannel> response = capacityChannelMapper.mapChannels(updatedCapacityChannelEntityList);
-		if(!capacityChannelEntityList.isEmpty()) {
-			auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, capacityChannelEntityList, user);
+		if(!updatedCapacityChannelEntityList.isEmpty()) {
+			addToAuditTable(user, capacityChannelEntityList);
 		}
 		return response;
+	}
+
+	/**
+	 * This method is to iterate throught multiple updated capacity channel and to 
+	 * add it to audit table for each channel entity.
+	 * 
+	 * @param user	information of user operating on the update action.
+	 * 
+	 * @param capacityChannelEntityList entity class contains the list of entities.
+	 * 
+	 */
+	private void addToAuditTable(String user, List<CapacityChannelEntity> capacityChannelEntityList) {
+		capacityChannelEntityList.stream().forEach(channel -> {
+			try {
+				auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, channel, user);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	/**
