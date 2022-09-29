@@ -223,16 +223,18 @@ public class CapacityManagementController {
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_202, description = CapacityConstants.CAPACITY_TEMPLATE_DELETED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ServiceResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
-	public ResponseEntity<Object> deleteTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@PathVariable String templateId, @RequestParam String deletedFlag,
+	public ResponseEntity<Object> deleteTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@PathVariable String templateId, @RequestParam String deleteConfirmed,
 			@RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
 			throws JsonProcessingException {
 		String userDetail = jwtUtils.findUserDetail(accessToken);
 		
-		capacityValidator.validate(new DeleteCapacityTemplateRequest(templateId, deletedFlag), OperationConstants.OPERATION_DELETE.getCode());
+		capacityValidator.validate(new DeleteCapacityTemplateRequest(templateId, deleteConfirmed), OperationConstants.OPERATION_DELETE.getCode());
 		
-		String capacityTemplateNm = capacityManagementService.deleteByTemplateId(templateId, deletedFlag, userDetail);
+		String capacityTemplateNm = capacityManagementService.deleteByTemplateId(templateId, deleteConfirmed, userDetail);
 		
-		return new ServiceResponse().build(capacityTemplateNm + CapacityConstants.CAPACITY_TEMPLATE_DELETED, CapacityConstants.STATUS_CODE_INT_202);
+		return new ServiceResponse().build((CapacityConstants.Y.equals(deleteConfirmed))? capacityTemplateNm.concat(CapacityConstants.CAPACITY_TEMPLATE_DELETED)
+				: capacityTemplateNm.concat(CapacityConstants.CAPACITY_MODEL_READY_FOR_DELETE)
+				, CapacityConstants.STATUS_CODE_INT_202);
 	}
 	
 	/**

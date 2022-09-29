@@ -453,7 +453,7 @@ class CapacityServiceImplTest {
 				.thenReturn(Optional.of(test));
 		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
 
-		assertEquals("Y", test.getIsDeletedFlg());
+		assertEquals("N", test.getIsDeletedFlg());
 
 	}
 
