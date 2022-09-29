@@ -68,17 +68,17 @@ public interface CapacityManagementService {
 	 * passed in the parameters. 
 	 * 
 	 * 
-	 * @param departmentListId Department List Id of department List to be 
+	 * @param templateId Id of capacity template to be 
 	 * 							deleted.
 	 * 
-	 * @param deletedFlag Deleted flag detail for the department list entity.
+	 * @param deleteConfirmed Delete confirm flag confirming the delete process.
 	 * 
 	 * @param userDetail information of user operating on the create action.
 	 * 
 	 * @throws JsonProcessingException if any json processing exception is thrown at
 	 *                                 runtime e.g json parsing.
 	 */
-	String deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
+	String deleteByTemplateId(String templateId, String deleteConfirmed, String userDetail)
 			throws JsonProcessingException;
 	
 	/**

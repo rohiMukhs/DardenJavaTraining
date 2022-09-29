@@ -262,7 +262,7 @@ public class CapacityControllerTest {
 				Mockito.anyString())).thenReturn("templateNm");
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-templates/{templateId}", 1)
-				.param("deletedFlag", "Y")
+				.param("deleteConfirmed", "Y")
 				.headers(getHeaders())
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())
 				.andExpect(jsonPath("status", is(202)));

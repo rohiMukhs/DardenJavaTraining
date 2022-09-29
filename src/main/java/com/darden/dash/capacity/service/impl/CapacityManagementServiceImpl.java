@@ -390,7 +390,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	@Transactional
 	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key = CapacityConstants.CAPACITY_TEMPLATE_CACHE_KEY),
             @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
-	public String deleteByTemplateId(String templateId, String deletedFlag, String userDetail)
+	public String deleteByTemplateId(String templateId, String deleteConfirmed, String userDetail)
 			throws JsonProcessingException {
 		
 		ApplicationErrors applicationErrors = new ApplicationErrors();
@@ -403,23 +403,25 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		CapacityTemplateEntity capacityTemplateEntity = getByCapacityTemplateIdAndIsDeletedFlag(new BigInteger(templateId));
-		capacityTemplateEntity.setIsDeletedFlg(CapacityConstants.Y);
-		capacityTemplateEntity.setLastModifiedBy(userDetail);
-		capacityTemplateEntity.setLastModifiedDatetime(Instant.now());
-		if (appParameterEntity != null
-				&& CharacterConstants.Y.getCode().toString().equals(appParameterEntity.getParameterValue())) {
-			capacityTemplateRepo.save(capacityTemplateEntity);
-			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_SOFT, null, capacityTemplateEntity, userDetail);
-		}
-		else if (appParameterEntity != null
-				&& CharacterConstants.N.getCode().toString().equals(appParameterEntity.getParameterValue())) {
-			if(capacityTemplateEntity.getCapacityTemplateId() != null) {
-				capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-				capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-				capacitySlotRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-				capacityTemplateRepo.deleteById(capacityTemplateEntity.getCapacityTemplateId());
+		if(deleteConfirmed.equals(CapacityConstants.Y)) {
+			if (appParameterEntity != null
+					&& CharacterConstants.Y.getCode().toString().equals(appParameterEntity.getParameterValue())) {
+				capacityTemplateEntity.setIsDeletedFlg(CapacityConstants.Y);
+				capacityTemplateEntity.setLastModifiedBy(userDetail);
+				capacityTemplateEntity.setLastModifiedDatetime(Instant.now());
+				capacityTemplateRepo.save(capacityTemplateEntity);
+				auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_SOFT, null, capacityTemplateEntity, userDetail);
 			}
-			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_HARD, null, capacityTemplateEntity, userDetail);
+			else if (appParameterEntity != null
+					&& CharacterConstants.N.getCode().toString().equals(appParameterEntity.getParameterValue())) {
+				if(capacityTemplateEntity.getCapacityTemplateId() != null) {
+					capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+					capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+					capacitySlotRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+					capacityTemplateRepo.deleteById(capacityTemplateEntity.getCapacityTemplateId());
+				}
+				auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_HARD, null, capacityTemplateEntity, userDetail);
+			}
 		}
 		return capacityTemplateEntity.getCapacityTemplateNm();
 	}

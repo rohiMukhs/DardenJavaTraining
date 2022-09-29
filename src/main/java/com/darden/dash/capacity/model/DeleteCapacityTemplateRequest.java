@@ -22,7 +22,7 @@ public class DeleteCapacityTemplateRequest {
 
 	@Pattern(regexp = CommonConstants.PATTERN_NUMERIC, message = ErrorCodeConstants.EC_4004)
 	private String templateId;
-	@Pattern(regexp = CommonConstants.PATTERN_DELETED_FLAG, message = ErrorCodeConstants.EC_4011)
+	@Pattern(regexp = CommonConstants.PATTERN_DELETE_COMPLETE_FLAG, message = ErrorCodeConstants.EC_4011)
 	private String deletedFlag;
 	
 }
