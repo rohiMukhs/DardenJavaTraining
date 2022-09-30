@@ -179,6 +179,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 *                                 runtime e.g json parsing.
 	 */
 	@Override
+	@Transactional
 	@Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
 	public CombineChannel addCombinedChannel(CreateCombineChannelRequest createCombinedChannelRequest,
 			String userDetail) throws JsonProcessingException {
