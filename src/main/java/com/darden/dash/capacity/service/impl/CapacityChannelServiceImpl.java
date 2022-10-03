@@ -104,13 +104,34 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
             @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
 	public List<CapacityChannel> editChannelInformation(List<ChannelInformationRequest> editChannelInformationRequest,String user) throws JsonProcessingException{
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		Map<BigInteger,ChannelInformationRequest> editChannelsMap=editChannelInformationRequest.stream().collect(Collectors.toMap(ChannelInformationRequest::getCapacityChannelId,o->o));
-		List<BigInteger> allCapacityChannelIdList=editChannelInformationRequest.stream().map(ChannelInformationRequest::getCapacityChannelId).collect(Collectors.toList());
+		
+		//iterating through request.
+		Map<BigInteger,ChannelInformationRequest> editChannelsMap=editChannelInformationRequest
+				.stream()
+				//collecting the channel id and respective data 
+				.collect(Collectors.toMap(ChannelInformationRequest::getCapacityChannelId,o->o));
+		
+		//iterating through request.
+		List<BigInteger> allCapacityChannelIdList = editChannelInformationRequest
+				.stream()
+				//fetching all the channel ids.
+				.map(ChannelInformationRequest::getCapacityChannelId)
+				.collect(Collectors.toList());
+		
+		//Fetching the list of capacity channel entities for list for channel ids within the concept.
 		List<CapacityChannelEntity> capacityChannelEntityList=capacityChannelRepository
 				.findAllByCapacityChannelIdInAndConceptIdAndIsDeletedFlg(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+		
+		//Mapping the request data to capacityChannelEntityList.
 		capacityChannelMapper.mapToCapacityChannelEntityList(user, dateTime, editChannelsMap, capacityChannelEntityList);
+		
+		//Saving all the capacityChannelEntityList.
 		List<CapacityChannelEntity> updatedCapacityChannelEntityList = capacityChannelRepository.saveAll(capacityChannelEntityList);
+		
+		//Mapping updated data to response model class.
 		List<CapacityChannel> response = capacityChannelMapper.mapChannels(updatedCapacityChannelEntityList);
+		
+		//Adding opration performed on multiple data to audit table.
 		if(!updatedCapacityChannelEntityList.isEmpty()) {
 			addToAuditTable(user, capacityChannelEntityList);
 		}
@@ -127,7 +148,12 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * 
 	 */
 	private void addToAuditTable(String user, List<CapacityChannelEntity> capacityChannelEntityList) {
-		capacityChannelEntityList.stream().forEach(channel -> {
+		
+		//iterating through list of channel entities.
+		capacityChannelEntityList
+		.stream()
+		.forEach(channel -> {
+			//Adding operation performed for each entity to audit table using audit service.
 			try {
 				auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.UPDATE, null, channel, user);
 			} catch (JsonProcessingException e) {
@@ -149,8 +175,12 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel) {
+		
+		//Fetching the CapacityChannelEntity for pos name within the concept.
 		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository
 				.findByPosNameAndConceptIdAndIsDeletedFlg(validateChannel.getPosName(), new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+		
+		//condition to avoid self check.
 		if(capacityChannelEntity != null && capacityChannelEntity.getCapacityChannelId().equals(validateChannel.getCapacityChannelId()))
 			return CapacityConstants.FALSE;
 		else
@@ -185,12 +215,21 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			String userDetail) throws JsonProcessingException {
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		
+		//Mapping request data to CapacityChannelEntity.
 		CapacityChannelEntity capacityChannel = capacityChannelMapper.mapToChannelEntity(createCombinedChannelRequest, userDetail, dateTime);
+		
+		//Saving CapacityChannelEntity.
 		CapacityChannelEntity savedCombinedCapacityChannel = capacityChannelRepository.save(capacityChannel);
+		
+		//Creating CapacityChannelAndCombinedChannelEntityList and saving.
 		saveCapacityChannelAndCombinedChannelEntityList(createCombinedChannelRequest, userDetail, applicationErrors,
 				savedCombinedCapacityChannel);
+		
+		//Mapping to response model class.
 		CombineChannel response = capacityChannelMapper.mapToChannelResponse(savedCombinedCapacityChannel, createCombinedChannelRequest);
 		
+		//Adding to action performed to audit trail table using audit service.
 		if(savedCombinedCapacityChannel.getCapacityChannelId() != null) {
 			auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.INSERT, null, savedCombinedCapacityChannel, userDetail);
 		}
@@ -218,12 +257,20 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			ApplicationErrors applicationErrors, CapacityChannelEntity savedCombinedCapacityChannel) {
 		List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannelEntityList = new ArrayList<>();
 		CapacityChannelEntity capacityChannelFromDB = new CapacityChannelEntity();
+		
+		//if combination channels in request not empty.
 		if (createCombinedChannelRequest.getChannels() != null
 				&& !createCombinedChannelRequest.getChannels().isEmpty()) {
+			
+			//Mapping request data to entity and adding to list.
 			mapToCapacityChannelAndCombinedChannelEntityList(createCombinedChannelRequest, userDetail,
 					applicationErrors, savedCombinedCapacityChannel, capacityChannelAndCombinedChannelEntityList,
 					capacityChannelFromDB);
+			
+			//Saving the list.
 			capacityChannelAndCombinedChannelRepository.saveAll(capacityChannelAndCombinedChannelEntityList);
+			
+			//Setting the updated list to savedCombinedCapacityChannel.
 			savedCombinedCapacityChannel.setCapacityChannelAndCombinedChannels1(capacityChannelAndCombinedChannelEntityList);
 		}
 	}
@@ -254,13 +301,23 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			ApplicationErrors applicationErrors, CapacityChannelEntity savedCombinedCapacityChannel,
 			List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannelEntityList,
 			CapacityChannelEntity capacityChannelFromDB) {
+		
+		//iterating throught channels in request.
 		for (String channleNm : createCombinedChannelRequest.getChannels()) {
+			
+			//Fetching the capacity channel for channel name within the concept.
 			Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository
 					.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(channleNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+			
+			//Validating if present in database.
 			capacityChannelFromDB = validateOptionalCapacityChannelEntity(applicationErrors, capacityChannelFromDB,
 					optionalCapacityChannelEntity);
+			
+			//Mapping data to CapacityChannelAndCombinedChannelEntity.
 			CapacityChannelAndCombinedChannelEntity capacityChannelAndCombinedChannelEntity = addCapacityChannelAndCombinedChannel(
 					savedCombinedCapacityChannel, capacityChannelFromDB, userDetail);
+			
+			//Adding to list.
 			capacityChannelAndCombinedChannelEntityList.add(capacityChannelAndCombinedChannelEntity);
 		}
 	}
@@ -284,12 +341,14 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	private CapacityChannelEntity validateOptionalCapacityChannelEntity(ApplicationErrors applicationErrors,
 			CapacityChannelEntity capacityChannelFromDB,
 			Optional<CapacityChannelEntity> optionalCapacityChannelEntity) {
+		
+		//if channel entity is empty raising the exception.
 		if (optionalCapacityChannelEntity.isEmpty()) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
 					CapacityConstants.CAPACITY_CHANNEL_NM);
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
-		if (optionalCapacityChannelEntity.isPresent()) {
+		else{
 			capacityChannelFromDB = optionalCapacityChannelEntity.get();
 		}
 		return capacityChannelFromDB;
@@ -315,7 +374,11 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	public CapacityChannelAndCombinedChannelEntity addCapacityChannelAndCombinedChannel(CapacityChannelEntity savedCombinedCapacityChannel,
 			CapacityChannelEntity capacityChannelFromDB, String changedBy) {
 		CapacityChannelAndCombinedChannelEntity capacityChannelAndCombinedChannelEntity = new CapacityChannelAndCombinedChannelEntity();
+		
+		//if savedCombinedCapacityChannel is not null and within concept.
 		if (null != savedCombinedCapacityChannel && null != savedCombinedCapacityChannel.getConceptId()) {
+			
+			//Mapping data to capacityChannelAndCombinedChannelEntity.
 			capacityChannelAndCombinedChannelEntity = capacityChannelMapper.mapToChannelAndCombineChannel(savedCombinedCapacityChannel, capacityChannelFromDB, changedBy);
 		}
 		return capacityChannelAndCombinedChannelEntity;
@@ -332,6 +395,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean validateChannelNmValidation(String capacityChannelNm) {
+		
+		//Fetching the capacity channel for channel name within the concept.
 		Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository
 				.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(capacityChannelNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		return optionalCapacityChannelEntity.isPresent();
@@ -348,6 +413,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean validateChannelFriendlyNmValidation(String friendlyNm) {
+		
+		//Fetching the capacity channel entity for pos name within the concept.
 		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptIdAndIsDeletedFlg(friendlyNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		return capacityChannelEntity != null;
 	}
@@ -364,14 +431,25 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	@Override
 	public ReferenceDatum getReferenceData() {
 		
+		//Fetching the list of channel entities within the concept.
 		List<CapacityChannelEntity> channelEntities = capacityChannelRepository
 				.findByConceptIdAndIsDeletedFlg(new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		ReferenceDatum referenceDatum = new ReferenceDatum();
 		List<CapacityChannel> channels = new ArrayList<>();
-		channelEntities.stream().forEach(ce -> {
+		
+		//iterating through channel entities.
+		channelEntities
+		.stream()
+		.forEach(ce -> {
+			
+			//Mapping to model class.
 			CapacityChannel channel = mapToCapacityChannel(ce);
+			
+			//Adding to list.
 			channels.add(channel);
 		});
+		
+		//Setting list of channel to model class.
 		referenceDatum.setCapacityChannel(channels);
 		return referenceDatum;
 	}
@@ -387,6 +465,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 * 						capacity channel.
 	 */
 	private CapacityChannel mapToCapacityChannel(CapacityChannelEntity ce) {
+		
+		//Mapping entity data to capacity channel model class.
 		CapacityChannel channel = new CapacityChannel();
 		channel.setCapacityChannelId(ce.getCapacityChannelId());
 		channel.setCapacityChannelName(ce.getCapacityChannelNm());
@@ -395,15 +475,29 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		channel.setIsCombinedFlg(ce.getIsCombinedFlg());
 		channel.setOperationalHoursEndTime(ce.getOperationalHoursEndTime().toString());
 		channel.setOperationalHoursStartTime(ce.getOperationalHoursStartTime().toString());
+		
+		//if isCombineFlag equals Y.
 		if(ce.getIsCombinedFlg().equals(CapacityConstants.Y)) {
 			List<Channel> underCombine = new ArrayList<>();
+			
+			//Fetching the list of CapacityChannelAndCombinedChannelEntity for capacity channel.
 			List<CapacityChannelAndCombinedChannelEntity> combineChannel = capacityChannelAndCombinedChannelRepository.findByCapacityChannel2(ce);
-			combineChannel.stream().forEach(cc -> {
+			
+			//iterating through combine channels.
+			combineChannel
+			.stream()
+			.forEach(cc -> {
+				
+				//Mapping to channel model class.
 				Channel cha = new Channel();
 				cha.setCapacityChannelId(cc.getId().getCapacityChannelId());
 				cha.setCapacityChannelName(cc.getCapacityChannel1().getCapacityChannelNm());
+				
+				//Adding to list.
 				underCombine.add(cha);
 			});
+			
+			//Setting combine channels to channel entity.
 			channel.setCombinedChannels(underCombine);
 		}
 		return channel;
@@ -420,15 +514,33 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public Set<Integer> validateBaseChannelCombindation(Set<String> channelsNames) {
-		List<CapacityChannelEntity> channelList = capacityChannelRepository.findAll();
+		
+		//fetching all the capacity channel entities within the concept.
+		List<CapacityChannelEntity> channelList = capacityChannelRepository
+				.findByConceptIdAndIsDeletedFlg(new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
 		Set<Integer> value = new HashSet<>();
-		channelList.stream().forEach(cl -> {
+		
+		//iterating through channel entity list.
+		channelList
+		.stream()
+		.forEach(cl -> {
+			
+			//if is combine flag equals Y.
 			if(cl.getIsCombinedFlg().equals(CapacityConstants.Y)) {
+				
+				//Fetching list of CapacityChannelAndCombinedChannelEntity for capacity channel entity.
 				List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannelList = capacityChannelAndCombinedChannelRepository.findByCapacityChannel2(cl);
 				Set<String> dbChannelNames = new HashSet<>();
-				capacityChannelAndCombinedChannelList.stream().forEach(cccl ->
-					dbChannelNames.add(cccl.getCapacityChannel1().getCapacityChannelNm()
-							));
+				
+				//iterating through list of CapacityChannelAndCombinedChannelEntity.
+				capacityChannelAndCombinedChannelList
+				.stream()
+				.forEach(cccl ->
+				
+					//adding all channel names.
+					dbChannelNames.add(cccl.getCapacityChannel1().getCapacityChannelNm()));
+				
+				//if channel names matches.
 				if(channelsNames.equals(dbChannelNames)) {
 					value.add(1);
 				}
