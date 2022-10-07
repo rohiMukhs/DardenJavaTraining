@@ -8,7 +8,6 @@ import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.ConceptForCache;
-import com.darden.dash.common.error.ApplicationErrors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
@@ -104,22 +103,6 @@ public interface CapacityTemplateModelService {
 	 * @return boolean returns the boolean value based on the condition.
 	 */
 	public boolean validateModelTemplateNmForUpdate(String capacityModelNm, String id);
-	
-	/**
-	 * This service method is to validate if capacity template is already assigned to other
-	 * capacity model for update operation.
-	 * 
-	 * @param capacityModelRequest request class containing the value of template model
-	 * 				to be updated.
-	 * 
-	 * @param applicationErrors error class used to raise exception in case any validation
-	 * 				is failed
-	 * 
-	 * @param id string containing the value of template id to be updated.
-	 * 
-	 * @return boolean returns the boolean value based on the condition.
-	 */
-	public boolean validateTemplateAssignedforUpdate(CapacityModelRequest capacityModelRequest, ApplicationErrors applicationErrors, String id);
 	
 	/**
 	 * This service method is used to cache concept data from restCall.

@@ -141,6 +141,7 @@ public interface CapacityChannelMapper {
 		capacityChannelAndCombinedChannelEntity.setLastModifiedBy(changedBy);
 		capacityChannelAndCombinedChannelEntity.setCreatedDatetime(Instant.now());
 		capacityChannelAndCombinedChannelEntity.setLastModifiedDatetime(Instant.now());
+		capacityChannelAndCombinedChannelEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
 		return capacityChannelAndCombinedChannelEntity;
 	}
 	

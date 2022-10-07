@@ -40,10 +40,14 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * 
 	 * @param capacityTemplateNm Capacity Template Name of the Capacity Template Entity.
 	 * 
+	 * @param conceptId ConceptId of the Capacity Template Entity.
+	 * 
+	 * @param isDeletedFlg String conatins the value of isDeleteFlag.
+	 * 
 	 * @return CapacityTemplateEntity Capacity Template entity class retrieved 
 	 * 							based on the parameters passed.
 	 */
-	CapacityTemplateEntity findByCapacityTemplateNm(String capacityTemplateNm);
+	CapacityTemplateEntity findByCapacityTemplateNmAndConceptIdAndIsDeletedFlg(String capacityTemplateNm, BigInteger conceptId, String isDeletedFlg);
 	
 	/**
 	 * This method is used to get capacity template based on value of template Id 
@@ -52,6 +56,8 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @param templateId Template Id of the Capacity Template Entity.
 	 * 
 	 * @param conceptId ConceptId of the Capacity Template Entity.
+	 * 
+	 * @param isDeletedFlg String conatins the value of isDeleteFlag.
 	 * 
 	 * @return CapacityTemplateEntity Capacity Template entity class retrieved 
 	 * 							based on the parameters passed.

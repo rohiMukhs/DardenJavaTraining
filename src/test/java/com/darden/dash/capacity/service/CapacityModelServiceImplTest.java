@@ -56,6 +56,7 @@ import com.darden.dash.common.exception.ApplicationException;
 import com.darden.dash.common.model.Concept;
 import com.darden.dash.common.service.AuditService;
 import com.darden.dash.common.util.DateUtil;
+import com.darden.dash.common.util.GlobalDataCall;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -94,6 +95,9 @@ class CapacityModelServiceImplTest {
 	
 	@Mock
 	private AuditService auditService;
+	
+	@Mock
+	private GlobalDataCall globalDataCall;
 	
 	public static CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
 	
@@ -811,44 +815,9 @@ class CapacityModelServiceImplTest {
 		capacityModelEntity.setConceptId(BigInteger.ONE);
 		capacityModelEntity.setCapacityModelNm("test");
 		capacityModelEntity.setCapacityModelId(new BigInteger("1"));
+		capacityModelEntity.setIsDeletedFlg("N");
 		when(capacityModelRepository.findByCapacityModelNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(capacityModelEntity));
 		assertEquals(true, capacityTemplateModelServiceImpl.validateModelTemplateNmForUpdate("test", "2"));
-	}
-	
-	@Test
-	void testValidateTemplateAssignedforUpdate() throws JsonProcessingException{
-		CapacityTemplateEntity capacityTemplateEntity=new CapacityTemplateEntity();
-		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
-		ApplicationErrors applicationErrors = new ApplicationErrors();
-		lenient().when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
-		lenient().when(capacityModelAndCapacityTemplateRepo.findAll()).thenReturn(Collections.EMPTY_LIST);
-		boolean res = capacityTemplateModelServiceImpl.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, "1");
-		assertEquals(true, res);
-	}
-	
-	@Test
-	void testValidateTemplateAssignedforUpdateNegOne() throws JsonProcessingException{
-		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.empty());
-		ApplicationErrors applicationErrors = new ApplicationErrors();
-		try {
-			capacityTemplateModelServiceImpl.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, "1");
-		} catch (Exception e) {
-			assertTrue(e instanceof ApplicationException);
-		}
-	}
-	
-	@Test
-	void testValidateTemplateAssignedforUpdateNegTwo() throws JsonProcessingException{
-		CapacityTemplateEntity capacityTemplateEntity=new CapacityTemplateEntity();
-		capacityTemplateEntity.setCapacityTemplateId(BigInteger.TWO);
-		ApplicationErrors applicationErrors = new ApplicationErrors();
-		lenient().when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
-		lenient().when(capacityModelAndCapacityTemplateRepo.findAll()).thenReturn(modelAndTemplateList);
-		try {
-			capacityTemplateModelServiceImpl.validateTemplateAssignedforUpdate(capacityModelRequest, applicationErrors, "1");
-		} catch (Exception e) {
-			assertTrue(e instanceof ApplicationException);
-		}
 	}
 	
 	@Test
@@ -888,6 +857,55 @@ class CapacityModelServiceImplTest {
 		        .thenReturn(Optional.of(capacityModelEntity));
 		Mockito.when(orderClient.getAllOrderTemplates())
 		        .thenReturn(OrderTemplateList);
+		Mockito.lenient().doNothing().when(capacityModelRepository).deleteById(Mockito.any());
+		Mockito.lenient().doNothing().when(capacityModelAndLocationRepo).deleteAllByCapacityModel(Mockito.any());
+		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
+		Mockito.lenient().doNothing().when(auditService).addAuditData(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+		capacityTemplateModelServiceImpl.deleteTemplateModel("1","USER","Y");
+		assertEquals("Y",capacityModelEntity.getIsDeletedFlg());
+	}
+	
+	@Test
+	void DeleteCapacityModel2()throws JsonProcessingException {
+		CapacityModelEntity capacityModelEntity = new CapacityModelEntity();
+		capacityModelEntity.setCapacityModelId(BigInteger.ONE);
+		capacityModelEntity.setCapacityModelNm("name");
+		capacityModelEntity.setConceptId(BigInteger.ONE);
+		capacityModelEntity.setIsDeletedFlg("Y");
+		capacityModelEntity.setCapacityModelAndLocations(modelAndLocationList);
+		List<OrderList> orderList1 = new ArrayList<>();
+		OrderList orderList = new OrderList();
+		orderList.setListId(BigInteger.ONE);
+		orderList.setListNm("name");
+		orderList.setListType("CAPACITY MODEL LIST");
+		orderList1.add(orderList);
+		List<OrderTemplate> OrderTemplateList = new ArrayList<>();
+		OrderTemplate OrderTemplate = new OrderTemplate();
+		OrderTemplate.setConceptId(BigInteger.ONE);
+		OrderTemplate.setId(BigInteger.ONE);
+		OrderTemplate.setOrderTemplateName("name");
+		OrderTemplate.setOrderLists(orderList1);
+		OrderTemplateList.add(OrderTemplate);
+		
+		List<Locations> locations = new ArrayList<>();
+		Locations location = new Locations();
+		location.setAddressState("address");
+		location.setLastModifiedDateTime(Instant.now());
+		location.setLocationDescription("desc");
+		location.setLocationId(new BigInteger("1"));
+		location.setRestaurantNumber(new BigInteger("1111"));
+		Region region  = new Region();
+		region.setRegionId(1);
+		region.setRegionName("region");
+		location.setRegion(region);
+		locations.add(location);
+		
+				Mockito.when(capacityModelRepository
+				.findByCapacityModelIdAndConceptId(new BigInteger("1"),new BigInteger("1")))
+		        .thenReturn(Optional.of(capacityModelEntity));
+		Mockito.when(orderClient.getAllOrderTemplates())
+		        .thenReturn(OrderTemplateList);
+		Mockito.when(locationClient.getAllRestaurants()).thenReturn(locations);
 		Mockito.lenient().doNothing().when(capacityModelRepository).deleteById(Mockito.any());
 		Mockito.lenient().doNothing().when(capacityModelAndLocationRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
