@@ -3,10 +3,8 @@ package com.darden.dash.capacity.mapper;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
@@ -22,6 +20,7 @@ import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CapacityTemplateModel;
 import com.darden.dash.capacity.model.Locations;
+import com.darden.dash.capacity.model.RestaurantDetail;
 import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
@@ -55,7 +54,8 @@ public interface CapacityModelMapper {
 	 * 				the values retrieved.
 	 */
 	@Named(CapacityConstants.MAP_TO_CAPACITY_MODEL)
-	default CapacityModel mapToCapacityModel(CapacityModelEntity mel, List<Locations> restaurantList) {
+	default CapacityModel mapToCapacityModel(CapacityModelEntity mel, List<Locations> restaurantList,
+			List<BigInteger> restaurantNumberViaOrderTemplate) {
 		CapacityModel model = new CapacityModel();
 		model.setCapacityModelId(mel.getCapacityModelId());
 		model.setCapacityModelName(mel.getCapacityModelNm());
@@ -69,15 +69,20 @@ public interface CapacityModelMapper {
 			}
 		});
 		model.setCapacityTemplateList(templateNames);
-		Set<BigInteger> restaurantNumberList = new HashSet<>();
+		List<BigInteger> restaurantNumberList = new ArrayList<>();
 		restaurantList.stream()
 			.forEach(rl -> mel.getCapacityModelAndLocations().stream()
 					.forEach(mll -> {
-						if(rl.getLocationId().equals(mll.getId().getLocationId()))
+						if(rl.getLocationId().equals(mll.getId().getLocationId()) && !restaurantNumberList.contains(rl.getRestaurantNumber()))
 							restaurantNumberList.add(rl.getRestaurantNumber());
 					})
 		);
-		model.setRestaurants(restaurantNumberList);
+		RestaurantDetail restaurants = new RestaurantDetail();
+		restaurants.setViaTemplate(restaurantNumberList);
+		restaurants.setViaOverride(restaurantNumberViaOrderTemplate);
+		restaurantNumberList.addAll(restaurantNumberViaOrderTemplate);
+		restaurants.setRestaurantCount(restaurantNumberList.size());
+		model.setRestaurants(restaurants);
 		model.setIsDeletedFlg(mel.getIsDeletedFlg());
 		model.setCreatedBy(mel.getCreatedBy());
 		model.setCreatedDateTime(mel.getCreatedDatetime());
