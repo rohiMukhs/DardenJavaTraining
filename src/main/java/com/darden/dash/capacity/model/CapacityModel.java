@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -28,7 +27,7 @@ public class CapacityModel implements Serializable{
 	private String capacityModelName;
 	private BigInteger capacityModelId;
 	private List<CapacityTemplate> capacityTemplateList ;
-	private Set<BigInteger> restaurants;
+	private RestaurantDetail restaurants;
 	private String isDeletedFlg;
 	private String createdBy;
 	private Instant createdDateTime;

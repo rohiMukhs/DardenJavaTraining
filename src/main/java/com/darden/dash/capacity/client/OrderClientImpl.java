@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.darden.dash.capacity.model.OrderTemplate;
 import com.darden.dash.capacity.model.OrderTemplateResponse;
+import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.client.RestCallGet;
 import com.darden.dash.common.exception.ApplicationException;
@@ -48,6 +49,7 @@ public class OrderClientImpl implements OrderClient {
 	public List<OrderTemplate> getAllOrderTemplates() {
 	    StringBuilder urlBuilder = new StringBuilder();
 		urlBuilder.append(url);
+		urlBuilder.append(CapacityConstants.IS_CAPACITY_MODEL_DATA_REQ_FALSE);
 		try {
 			RequestContext.getAuthorizationToken();
 			RestCallGet<OrderTemplateResponse> restCallGet = new RestCallGet<>(restTemplate, urlBuilder.toString(),

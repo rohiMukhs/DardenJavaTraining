@@ -330,7 +330,6 @@ class ModelTest {
     	capacityModel.setIsDeletedFlg("y");
     	capacityModel.setLastModifiedBy("Ak");
     	capacityModel.setLastModifiedDateTime(null);
-    	capacityModel.setRestaurants(ids);
     	
     	capacityModel.getCapacityModelId();
     	capacityModel.getCapacityModelName();
