@@ -48,6 +48,9 @@ public class CapacitySlotEntity extends Audit implements Serializable {
 
 	@Column(name=CapacityConstants.START_TIME)
 	private LocalTime startTime;
+	
+	@Column(name=CapacityConstants.CONCEPT_ID)
+	private BigInteger conceptId;
 
 	//bi-directional many-to-one association to CapacityChannel
 	@ManyToOne(fetch=FetchType.LAZY)

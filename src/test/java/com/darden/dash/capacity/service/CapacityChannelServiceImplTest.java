@@ -216,7 +216,7 @@ class CapacityChannelServiceImplTest {
 	
 	@Test
 	void testValidationOfCombinationOfChannel() {
-		Mockito.when(capacityChannelRepository.findAll()).thenReturn(channelList);
+		Mockito.when(capacityChannelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.anyString())).thenReturn(channelList);
 		Mockito.when(capacityChannelAndCombinedChannelRepository.findByCapacityChannel2(Mockito.any())).thenReturn(combinChannelList);
 		Set<String> name = new HashSet<>();
 		name.add("channelnm");

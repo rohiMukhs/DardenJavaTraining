@@ -1,7 +1,9 @@
 package com.darden.dash.capacity.entity;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,6 +33,9 @@ public class CapacityTemplateAndCapacityChannelEntity extends Audit implements S
 
 	@EmbeddedId
 	private CapacityTemplateAndCapacityChannelPK id;
+	
+	@Column(name=CapacityConstants.CONCEPT_ID)
+	private BigInteger conceptId;
 	
 	//bi-directional many-to-one association to CapacityChannel
 	@ManyToOne(fetch=FetchType.LAZY)

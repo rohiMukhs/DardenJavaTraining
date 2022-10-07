@@ -118,6 +118,7 @@ public interface CapacityModelMapper {
 					capacityModelAndLocationEntity.setCreatedDatetime(dateTime);
 					capacityModelAndLocationEntity.setLastModifiedBy(user);
 					capacityModelAndLocationEntity.setLastModifiedDatetime(dateTime);
+					capacityModelAndLocationEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
 					capacityModelAndLocationEntites.add(capacityModelAndLocationEntity);
 				});
 		return capacityModelAndLocationEntites;
@@ -217,6 +218,7 @@ public interface CapacityModelMapper {
 		capacityModelAndLocationEntity.setCreatedDatetime(dateTime);
 		capacityModelAndLocationEntity.setLastModifiedBy(createdBy);
 		capacityModelAndLocationEntity.setLastModifiedDatetime(dateTime);
+		capacityModelAndLocationEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
 		return capacityModelAndLocationEntity;
 	}
 	
@@ -278,6 +280,7 @@ public interface CapacityModelMapper {
 		capacityModelAndCapacityTemplateEntity.setCreatedDatetime(dateTime);
 		capacityModelAndCapacityTemplateEntity.setLastModifiedBy(createdBy);
 		capacityModelAndCapacityTemplateEntity.setLastModifiedDatetime(dateTime);
+		capacityModelAndCapacityTemplateEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
 		return capacityModelAndCapacityTemplateEntity;
 	}
 }

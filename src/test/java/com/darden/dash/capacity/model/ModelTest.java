@@ -1,14 +1,15 @@
 package com.darden.dash.capacity.model;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +64,7 @@ class ModelTest {
 	
 	@Test
 	void testCreateCapacityResponse() {
-		CreateTemplateResponse response = new CreateTemplateResponse();
+		CreateTemplateResponse response = new CreateTemplateResponse();		
 		CreateCapacityTemplateResponse model = new CreateCapacityTemplateResponse(response);
 		CreateCapacityTemplateResponse model1 = new CreateCapacityTemplateResponse(response);
 		model.setCapacityTemplate(response);
@@ -78,6 +79,10 @@ class ModelTest {
 		model1.build("Aaa", 200);
 		model.canEqual(model);
 		model.equals(model);
+		model1.getCapacityTemplate();
+		model1.getCorrelationId();
+		model1.getStatus();
+		model1.getTitle();
 		assertNotNull(model);
 		assertEquals(model, model1);
 		assertEquals(model.hashCode(), model1.hashCode());
@@ -146,6 +151,9 @@ class ModelTest {
 		orderList.setListNm("name");
 		orderList.setListType("user");
 		orderList1.add(orderList);
+		orderList.getListId();
+		orderList.getListNm();
+		orderList.getListType();
 		OrderTemplate OrderTemplate = new OrderTemplate();
 		OrderTemplate.setConceptId(BigInteger.ONE);
 		OrderTemplate.setId(BigInteger.ONE);
@@ -159,7 +167,7 @@ class ModelTest {
 		
 	}
 
-@Test
+    @Test
 	void OrderTemplateResponseTest() {
 		List<OrderList> orderList1 = new ArrayList<>();
 		OrderList orderList = new OrderList();
@@ -185,4 +193,162 @@ class ModelTest {
 		assertNotNull(orderTemplateResponse);
 		
 	}
+    
+    @Test
+	void editLocationDetailResponseTest() {
+    	EditLocationDetailResponse editLocDetResponse = new EditLocationDetailResponse();
+    	editLocDetResponse.setLocationId(1);
+    	editLocDetResponse.setRestaurantNumber(1);
+    	editLocDetResponse.setConceptId(1);
+    	editLocDetResponse.setDivisionId(1);
+    	editLocDetResponse.setRegionId(1);
+    	editLocDetResponse.setLocationDesc("desc");
+    	editLocDetResponse.setAddressStreet("street");
+    	editLocDetResponse.setAddressState("state");
+    	editLocDetResponse.setAddressCity("city");
+    	editLocDetResponse.setPhone("9793748473");
+    	editLocDetResponse.setFax("23");
+    	editLocDetResponse.setZipCode("232");
+    	editLocDetResponse.setEmail("jack@.com");
+    	editLocDetResponse.setCreatedBy("ak");
+    	editLocDetResponse.setCreatedDateTime(Instant.now());
+    	editLocDetResponse.setLastModifiedBy("ak");
+    	editLocDetResponse.setLastModifiedDatetime(Instant.now());
+    	editLocDetResponse.getAddressCity();
+    	editLocDetResponse.getAddressState();
+    	editLocDetResponse.getAddressStreet();
+    	editLocDetResponse.getConceptId();
+    	editLocDetResponse.getCreatedBy();
+    	editLocDetResponse.getCreatedDateTime();
+    	editLocDetResponse.getDivisionId();
+    	editLocDetResponse.getEmail();
+    	editLocDetResponse.getFax();
+    	editLocDetResponse.getLastModifiedBy();
+    	editLocDetResponse.getLastModifiedDatetime();
+    	editLocDetResponse.getLocationDesc();
+    	editLocDetResponse.getLocationId();
+    	editLocDetResponse.getPhone();
+    	editLocDetResponse.getRegionId();
+    	editLocDetResponse.getRestaurantNumber();
+    	editLocDetResponse.getZipCode();
+    	assertNotNull(editLocDetResponse);
+	}
+    
+    @Test
+    void CapacityTemplateNamesTest() {
+    	CapacityTemplateNames capacityTemplateNames = new CapacityTemplateNames();
+    	capacityTemplateNames.setTemplateId("1");
+    	capacityTemplateNames.setTemplateName("name");
+    	capacityTemplateNames.getTemplateId();
+    	capacityTemplateNames.getTemplateName();
+    	assertNotNull(capacityTemplateNames);
+    }
+    
+    @Test
+    void ListOfCapacityTemplateIdsTest() {
+    	ListOfCapacityTemplateIds listOfCapacityTemplateIds = new ListOfCapacityTemplateIds();
+    	Set<BigInteger> ids = new HashSet<>();
+    	ids.add(BigInteger.ONE);
+    	ids.add(BigInteger.TEN);
+    	listOfCapacityTemplateIds.setTemplateIdList(ids);
+    	listOfCapacityTemplateIds.getTemplateIdList();
+    	assertNotNull(listOfCapacityTemplateIds);
+    }
+    
+    @Test
+    void deleteTemplateModelRequestTest() {
+    	DeleteModelTemplateRequest deleteModelTemplateRequest = new DeleteModelTemplateRequest("1","Y");
+    	deleteModelTemplateRequest.getModelId();
+    	deleteModelTemplateRequest.getDeleteConfirmed();
+    	assertNotNull(deleteModelTemplateRequest);
+    }
+    
+    @Test
+    void ListOfModelResponseTest() {
+    	CapacityModel capacityModel = new CapacityModel();
+    	Set<BigInteger> ids = new HashSet<>();
+    	ids.add(BigInteger.ONE);
+    	ids.add(BigInteger.TEN);
+    	capacityModel.setCapacityModelId(BigInteger.ONE);
+    	capacityModel.setCapacityModelName("name");
+    	
+    	BusinessDate businessDate = new BusinessDate();
+    	businessDate.setDate(null);
+    	List<BusinessDate> businessDateList = new ArrayList<>();
+    	businessDateList.add(businessDate);
+    	CapacityTemplate capacityTemplate = new CapacityTemplate();
+    	capacityTemplate.setBusinessDate(businessDateList);
+    	capacityTemplate.setCapacityTemplateId(null);
+    	capacityTemplate.setCapacityTemplateType(null);
+    	capacityTemplate.setChannels(null);
+    	capacityTemplate.setCreatedBy(null);
+    	capacityTemplate.setCreatedDatetime(null);
+    	capacityTemplate.setEffectiveDate(null);
+    	capacityTemplate.setExpiryDate(null);
+    	capacityTemplate.setFriDay(null);
+    	capacityTemplate.setFriDay(null);
+    	capacityTemplate.setLastModifiedBy(null);
+    	capacityTemplate.setLastModifiedDatetime(null);
+    	capacityTemplate.setMonDay(null);
+    	capacityTemplate.setSatDay(null);
+    	capacityTemplate.setSlotChannels(null);
+    	capacityTemplate.setSlotEndTime(null);
+    	capacityTemplate.setSlotStartTime(null);
+    	capacityTemplate.setSunDay(null);
+    	capacityTemplate.setTemplateName(null);
+    	capacityTemplate.setThuDay(null);
+    	capacityTemplate.setTueDay(null);
+    	capacityTemplate.setWedDay(null);
+    	
+    	capacityTemplate.getBusinessDate();
+    	capacityTemplate.getCapacityTemplateId();
+    	capacityTemplate.getCapacityTemplateType();
+    	capacityTemplate.getChannels();
+    	capacityTemplate.getCreatedBy();
+    	capacityTemplate.getCreatedDatetime();
+    	capacityTemplate.getEffectiveDate();
+    	capacityTemplate.getEffectiveDate();
+    	capacityTemplate.getExpiryDate();
+    	capacityTemplate.getFriDay();
+    	capacityTemplate.getLastModifiedBy();
+    	capacityTemplate.getLastModifiedDatetime();
+    	capacityTemplate.getMonDay();
+    	capacityTemplate.getSatDay();
+    	capacityTemplate.getSlotChannels();
+    	capacityTemplate.getSlotEndTime();
+    	capacityTemplate.getSlotStartTime();
+    	capacityTemplate.getSunDay();
+    	capacityTemplate.getTemplateName();
+    	capacityTemplate.getThuDay();
+    	capacityTemplate.getTueDay();
+    	capacityTemplate.getWedDay();
+    	
+    	List<CapacityTemplate> capacityTemplateList = new ArrayList<>();
+    	capacityModel.setCapacityTemplateList(capacityTemplateList);
+    	capacityModel.setCreatedBy("Ak");
+    	capacityModel.setCreatedDateTime(null);
+    	capacityModel.setIsDeletedFlg("y");
+    	capacityModel.setLastModifiedBy("Ak");
+    	capacityModel.setLastModifiedDateTime(null);
+    	capacityModel.setRestaurants(ids);
+    	
+    	capacityModel.getCapacityModelId();
+    	capacityModel.getCapacityModelName();
+    	capacityModel.getCapacityTemplateList();
+    	capacityModel.getCreatedBy();
+    	capacityModel.getCreatedDateTime();
+    	capacityModel.getIsDeletedFlg();
+    	capacityModel.getLastModifiedBy();
+    	capacityModel.getLastModifiedDateTime();
+    	capacityModel.getRestaurants();
+    	
+    	List<CapacityModel> capacityModelList = new ArrayList<>();
+    	capacityModelList.add(capacityModel);
+    	ListOfModelResponse listOfModelResponse = new ListOfModelResponse(capacityModelList);
+    	listOfModelResponse.getCorrelationId();
+    	listOfModelResponse.getModelList();
+    	listOfModelResponse.getStatus();
+    	listOfModelResponse.getTitle();
+    	assertNotNull(listOfModelResponse);
+    }
 }
