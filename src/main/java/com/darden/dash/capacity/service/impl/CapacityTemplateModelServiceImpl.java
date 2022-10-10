@@ -143,12 +143,30 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		List<Locations> restaurantList = validatingLocationRestCall();
 		List<CapacityModel> modelResponseList = new ArrayList<>();
 		
+		List<OrderTemplate> orderTemplates = orderClient.getAllOrderTemplates();
+		
 		//Iterating list of entity class.
 		modelEntityList.stream()
 			.forEach(mel -> {
 				
+			List<BigInteger> restaurantNumberViaOrderTemplate = new ArrayList<>();
+			//iterating through the order templates.
+			orderTemplates
+			.stream()
+			.filter(orderTemplate->
+				orderTemplate.getOrderLists()
+				.stream()
+				//Checks for list type string with capacity model list and with matching capacity template id.
+				.anyMatch(list->list.getListType().equalsIgnoreCase(CapacityConstants.ORDER_TEMPLATE_TYPE)
+						&& list.getListId().equals(mel.getCapacityModelId()))
+				)
+			.forEach(loc -> loc.getLocations()
+					.stream()
+					.filter(restNbr -> !restaurantNumberViaOrderTemplate.contains(restNbr.getRestaurantNumber()))
+					.forEach(restNbr -> restaurantNumberViaOrderTemplate.add(restNbr.getRestaurantNumber())));
+				
 			//Mapping entity data to model class.
-			CapacityModel model = capacityModelMapper.mapToCapacityModel(mel, restaurantList);
+			CapacityModel model = capacityModelMapper.mapToCapacityModel(mel, restaurantList, restaurantNumberViaOrderTemplate);
 			
 			//adding to list.
 			modelResponseList.add(model);
@@ -936,7 +954,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 					orderTemplate.getOrderLists()
 					.stream()
 					//Checks for list type string with capacity model list.
-					.anyMatch(list->list.getListType().equals(CapacityConstants.ORDER_TEMPLATE_TYPE)))
+					.anyMatch(list->list.getListType().equalsIgnoreCase(CapacityConstants.ORDER_TEMPLATE_TYPE)))
 					.filter(orderTemplate->
 							orderTemplate.getOrderLists()
 							.stream()

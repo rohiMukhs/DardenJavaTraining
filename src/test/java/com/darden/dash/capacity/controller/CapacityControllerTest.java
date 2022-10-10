@@ -400,7 +400,6 @@ public class CapacityControllerTest {
 		mr.setCapacityTemplateList(templateName);
 		Set<BigInteger> locN = new HashSet<>();
 		locN.add(new BigInteger("1"));
-		mr.setRestaurants(locN);
 		mr.setCreatedBy("name");
 		mr.setCreatedDateTime(Instant.now());
 		mr.setIsDeletedFlg("N");

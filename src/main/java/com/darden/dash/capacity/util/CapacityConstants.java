@@ -302,7 +302,7 @@ public class CapacityConstants {
 	
 	public static final String CAPACITY_MODEL_LIST = "/capacity-model-list/{templateId}";
 	public static final String CAPACITY_MODEL_READY_FOR_DELETE = " ready for delete";
-	public static final String ORDER_TEMPLATE_TYPE = "CAPACITY MODEL LIST";
+	public static final String ORDER_TEMPLATE_TYPE = "Capacity Model List";
 	public static final String RESTAURANT_LIST = "restaurant list";
 	public static final String ORDER_TEMPLATE = "order template";
 	
@@ -349,6 +349,7 @@ public class CapacityConstants {
 	public static final String CAPACITY_CHANNELS_PATH = "/capacity-channels";
 	public static final String CAPACITY_CHANNELS_LOADED_SUCCESSFULLY = "Capacity channels loaded successfully";
 	public static final String FAILED_TO_ADD_DATA_TO_AUDIT = "failed to add data to audit";
+	public static final String IS_CAPACITY_MODEL_DATA_REQ_FALSE = "?isCapacityModelDataReq=false";
 	
 	private CapacityConstants() {
 

@@ -18,5 +18,5 @@ public class OrderTemplate {
     private String orderTemplateName;
     private BigInteger conceptId;
     private List<OrderList> orderLists;
-	
+    private List<Locations> locations;
 }
