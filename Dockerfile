@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM openjdk:20
 ARG ARGENVRMNT="dev"
 ARG Version="0.0.1-SNAPSHOT"
 ENV TAG=$Version
