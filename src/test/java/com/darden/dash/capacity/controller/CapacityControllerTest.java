@@ -431,7 +431,7 @@ public class CapacityControllerTest {
 		l.getLocationDescription();
 		l.getLastModifiedDateTime();
 		l.getRegion();
-		Mockito.when(capacityTemplateModelService.getAllCapacityModels()).thenReturn(modelList);
+		Mockito.when(capacityTemplateModelService.getAllCapacityModels(Mockito.anyString())).thenReturn(modelList);
 		Mockito.when(locationClient.getAllRestaurants()).thenReturn(locationList);
 		mockMvc.perform(get("/api/v1/capacity-models/").headers(getHeaders())).andExpect(status().isOk())
 		.andExpect(result -> result.getResponse());

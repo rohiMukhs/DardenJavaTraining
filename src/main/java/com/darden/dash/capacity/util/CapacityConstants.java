@@ -351,6 +351,9 @@ public class CapacityConstants {
 	public static final String FAILED_TO_ADD_DATA_TO_AUDIT = "failed to add data to audit";
 	public static final String IS_CAPACITY_MODEL_DATA_REQ_FALSE = "?isCapacityModelDataReq=false";
 	
+	public static final String CHANNEL_WAS_UPDATED = "Channel was updated";
+	public static final String CONCEPT_ID_CACHE_KEY = "#conceptId";
+	
 	private CapacityConstants() {
 
 	}

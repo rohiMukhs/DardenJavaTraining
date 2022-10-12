@@ -200,7 +200,7 @@ class CapacityModelServiceImplTest {
 		Mockito.when(orderClient.getAllOrderTemplates()).thenReturn(OrderTemplateList);
 		Mockito.when(capacityModelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn(modelEntityList);
 		Mockito.when(locationClient.getAllRestaurants()).thenReturn(locations);
-		List<CapacityModel> res = capacityTemplateModelServiceImpl.getAllCapacityModels();
+		List<CapacityModel> res = capacityTemplateModelServiceImpl.getAllCapacityModels("1");
 		assertNotNull(res);
 	}
 	
