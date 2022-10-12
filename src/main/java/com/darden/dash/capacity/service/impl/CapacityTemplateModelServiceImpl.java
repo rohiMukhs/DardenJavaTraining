@@ -132,12 +132,12 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 *         capacity models.
 	 */
 	@Override
-	@Cacheable(value = CapacityConstants.CAPACITY_MODEL_CACHE)
-	public List<CapacityModel> getAllCapacityModels() {
+	@Cacheable(value = CapacityConstants.CAPACITY_MODEL_CACHE, key = CapacityConstants.CONCEPT_ID_CACHE_KEY)
+	public List<CapacityModel> getAllCapacityModels(String conceptId) {
 		
 		//Fetching the list of capacity model entity within the concept.
 		List<CapacityModelEntity> modelEntityList = capacityModelRepository
-				.findByConceptIdAndIsDeletedFlg(new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findByConceptIdAndIsDeletedFlg(new BigInteger(conceptId), CapacityConstants.N);
 		
 		//validating location call response.
 		List<Locations> restaurantList = validatingLocationRestCall();
@@ -181,20 +181,10 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	private List<Locations> validatingLocationRestCall() {
 		List<Locations> restaurantList =  null;
-		ApplicationErrors applicationErrors = new ApplicationErrors();
-		int i = 0;
-		do {
-			//Calling location micro service to get all restaurant detail.
-			restaurantList = locationClient.getAllRestaurants();
-			i++;
-		}
-		while(restaurantList.isEmpty() && i < 3);
 		
-		//If restaurant list is empty raising exception.
-		if(restaurantList.isEmpty()) {
-			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012), CapacityConstants.LOCATION_CONNECTION);
-			applicationErrors.raiseExceptionIfHasErrors();
-		}
+		//Calling location micro service to get all restaurant detail.
+		restaurantList = locationClient.getAllRestaurants();
+		
 		return restaurantList;
 	}
 

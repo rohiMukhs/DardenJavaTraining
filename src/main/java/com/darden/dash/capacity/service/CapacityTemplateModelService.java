@@ -29,7 +29,7 @@ public interface CapacityTemplateModelService {
 	 * @return List<CapacityModel> list of model class containing the value 
 	 * of capacity models.
 	 */
-	public List<CapacityModel> getAllCapacityModels();
+	public List<CapacityModel> getAllCapacityModels(String conceptId);
 	
 	/**
 	 * This service method is used to create capacity model based on the 
