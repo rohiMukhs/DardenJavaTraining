@@ -78,8 +78,8 @@ public interface CapacityModelMapper {
 					})
 		);
 		RestaurantDetail restaurants = new RestaurantDetail();
-		restaurants.setViaTemplate(restaurantNumberList);
-		restaurants.setViaOverride(restaurantNumberViaOrderTemplate);
+		restaurants.setViaTemplate(restaurantNumberViaOrderTemplate);
+		restaurants.setViaOverride(restaurantNumberList);
 		restaurantNumberList.addAll(restaurantNumberViaOrderTemplate);
 		restaurants.setRestaurantCount(restaurantNumberList.size());
 		model.setRestaurants(restaurants);
