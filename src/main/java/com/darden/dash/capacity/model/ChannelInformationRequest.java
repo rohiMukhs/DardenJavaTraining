@@ -33,7 +33,7 @@ public class ChannelInformationRequest {
 	
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Pattern(regexp = CommonConstants.PATTERN_BEFORE_AFTER_SPACE, message = ErrorCodeConstants.EC_4014)
-	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS, message = ErrorCodeConstants.EC_4003)
+	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_GLOBAL_SPL_CHARACTERS, message = ErrorCodeConstants.EC_4003)
 	@Schema(example = CapacityConstants.POSNAME)
 	private String posName;
 

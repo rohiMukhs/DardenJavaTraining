@@ -224,7 +224,7 @@ public class CapacityConstants {
 	
 	public static final String PATTERN_CHAR_Y_AND_CHAR_N = "^[YN]$";
 	
-	public static final String CHANNEL_UPDATED = "Channel updated successfully";
+	public static final String CHANNEL_UPDATED = "Channel was updated";
 	
 	public static final String CAPACITYCHANNELID = "capacityChannelId";
 	
@@ -353,6 +353,7 @@ public class CapacityConstants {
 	
 	public static final String CHANNEL_WAS_UPDATED = "Channel was updated";
 	public static final String CONCEPT_ID_CACHE_KEY = "#conceptId";
+	public static final String PATTERN_ALPHANUMERIC_GLOBAL_SPL_CHARACTERS = "^[a-zA-Z0-9- @ # $ ! & _ . * ( ) + , < > / ? % s]*+$";
 	
 	private CapacityConstants() {
 
