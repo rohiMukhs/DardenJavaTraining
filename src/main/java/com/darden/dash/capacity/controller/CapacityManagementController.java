@@ -144,7 +144,7 @@ public class CapacityManagementController {
 	 */
 	@PostMapping(value = CapacityConstants.CAPACITY_TEMPLATES ,produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CHANNEL_WAS_UPDATED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CreateCapacityTemplateResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CreateCapacityTemplateResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
 	public ResponseEntity<Object> createCapacityTemplate(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,@RequestBody CreateCapacityTemplateRequest createCapacityTemplateRequest,
@@ -154,7 +154,7 @@ public class CapacityManagementController {
 		
 		capacityValidator.validate(createCapacityTemplateRequest, OperationConstants.OPERATION_CREATE.getCode());
 		
-		return new CreateCapacityTemplateResponse(capacityManagementService.createTemplate(createCapacityTemplateRequest, accessToken)).build(CapacityConstants.CHANNEL_WAS_UPDATED, CapacityConstants.STATUS_CODE_INT_201);
+		return new CreateCapacityTemplateResponse(capacityManagementService.createTemplate(createCapacityTemplateRequest, accessToken)).build(CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_INT_201);
 		
 	}
 	
@@ -183,7 +183,7 @@ public class CapacityManagementController {
 	 */
 	@PutMapping(value = CapacityConstants.COMBINED_CHANNELS , produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EditChannelResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.CHANNEL_UPDATED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EditChannelResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
 	public ResponseEntity<Object> editChannelInformation(@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
