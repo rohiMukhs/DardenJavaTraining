@@ -80,8 +80,10 @@ public interface CapacityModelMapper {
 		RestaurantDetail restaurants = new RestaurantDetail();
 		restaurants.setViaTemplate(restaurantNumberViaOrderTemplate);
 		restaurants.setViaOverride(restaurantNumberList);
-		restaurantNumberList.addAll(restaurantNumberViaOrderTemplate);
-		restaurants.setRestaurantCount(restaurantNumberList.size());
+		List<BigInteger> rCount = new ArrayList<>();
+        rCount.addAll(restaurantNumberViaOrderTemplate);
+        rCount.addAll(restaurantNumberList);
+		restaurants.setRestaurantCount(rCount.size());
 		model.setRestaurants(restaurants);
 		model.setIsDeletedFlg(mel.getIsDeletedFlg());
 		model.setCreatedBy(mel.getCreatedBy());
