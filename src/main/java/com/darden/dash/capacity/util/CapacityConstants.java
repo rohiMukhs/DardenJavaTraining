@@ -126,7 +126,7 @@ public class CapacityConstants {
 	
 	public static final String SLASH = "/";
 
-	public static final String CAPACITYMANAGEMENT_CROSS_ORIGIN = "${capacitymanagement.cross.origin}";
+	public static final String CAPACITYMANAGEMENT_CROSS_ORIGIN = "${cross.origin}";
 
 	public static final String MAPPER_COMBINED_CHANNELS = "combinedChannels";
 
