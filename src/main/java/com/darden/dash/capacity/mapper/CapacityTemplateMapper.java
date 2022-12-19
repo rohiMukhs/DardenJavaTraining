@@ -116,7 +116,6 @@ public interface CapacityTemplateMapper {
 		CapacityTemplateEntity templateEntity = new CapacityTemplateEntity();
 		templateEntity.setCapacityTemplateNm(templateRequest.getCapacityTemplateName());
 		templateEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
-		templateEntity.setIsDeletedFlg(CapacityConstants.N);
 		templateEntity.setCreatedBy(createdBy);
 		templateEntity.setCreatedDatetime(dateTime);
 		templateEntity.setLastModifiedBy(createdBy);
@@ -205,7 +204,6 @@ public interface CapacityTemplateMapper {
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacitySlotEntity slotEntity = new CapacitySlotEntity();
 		slotEntity.setCapacityTemplate(createdTemplateEntity);
-		slotEntity.setIsDeletedFlg(CapacityConstants.N);
 		slotEntity.setCreatedBy(createdBy);
 		slotEntity.setCreatedDatetime(dateTime);
 		slotEntity.setLastModifiedBy(createdBy);
@@ -303,7 +301,6 @@ public interface CapacityTemplateMapper {
 		responseSlot.setStartTime(savedSlot.getStartTime().toString());
 		responseSlot.setSlotId(savedSlot.getCapacitySlotId());
 		responseSlot.setSlotTypeId(s.getSlotTypeId());
-		responseSlot.setIsDeletedFlg(savedSlot.getIsDeletedFlg());
 		return responseSlot;
 	}
 	
@@ -322,7 +319,6 @@ public interface CapacityTemplateMapper {
 		createTemplateResponse.setCapacityTemplateId(createdTemplateEntity.getCapacityTemplateId());
 		createTemplateResponse.setCapacityTemplateName(createdTemplateEntity.getCapacityTemplateNm());
 		createTemplateResponse.setConceptId(createdTemplateEntity.getConceptId());
-		createTemplateResponse.setIsDeletedFlag(createdTemplateEntity.getIsDeletedFlg());
 		if(createdTemplateEntity.getExpiryDate() != null) {
 			createTemplateResponse.setExpiryDate(createdTemplateEntity.getExpiryDate().toString());
 			createTemplateResponse.setEffectiveDate(createdTemplateEntity.getEffectiveDate().toString());
@@ -357,7 +353,6 @@ public interface CapacityTemplateMapper {
 		slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
 		slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
 		slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
-		slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
 		slotDetail.setCapacityCount(cs.getCapacityCnt());
 		return slotDetail;
 	}
@@ -468,7 +463,6 @@ public interface CapacityTemplateMapper {
 		capacitySlotEntity.setCreatedDatetime(dateTime);
 		capacitySlotEntity.setLastModifiedBy(createdBy);
 		capacitySlotEntity.setLastModifiedDatetime(dateTime);
-		capacitySlotEntity.setIsDeletedFlg(CapacityConstants.N);
 		capacitySlotEntity.setCapacityTemplate(existingTemplate);
 		capacitySlotEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
 		reference.ifPresent(capacitySlotEntity::setReference);
@@ -547,7 +541,6 @@ public interface CapacityTemplateMapper {
 			slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
 			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
 			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
-			slotDetail.setIsDeletedFlg(cs.getIsDeletedFlg());
 			slotDetail.setCapacityCount(cs.getCapacityCnt());
 			channelSlotDetails.put(String.valueOf(cs.getCapacityChannel().getCapacityChannelId()), slotDetail);
 		});

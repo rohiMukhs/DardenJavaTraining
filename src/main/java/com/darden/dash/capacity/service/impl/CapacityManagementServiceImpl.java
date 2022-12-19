@@ -179,10 +179,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	@Cacheable(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key= CapacityConstants.COMBINE_CAPACITY_TEMPLATE_CACHE_KEY)
 	public CapacityResponse getAllCapacityTemplates(Boolean isRefDataReq, String conceptId ) {
 		BigInteger concepId = new BigInteger(conceptId);
-		
-		//fetching the list of capacity template entities within the concept.
-		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo
-				.findByConceptIdAndIsDeletedFlg(concepId, CapacityConstants.N);
+
+		// fetching the list of capacity template entities within the concept.
+		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo.findByConceptId(concepId);
 		List<CapacityTemplate> capacityTemplates = new ArrayList<>();
 		capacityTemplateEntities.stream().filter(Objects::nonNull).forEach(capacityTemplateEntity -> {
 			
@@ -441,9 +440,9 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 
 	@Override
 	public boolean validateCapacityTemplateNm(String capacityTemplateNm) {
-		//fetching the any duplicates for capacity template name within the concept
+		// fetching the any duplicates for capacity template name within the concept
 		CapacityTemplateEntity capacityTemplateEntity = capacityTemplateRepo
-				.findByCapacityTemplateNmAndConceptIdAndIsDeletedFlg(capacityTemplateNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findByCapacityTemplateNmAndConceptId(capacityTemplateNm, new BigInteger(RequestContext.getConcept()));
 		return capacityTemplateEntity != null;
 	}
 	
@@ -478,53 +477,26 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	public String deleteByTemplateId(String templateId, String deleteConfirmed, String userDetail)
 			throws JsonProcessingException {
 		
-		ApplicationErrors applicationErrors = new ApplicationErrors();
-		
-		//Fetching appParameterEntity to perform hard delete or soft delete based on parameter value.
-		AppParameterEntity appParameterEntity = appParameterService
-				.findByParameterName(CapacityConstants.CAPACITY_SOFT_DELETE);
-		if (appParameterEntity == null) {
-			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_5000),
-					CapacityConstants.CAPACITY_CHANNEL_NM);
-			applicationErrors.raiseExceptionIfHasErrors();
-		}
-		
 		//Fetching capacity template entity based on the template id.
 		CapacityTemplateEntity capacityTemplateEntity = getByCapacityTemplateIdAndIsDeletedFlag(new BigInteger(templateId));
 		
 		//Performing delete operation if the value of deletedConfirmed is Y.
-		if(deleteConfirmed.equals(CapacityConstants.Y)) {
-			
-			//performing soft delete if parameter value is Y in appParameter entity.
-			if (appParameterEntity != null
-					&& CharacterConstants.Y.getCode().toString().equals(appParameterEntity.getParameterValue())) {
-				capacityTemplateEntity.setIsDeletedFlg(CapacityConstants.Y);
-				capacityTemplateEntity.setLastModifiedBy(userDetail);
-				capacityTemplateEntity.setLastModifiedDatetime(Instant.now());
-				
-				//saving the capacity template entity by setting isDeletedFlg as Y for soft delete.
-				capacityTemplateRepo.save(capacityTemplateEntity);
-				
-				//adding the action performed to audit table using audit service.
-				auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_SOFT, null, capacityTemplateEntity, userDetail);
+		if (deleteConfirmed.equals(CapacityConstants.Y)) {
+			// performing hard delete if parameter value is N in appParameter entity.
+			if (capacityTemplateEntity.getCapacityTemplateId() != null) {
+
+				// deleting all the relational data related to capacity template entity to be
+				// deleted.
+				capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+				capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+				capacitySlotRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
+
+				// deleting the capacity template entity by id for hard delete.
+				capacityTemplateRepo.deleteById(capacityTemplateEntity.getCapacityTemplateId());
 			}
-			
-			//performing hard delete if parameter value is N in appParameter entity.
-			else if (appParameterEntity != null
-					&& CharacterConstants.N.getCode().toString().equals(appParameterEntity.getParameterValue())) {
-				if(capacityTemplateEntity.getCapacityTemplateId() != null) {
-					
-					//deleting all the relational data related to capacity template entity to be deleted.
-					capacityTemplateAndBusinessDateRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-					capacityTemplateAndCapacityChannelRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-					capacitySlotRepository.deleteAllBycapacityTemplate(capacityTemplateEntity);
-					
-					//deleting the capacity template entity by id for hard delete.
-					capacityTemplateRepo.deleteById(capacityTemplateEntity.getCapacityTemplateId());
-				}
-				//adding the action performed to audit table using audit service.
-				auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_HARD, null, capacityTemplateEntity, userDetail);
-			}
+			// adding the action performed to audit table using audit service.
+			auditService.addAuditData(CapacityConstants.CAPACITY_TEMPLATE, AuditActionValues.DELETE_HARD, null,
+					capacityTemplateEntity, userDetail);
 		}
 		return capacityTemplateEntity.getCapacityTemplateNm();
 	}
@@ -551,7 +523,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		
 		//fetching the capacity template entity by template id within the concept.
 		Optional<CapacityTemplateEntity> dbTemplateEntityOptional = capacityTemplateRepo
-				.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(templateId, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findByCapacityTemplateIdAndConceptId(templateId, new BigInteger(RequestContext.getConcept()));
 		if(dbTemplateEntityOptional.isEmpty()) {
 			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
 					CapacityConstants.CAPACITY_TEMPLATE_NM);
@@ -581,7 +553,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		
 		//Fetching the CapacityTemplateEntity by template id within the concept.
         Optional<CapacityTemplateEntity> dbTemplateValue = capacityTemplateRepo
-        		.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(new BigInteger(templateId),  new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+        		.findByCapacityTemplateIdAndConceptId(new BigInteger(templateId),  new BigInteger(RequestContext.getConcept()));
         
         //Raising exception if no entity found.
          if(dbTemplateValue.isEmpty()) {
@@ -640,7 +612,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			
 			//Fetching the capacityTemplateEntity within the concept
 			Optional<CapacityTemplateEntity> template = capacityTemplateRepo
-					.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(new BigInteger(templateId), new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+					.findByCapacityTemplateIdAndConceptId(new BigInteger(templateId), new BigInteger(RequestContext.getConcept()));
 			
 			if (template.isPresent()) {
 				// Here checking the templateName against the templateId it means no

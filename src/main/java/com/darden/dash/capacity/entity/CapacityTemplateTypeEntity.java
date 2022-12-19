@@ -39,9 +39,6 @@ public class CapacityTemplateTypeEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.CAPACITY_TEMPLATE_TYPE_NM)
 	private String capacityTemplateTypeNm;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	//bi-directional many-to-one association to CapacityTemplate
 	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_TEMPLATE_TYPE3)

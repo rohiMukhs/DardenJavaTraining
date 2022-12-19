@@ -99,7 +99,6 @@ public interface CapacityChannelMapper {
 	default CapacityChannelEntity mapToChannelEntity(CreateCombineChannelRequest createCombinedChannelRequest, String userDetail, Instant dateTime) {
 		CapacityChannelEntity capacityChannel=new CapacityChannelEntity();
 		capacityChannel.setCapacityChannelNm(createCombinedChannelRequest.getCombinedChannelName());
-		capacityChannel.setIsDeletedFlg(CapacityConstants.N);
 		capacityChannel.setIsCombinedFlg(CapacityConstants.Y);
 		capacityChannel.setConceptId(new BigInteger(RequestContext.getConcept()));
 		capacityChannel.setPosName(createCombinedChannelRequest.getPosName());

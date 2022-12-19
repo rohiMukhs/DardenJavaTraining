@@ -120,7 +120,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		
 		//Fetching the list of capacity channel entities for list for channel ids within the concept.
 		List<CapacityChannelEntity> capacityChannelEntityList=capacityChannelRepository
-				.findAllByCapacityChannelIdInAndConceptIdAndIsDeletedFlg(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findAllByCapacityChannelIdInAndConceptId(allCapacityChannelIdList, new BigInteger(RequestContext.getConcept()));
 		
 		//Mapping the request data to capacityChannelEntityList.
 		capacityChannelMapper.mapToCapacityChannelEntityList(user, dateTime, editChannelsMap, capacityChannelEntityList);
@@ -177,8 +177,8 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	public boolean friendlyNmValidation(ChannelInformationRequest validateChannel) {
 		
 		//Fetching the CapacityChannelEntity for pos name within the concept.
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository
-				.findByPosNameAndConceptIdAndIsDeletedFlg(validateChannel.getPosName(), new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				CapacityChannelEntity capacityChannelEntity = capacityChannelRepository
+						.findByPosNameAndConceptId(validateChannel.getPosName(), new BigInteger(RequestContext.getConcept()));
 		
 		//condition to avoid self check.
 		if(capacityChannelEntity != null && capacityChannelEntity.getCapacityChannelId().equals(validateChannel.getCapacityChannelId()))
@@ -307,7 +307,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			
 			//Fetching the capacity channel for channel name within the concept.
 			Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository
-					.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(channleNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+					.findByCapacityChannelNmAndConceptId(channleNm, new BigInteger(RequestContext.getConcept()));
 			
 			//Validating if present in database.
 			capacityChannelFromDB = validateOptionalCapacityChannelEntity(applicationErrors, capacityChannelFromDB,
@@ -395,10 +395,10 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public boolean validateChannelNmValidation(String capacityChannelNm) {
-		
-		//Fetching the capacity channel for channel name within the concept.
+
+		// Fetching the capacity channel for channel name within the concept.
 		Optional<CapacityChannelEntity> optionalCapacityChannelEntity = capacityChannelRepository
-				.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(capacityChannelNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findByCapacityChannelNmAndConceptId(capacityChannelNm, new BigInteger(RequestContext.getConcept()));
 		return optionalCapacityChannelEntity.isPresent();
 	}
 
@@ -415,7 +415,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	public boolean validateChannelFriendlyNmValidation(String friendlyNm) {
 		
 		//Fetching the capacity channel entity for pos name within the concept.
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptIdAndIsDeletedFlg(friendlyNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository.findByPosNameAndConceptId(friendlyNm, new BigInteger(RequestContext.getConcept()));
 		return capacityChannelEntity != null;
 	}
 	
@@ -430,13 +430,13 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 */
 	@Override
 	public ReferenceDatum getReferenceData() {
-		
-		//Fetching the list of channel entities within the concept.
+
+		// Fetching the list of channel entities within the concept.
 		List<CapacityChannelEntity> channelEntities = capacityChannelRepository
-				.findByConceptIdAndIsDeletedFlg(new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findByConceptId(new BigInteger(RequestContext.getConcept()));
 		ReferenceDatum referenceDatum = new ReferenceDatum();
 		List<CapacityChannel> channels = new ArrayList<>();
-		
+
 		//iterating through channel entities.
 		channelEntities
 		.stream()
@@ -515,9 +515,9 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	@Override
 	public Set<Integer> validateBaseChannelCombindation(Set<String> channelsNames) {
 		
-		//fetching all the capacity channel entities within the concept.
+		// fetching all the capacity channel entities within the concept.
 		List<CapacityChannelEntity> channelList = capacityChannelRepository
-				.findByConceptIdAndIsDeletedFlg(new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findByConceptId(new BigInteger(RequestContext.getConcept()));
 		Set<Integer> value = new HashSet<>();
 		
 		//iterating through channel entity list.
