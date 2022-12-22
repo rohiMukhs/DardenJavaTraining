@@ -21,6 +21,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import com.darden.dash.capacity.client.LocationClient;
 import com.darden.dash.capacity.client.OrderClient;
@@ -137,7 +138,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		
 		//Fetching the list of capacity model entity within the concept.
 		List<CapacityModelEntity> modelEntityList = capacityModelRepository
-				.findByConceptIdAndIsDeletedFlg(new BigInteger(conceptId), CapacityConstants.N);
+				.findByConceptId(new BigInteger(conceptId));
 		
 		//validating location call response.
 		List<Locations> restaurantList = validatingLocationRestCall();
@@ -428,7 +429,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		
 		//Fetching the CapacityModelEntity by name within the concept id.
 		List<CapacityModelEntity> capacityModelEntity = capacityModelRepository
-				.findByCapacityModelNmAndConceptIdAndIsDeletedFlg(capacityModelNm, new BigInteger(RequestContext.getConcept()), CapacityConstants.N);
+				.findByCapacityModelNmAndConceptId(capacityModelNm, new BigInteger(RequestContext.getConcept()));
 		return CollectionUtils.isNotEmpty(capacityModelEntity);
 
 	}
@@ -679,7 +680,7 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		
 		//Fetching CapacityModelEntity for the model id within the concept.
 		Optional<CapacityModelEntity> dbModelEntityOptional = capacityModelRepository
-				.findByCapacityModelIdAndIsDeletedFlgAndConceptId(new BigInteger(modelId), CapacityConstants.N, new BigInteger(RequestContext.getConcept()));
+				.findByCapacityModelIdAndConceptId(new BigInteger(modelId), new BigInteger(RequestContext.getConcept()));
 		CapacityModelEntity dbModelEntity = new CapacityModelEntity();
 		
 		//if dbModelEntityOptional is present.
@@ -764,13 +765,14 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 	 */
 	@Override
 	public boolean validateModelTemplateNmForUpdate(String capacityModelNm, String id) {
-		
-		//Fetching CapacityModelEntity for capacity name within the concept.
-		Optional<CapacityModelEntity> capacityModelEntity = capacityModelRepository
+
+		// Fetching CapacityModelEntity for capacity name within the concept.
+		List<CapacityModelEntity> capacityModelEntity = capacityModelRepository
 				.findByCapacityModelNmAndConceptId(capacityModelNm, new BigInteger(RequestContext.getConcept()));
-		
-		//condition to avoid self check.
-		if(capacityModelEntity.isPresent() && capacityModelEntity.get().getIsDeletedFlg().equals(CapacityConstants.N) && capacityModelEntity.get().getCapacityModelId().equals(new BigInteger(id))) {
+
+		// condition to avoid self check.
+		if (!ObjectUtils.isEmpty(capacityModelEntity)
+				&& capacityModelEntity.get(0).getCapacityModelId().equals(new BigInteger(id))) {
 			return CapacityConstants.FALSE;
 		}
 		return !capacityModelEntity.isEmpty();

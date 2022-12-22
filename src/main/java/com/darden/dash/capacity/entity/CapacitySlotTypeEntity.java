@@ -39,9 +39,6 @@ public class CapacitySlotTypeEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.CAPACITY_SLOT_TYPE_NM)
 	private String capacitySlotTypeNm;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	//bi-directional many-to-one association to CapacitySlot
 	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_SLOT_TYPE2)

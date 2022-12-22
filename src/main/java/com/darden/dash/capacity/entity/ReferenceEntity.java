@@ -49,9 +49,6 @@ public class ReferenceEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.EFFECTIVE_START_DATETIME)
 	private Instant effectiveStartDatetime;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	@Column(name=CapacityConstants.REFERENCE_CD)
 	private String referenceCd;
 

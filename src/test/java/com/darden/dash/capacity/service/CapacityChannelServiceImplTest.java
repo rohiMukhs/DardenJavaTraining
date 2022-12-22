@@ -77,7 +77,6 @@ class CapacityChannelServiceImplTest {
 		channelEntity.setPosName("fname");
 		channelEntity.setInterval(4);
 		channelEntity.setIsCombinedFlg("N");
-		channelEntity.setIsDeletedFlg("N");
 		channelEntity.setLastModifiedBy("cc");
 		channelEntity.setLastModifiedDatetime(Instant.now());
 		channelEntity.setOperationalHoursEndTime(Time.valueOf("10:20:20"));
@@ -126,7 +125,7 @@ class CapacityChannelServiceImplTest {
 		RequestContext.setConcept("1");
 		
 		Mockito.when(capacityChannelRepository
-				.findAllByCapacityChannelIdInAndConceptIdAndIsDeletedFlg(Mockito.anyList(), Mockito.any(), Mockito.any()))
+				.findAllByCapacityChannelIdInAndConceptId(Mockito.anyList(), Mockito.any()))
 				.thenReturn(channelList);
 		Mockito.when(capacityChannelRepository.saveAll(Mockito.anyList())).thenReturn(editedList);
 		
@@ -146,7 +145,7 @@ class CapacityChannelServiceImplTest {
 		request.setOperationHourEndTime("30:30:30");
 		RequestContext.setConcept("1");
 		Mockito.when(capacityChannelRepository
-				.findByPosNameAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.findByPosNameAndConceptId(Mockito.anyString(), Mockito.any()))
 				.thenReturn(channelEntity);
 		boolean res = capacityChannelServiceImpl.friendlyNmValidation(request);
 		assertEquals(true, res);
@@ -182,7 +181,7 @@ class CapacityChannelServiceImplTest {
 		request.setInterval(1);
 		Mockito.when(capacityChannelRepository.save(Mockito.any())).thenReturn(channelEntity);
 		Mockito.when(capacityChannelRepository
-				.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.findByCapacityChannelNmAndConceptId(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Optional.of(channel));
 		Mockito.when(capacityChannelAndCombinedChannelRepository.saveAll(Mockito.anyIterable())).thenReturn(list);
 		CombineChannel res = capacityChannelServiceImpl.addCombinedChannel(request, "aaa");
@@ -192,7 +191,7 @@ class CapacityChannelServiceImplTest {
 	@Test
 	void testValidateChannelNmValidation() {
 		Mockito.when(capacityChannelRepository
-				.findByCapacityChannelNmAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.findByCapacityChannelNmAndConceptId(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Optional.of(channelEntity));
 		boolean res = capacityChannelServiceImpl.validateChannelNmValidation("ch");
 		assertEquals(true, res);
@@ -201,7 +200,7 @@ class CapacityChannelServiceImplTest {
 	@Test
 	void testValidateChannelFriendlyNmValidation() {
 		Mockito.when(capacityChannelRepository
-				.findByPosNameAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.any()))
+				.findByPosNameAndConceptId(Mockito.anyString(), Mockito.any()))
 				.thenReturn(channelEntity);
 		boolean res = capacityChannelServiceImpl.validateChannelFriendlyNmValidation("a");
 		assertEquals(true, res);
@@ -209,14 +208,14 @@ class CapacityChannelServiceImplTest {
 	
 	@Test
 	void testGetReferenceData() {
-		Mockito.when(capacityChannelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn(channelList);
+		Mockito.when(capacityChannelRepository.findByConceptId(Mockito.any())).thenReturn(channelList);
 		ReferenceDatum res =  capacityChannelServiceImpl.getReferenceData();
 		assertNotNull(res);
 	}
 	
 	@Test
 	void testValidationOfCombinationOfChannel() {
-		Mockito.when(capacityChannelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.anyString())).thenReturn(channelList);
+		Mockito.when(capacityChannelRepository.findByConceptId(Mockito.any())).thenReturn(channelList);
 		Mockito.when(capacityChannelAndCombinedChannelRepository.findByCapacityChannel2(Mockito.any())).thenReturn(combinChannelList);
 		Set<String> name = new HashSet<>();
 		name.add("channelnm");
