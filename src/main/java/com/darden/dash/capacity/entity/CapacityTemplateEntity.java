@@ -59,9 +59,6 @@ public class CapacityTemplateEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.FRI_FLG)
 	private String friFlg;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	@Column(name=CapacityConstants.MON_FLG)
 	private String monFlg;
 

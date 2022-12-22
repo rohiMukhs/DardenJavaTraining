@@ -43,9 +43,6 @@ public class CapacitySlotEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.END_TIME)
 	private LocalTime endTime;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	@Column(name=CapacityConstants.START_TIME)
 	private LocalTime startTime;
 	

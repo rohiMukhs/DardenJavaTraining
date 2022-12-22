@@ -1,8 +1,6 @@
 package com.darden.dash.capacity.service;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
@@ -142,7 +140,7 @@ class CapacityServiceImplTest {
 		entity.setLastModifiedBy("uouo");
 		entity.setLastModifiedDatetime(Instant.now());
 		list.add(entity);
-		lenient().when(capacityTemplateRepo.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn((getAllCapacityTemplates()));
+		lenient().when(capacityTemplateRepo.findByConceptId(Mockito.any())).thenReturn((getAllCapacityTemplates()));
 		lenient().when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
 		lenient().when(capacityChannelService.getReferenceData()).thenReturn(new ReferenceDatum());
 		CapacityResponse res = capacityManagementServiceImpl.getAllCapacityTemplates(false, "1");
@@ -209,7 +207,6 @@ class CapacityServiceImplTest {
 		capacitySlotEntity.setEndTime(java.time.LocalTime.parse("11:46:55"));
 		capacitySlotEntity.setCapacitySlotType(getCapacitySlotType());
 		capacitySlotEntity.setCapacityChannel(getCapacityChannel());
-		capacitySlotEntity.setIsDeletedFlg("N");
 		capacitySlotEntities.add(capacitySlotEntity);
 		return capacitySlotEntities;
 	}
@@ -304,7 +301,6 @@ class CapacityServiceImplTest {
 		capacitySlotEntity.setEndTime(java.time.LocalTime.parse("11:46:55"));
 		capacitySlotEntity.setCapacitySlotType(getCapacitySlotType());
 		capacitySlotEntity.setCapacityChannel(getCapacityChannel());
-		capacitySlotEntity.setIsDeletedFlg("N");
 
 		CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = new CapacityTemplateAndCapacityChannelEntity();
 		CapacityTemplateAndCapacityChannelPK id = new CapacityTemplateAndCapacityChannelPK();
@@ -325,7 +321,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -352,13 +347,11 @@ class CapacityServiceImplTest {
 		request.setSunDay("Y");
 		request.setSlotStartTime("01:02");
 		request.setSlotEndTime("02:09");
-		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
 
 		CapacityTemplateTypeEntity type = new CapacityTemplateTypeEntity();
 		type.setCapacityTemplateTypeId(new BigInteger("1"));
 		type.setCapacityTemplateTypeNm("Days");
-		type.setIsDeletedFlg("N");
 
 		RequestContext.setConcept("1");
 
@@ -399,46 +392,15 @@ class CapacityServiceImplTest {
 		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
 
 		Mockito.when(capacityTemplateRepo
-				.findByCapacityTemplateNmAndConceptIdAndIsDeletedFlg(Mockito.anyString(), Mockito.any(), Mockito.anyString()))
+				.findByCapacityTemplateNmAndConceptId(Mockito.anyString(), Mockito.any()))
 				.thenReturn(capacityTemplateEntity);
 		boolean res = capacityManagementServiceImpl.validateCapacityTemplateNm("Lorum Ipsum");
 		assertEquals(true, res);
 	}
 
-	@Test
-	void shouldSoftCapacityTemplate() throws Exception {
-		AppParameterEntity appParameterEntitynew = new AppParameterEntity().toBuilder().id(1)
-				.parameterName("CAPACITY_SOFT_DELETE").parameterLevel("enterprise").parameterValue("Y")
-				.parameterDesc("Y=soft delete , N=Hard Delete").parameterValue("Y").createdBy("aaa")
-				.createdDate(Instant.now()).modifiedBy("bbbb").modifiedDate(Instant.now()).build();
-		Mockito.when(appParameterService.findByParameterName(Mockito.any())).thenReturn(appParameterEntitynew);
-		final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		CapacityTemplateEntity test = new CapacityTemplateEntity();
-		test.setCapacityTemplateId(new BigInteger("1"));
-		test.setCreatedBy("aa");
-		test.setCreatedDatetime(now);
-		test.setLastModifiedBy("bbb");
-		test.setLastModifiedDatetime(now);
-		test.setIsDeletedFlg("N");
-		test.setConceptId(new BigInteger("1"));
-
-		Mockito.when(
-				capacityTemplateRepo.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
-				.thenReturn(Optional.of(test));
-		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
-
-		assertEquals("Y", test.getIsDeletedFlg());
-
-	}
 
 	@Test
 	void shouldHardDeleteCapacityTemplate() throws Exception {
-		AppParameterEntity appParameterEntityHard = new AppParameterEntity().toBuilder().id(1)
-				.parameterName("MENU_SOFT_DELETE").parameterLevel("enterprise").parameterValue("N")
-				.parameterDesc("Y=soft delete , N=Hard Delete").parameterValue("N").createdBy("aaa")
-				.createdDate(Instant.now()).modifiedBy("aaa").modifiedDate(Instant.now()).build();
-
-		Mockito.when(appParameterService.findByParameterName(Mockito.any())).thenReturn(appParameterEntityHard);
 		final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacityTemplateEntity test = new CapacityTemplateEntity();
 		test.setCapacityTemplateId(new BigInteger("1"));
@@ -446,16 +408,12 @@ class CapacityServiceImplTest {
 		test.setCreatedDatetime(now);
 		test.setLastModifiedBy("bbb");
 		test.setLastModifiedDatetime(now);
-		test.setIsDeletedFlg("N");
 		test.setConceptId(new BigInteger("1"));
 		Mockito.lenient().doNothing().when(capacityTemplateRepo).deleteById(Mockito.any());
 		Mockito.when(
-				capacityTemplateRepo.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
+				capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(Mockito.any(), Mockito.any()))
 				.thenReturn(Optional.of(test));
 		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
-
-		assertEquals("N", test.getIsDeletedFlg());
-
 	}
 
 	@Test
@@ -467,7 +425,6 @@ class CapacityServiceImplTest {
 		test.setCreatedDatetime(Instant.now());
 		test.setLastModifiedBy("bbb");
 		test.setLastModifiedDatetime(Instant.now());
-		test.setIsDeletedFlg("N");
 		test.setConceptId(new BigInteger("1"));
 		CapacityModelEntity model = new CapacityModelEntity();
 		model.setCapacityModelId(new BigInteger("1"));
@@ -480,7 +437,7 @@ class CapacityServiceImplTest {
 		mAndT.setCapacityTemplate(test);
 		mAndT.setCapacityModel(model);
 		Mockito.when(capacityTemplateRepo
-				.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
+				.findByCapacityTemplateIdAndConceptId(Mockito.any(), Mockito.any()))
 				.thenReturn(Optional.of(test));
 		Mockito.lenient().doNothing().when(globalDataCall).raiseException(Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any());
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findByCapacityTemplate(test))
@@ -508,7 +465,7 @@ class CapacityServiceImplTest {
 		capacityTemplateEntity.setSunFlg("Y");
 		capacityTemplateEntity.setStartTime(java.time.LocalTime.parse("11:46:55"));
 		capacityTemplateEntity.setEndTime(java.time.LocalTime.parse("12:46:55"));
-		Mockito.when(capacityTemplateRepo.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.anyString())).thenReturn(Optional.of(capacityTemplateEntity));
+		Mockito.when(capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(Mockito.any(), Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		boolean res = capacityManagementServiceImpl.validateCapacityTemplateNmForCreate("aaa", "1");
 		assertEquals(false, res);
 	}
@@ -540,7 +497,6 @@ class CapacityServiceImplTest {
 		tType.setCapacityTemplateTypeNm("Dates");
 		tType.setCreatedBy("aa");
 		tType.setCreatedDatetime(Instant.now());
-		tType.setIsDeletedFlg("N");
 		tType.setLastModifiedBy("vv");
 		tType.setLastModifiedDatetime(Instant.now());
 
@@ -549,7 +505,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -574,7 +529,6 @@ class CapacityServiceImplTest {
 		request.setSunDay("Y");
 		request.setSlotStartTime("01:02");
 		request.setSlotEndTime("02:09");
-		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
 
 		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
@@ -620,7 +574,6 @@ class CapacityServiceImplTest {
 		tType.setCapacityTemplateTypeNm("Days");
 		tType.setCreatedBy("aa");
 		tType.setCreatedDatetime(Instant.now());
-		tType.setIsDeletedFlg("N");
 		tType.setLastModifiedBy("vv");
 		tType.setLastModifiedDatetime(Instant.now());
 
@@ -629,7 +582,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -654,7 +606,6 @@ class CapacityServiceImplTest {
 		request.setSunDay("Y");
 		request.setSlotStartTime("01:02");
 		request.setSlotEndTime("02:09");
-		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
 		request.setTemplateTypeName("Days");
 		CapacityChannelEntity capacityChannelEntity=new CapacityChannelEntity();
@@ -799,7 +750,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -825,7 +775,6 @@ class CapacityServiceImplTest {
 		request.setSunDay("Y");
 		request.setSlotStartTime("01:02");
 		request.setSlotEndTime("02:09");
-		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
 
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(list);
@@ -843,7 +792,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(4);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -1037,7 +985,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(4);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -1119,7 +1066,6 @@ class CapacityServiceImplTest {
 		capacitySlotEntity.setEndTime(java.time.LocalTime.parse("11:46:55"));
 		capacitySlotEntity.setCapacitySlotType(getCapacitySlotType());
 		capacitySlotEntity.setCapacityChannel(getCapacityChannel());
-		capacitySlotEntity.setIsDeletedFlg("N");
 
 		CapacityTemplateAndCapacityChannelEntity capacityTemplateAndCapacityChannelEntity = new CapacityTemplateAndCapacityChannelEntity();
 		CapacityTemplateAndCapacityChannelPK id = new CapacityTemplateAndCapacityChannelPK();
@@ -1140,7 +1086,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -1167,13 +1112,11 @@ class CapacityServiceImplTest {
 		request.setSunDay("Y");
 		request.setSlotStartTime("01:02");
 		request.setSlotEndTime("02:09");
-		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
 
 		CapacityTemplateTypeEntity type = new CapacityTemplateTypeEntity();
 		type.setCapacityTemplateTypeId(new BigInteger("1"));
 		type.setCapacityTemplateTypeNm("Dates");
-		type.setIsDeletedFlg("N");
 
 		RequestContext.setConcept("1");
 
@@ -1195,7 +1138,7 @@ class CapacityServiceImplTest {
 	@Test
 	void testValidateCapacityTemplateIdNegative() {
 		when(capacityTemplateRepo
-				.findByCapacityTemplateIdAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
+				.findByCapacityTemplateIdAndConceptId(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
 		try {
 			ApplicationErrors applicationErrors = new ApplicationErrors();
 			capacityManagementServiceImpl.validateCapacityTemplateId("1", applicationErrors);
@@ -1206,7 +1149,6 @@ class CapacityServiceImplTest {
 
 	@Test
 	void testDeleteByTemplateId() {
-		when(appParameterService.findByParameterName(Mockito.anyString())).thenReturn(null);
 		try {
 			capacityManagementServiceImpl.deleteByTemplateId("1", "1", "1");
 		} catch (Exception e) {
@@ -1247,7 +1189,6 @@ class CapacityServiceImplTest {
 		tType.setCapacityTemplateTypeNm("Datess");
 		tType.setCreatedBy("aa");
 		tType.setCreatedDatetime(Instant.now());
-		tType.setIsDeletedFlg("N");
 		tType.setLastModifiedBy("vv");
 		tType.setLastModifiedDatetime(Instant.now());
 
@@ -1256,7 +1197,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
@@ -1281,7 +1221,6 @@ class CapacityServiceImplTest {
 		request.setSunDay("Y");
 		request.setSlotStartTime("01:02");
 		request.setSlotEndTime("02:09");
-		request.setIsDeletedFlag("N");
 		request.setSlotChannels(slotList);
 		request.setTemplateTypeName("Dates");
 		BusinessDate businessDate=new BusinessDate();
@@ -1320,7 +1259,6 @@ class CapacityServiceImplTest {
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(4);
 		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
 		detail.setSlotId(new BigInteger("1"));
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");

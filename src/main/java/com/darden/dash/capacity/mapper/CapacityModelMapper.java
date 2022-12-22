@@ -85,7 +85,6 @@ public interface CapacityModelMapper {
         rCount.addAll(restaurantNumberList);
 		restaurants.setRestaurantCount(rCount.size());
 		model.setRestaurants(restaurants);
-		model.setIsDeletedFlg(mel.getIsDeletedFlg());
 		model.setCreatedBy(mel.getCreatedBy());
 		model.setCreatedDateTime(mel.getCreatedDatetime());
 		model.setLastModifiedBy(mel.getLastModifiedBy());
@@ -153,7 +152,6 @@ public interface CapacityModelMapper {
 		capacityModelEntity.setLastModifiedBy(createdBy);
 		capacityModelEntity.setLastModifiedDatetime(dateTime);
 		capacityModelEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
-		capacityModelEntity.setIsDeletedFlg(CapacityConstants.N);
 		return capacityModelEntity;
 	}
 	
@@ -194,7 +192,6 @@ public interface CapacityModelMapper {
 		capacityTemplateModel.setCreatedDateTime(responseEntity.getCreatedDatetime());
 		capacityTemplateModel.setLastModifiedBy(responseEntity.getLastModifiedBy());
 		capacityTemplateModel.setLastModifiedDateTime(responseEntity.getLastModifiedDatetime());
-		capacityTemplateModel.setIsDeletedFlg(responseEntity.getIsDeletedFlg());
 	}
 	
 	/**

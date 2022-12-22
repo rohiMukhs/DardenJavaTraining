@@ -88,7 +88,7 @@ class CapacityTemplateModelValidatorTest {
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		List<CapacityModelEntity> capacityModelEntityList1 = new ArrayList<>();
-		lenient().when(capacityModelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn(capacityModelEntityList1);
+		lenient().when(capacityModelRepository.findByConceptId(Mockito.any())).thenReturn(capacityModelEntityList1);
 		when(capacityTemplateModelService.validateModelTemplateNm(Mockito.any())).thenReturn(true);
 		try {
 			capacityTemplateModelValidator.validate(capacityModelRequest, OperationConstants.OPERATION_CREATE.getCode());
@@ -161,7 +161,7 @@ class CapacityTemplateModelValidatorTest {
 		capacityModelAndCapacityTemplateEntity.setCreatedBy("test");
 		capacityModelEntity.setCapacityModelAndCapacityTemplates(Collections.singletonList(capacityModelAndCapacityTemplateEntity));
 		capacityModelEntityList1.add(capacityModelEntity);
-		lenient().when(capacityModelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn(capacityModelEntityList1);
+		lenient().when(capacityModelRepository.findByConceptId(Mockito.any())).thenReturn(capacityModelEntityList1);
 		when(capacityTemplateModelService.validateModelTemplateNm(Mockito.any())).thenReturn(true);
 		try {
 			capacityTemplateModelValidator.validate(capacityModelRequest, OperationConstants.OPERATION_CREATE.getCode());
@@ -240,6 +240,4 @@ class CapacityTemplateModelValidatorTest {
 		}
 	}
 
-}
-
-
+}	

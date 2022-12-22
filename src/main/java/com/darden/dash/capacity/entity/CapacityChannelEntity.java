@@ -54,9 +54,6 @@ public class CapacityChannelEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.IS_COMBINED_FLG)
 	private String isCombinedFlg;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	@Column(name=CapacityConstants.OPERATIONAL_HOURS_END_TIME)
 	private Time operationalHoursEndTime;
 

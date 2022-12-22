@@ -43,9 +43,6 @@ public class CapacityModelEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.CONCEPT_ID)
 	private BigInteger conceptId;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	//bi-directional many-to-one association to CapacityModelAndCapacityTemplate
 	@JsonBackReference
 	@OneToMany(mappedBy=CapacityConstants.CAPACITY_MODEL2)

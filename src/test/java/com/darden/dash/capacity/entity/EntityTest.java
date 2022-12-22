@@ -86,7 +86,6 @@ class EntityTest {
 		entity.setPosName("a");
 		entity.setInterval(3);
 		entity.setIsCombinedFlg("Y");
-		entity.setIsDeletedFlg("Y");
 		entity.setOperationalHoursEndTime(Time.valueOf("09:10:01"));
 		entity.setOperationalHoursStartTime(Time.valueOf("09:10:01"));
 		entity.getCapacityChannelAndCombinedChannels1();
@@ -99,7 +98,6 @@ class EntityTest {
 		entity.getConceptId();
 		entity.getOperationalHoursStartTime();
 		entity.getOperationalHoursEndTime();
-		entity.getIsDeletedFlg();
 		entity.getIsCombinedFlg();
 		entity.getInterval();
 		entity.getPosName();
@@ -173,7 +171,6 @@ class EntityTest {
 		entity.setCapacityModelId(new BigInteger("1"));
 		entity.setConceptId(new BigInteger("1"));
 		entity.setCapacityModelNm("Asa");
-		entity.setIsDeletedFlg("Y");
 		entity.setCapacityModelAndCapacityTemplates(capacityModelAndCapacityTemplates);
 		entity.setCapacityModelAndLocations(capacityModelAndLocations);
 		entity.getCapacityModelId();
@@ -181,7 +178,6 @@ class EntityTest {
 		entity.getCapacityModelAndCapacityTemplates();
 		entity.getCapacityModelAndLocations();
 		entity.getConceptId();
-		entity.getIsDeletedFlg();
 		entity.setCreatedBy("aa");
 		entity.setCreatedDatetime(Instant.now());
 		entity.setLastModifiedBy("aa");
@@ -235,7 +231,6 @@ class EntityTest {
 		entity.getCapacitySlotType();
 		entity.getCapacityTemplate();
 		entity.getEndTime();
-		entity.getIsDeletedFlg();
 		entity.getReference();
 		entity.getStartTime();
 		entity.setCreatedBy("aa");
@@ -342,7 +337,6 @@ class EntityTest {
 		entity.getStartTime();
 		entity.getSatFlg();
 		entity.getMonFlg();
-		entity.getIsDeletedFlg();
 		entity.getFriFlg();
 		entity.getEffectiveDate();
 		entity.getEndTime();
@@ -365,11 +359,9 @@ class EntityTest {
 		entity.setCapacityTemplates(capacityTemplates);
 		entity.setCapacityTemplateTypeId(new BigInteger("1"));
 		entity.setCapacityTemplateTypeNm("aa");
-		entity.setIsDeletedFlg("Y");
 		entity.getCapacityTemplates();
 		entity.getCapacityTemplateTypeId();
 		entity.getCapacityTemplateTypeNm();
-		entity.getIsDeletedFlg();
 		entity.setCreatedBy("aa");
 		entity.setCreatedDatetime(Instant.now());
 		entity.setLastModifiedBy("aa");
@@ -390,7 +382,6 @@ class EntityTest {
 		entity.setConceptId(new BigInteger("1"));
 		entity.setEffectiveLastDatetime(Instant.now());
 		entity.setEffectiveStartDatetime(Instant.now());
-		entity.setIsDeletedFlg("Y");
 		entity.setReferenceCd("11");
 		entity.setReferenceDesc("asas");
 		entity.setReferenceId(new BigInteger("1"));
@@ -400,7 +391,6 @@ class EntityTest {
 		entity.getConceptId();
 		entity.getEffectiveLastDatetime();
 		entity.getEffectiveStartDatetime();
-		entity.getIsDeletedFlg();
 		entity.getReferenceCd();
 		entity.getReferenceDesc();
 		entity.getReferenceId();
@@ -421,11 +411,9 @@ class EntityTest {
 	void testReferenceTypeEntity() {
 		ReferenceTypeEntity entity = new ReferenceTypeEntity();
 		List<ReferenceEntity> references = new ArrayList<>();
-		entity.setIsDeletedFlg("y");
 		entity.setReferences(references);
 		entity.setReferenceTypeId(new BigInteger("1"));
 		entity.setReferenceTypeNm("aaa");
-		entity.getIsDeletedFlg();
 		entity.getReferences();
 		entity.getReferenceTypeId();
 		entity.getReferenceTypeNm();
@@ -449,12 +437,10 @@ class EntityTest {
 		entity.setCapacitySlots(capacitySlots);
 		entity.setCapacitySlotTypeId(new BigInteger("1"));
 		entity.setCapacitySlotTypeNm("aa");
-		entity.setIsDeletedFlg("Y");
 		entity.getCapacitySlotCalcParams();
 		entity.getCapacitySlots();
 		entity.getCapacitySlotTypeId();
 		entity.getCapacitySlotTypeNm();
-		entity.getIsDeletedFlg();
 		entity.setCreatedBy("aa");
 		entity.setCreatedDatetime(Instant.now());
 		entity.setLastModifiedBy("aa");

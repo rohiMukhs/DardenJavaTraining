@@ -116,7 +116,6 @@ class CapacityModelServiceImplTest {
 		capacityModelEntity.setConceptId(new BigInteger("1"));
 		capacityModelEntity.setCreatedBy("aaa");
 		capacityModelEntity.setCreatedDatetime(Instant.now());
-		capacityModelEntity.setIsDeletedFlg("N");
 		capacityModelEntity.setLastModifiedBy("zzz");
 		capacityModelEntity.setLastModifiedDatetime(Instant.now());
 		
@@ -198,7 +197,7 @@ class CapacityModelServiceImplTest {
 		OrderTemplate.setLocations(locations);
 		OrderTemplateList.add(OrderTemplate);
 		Mockito.when(orderClient.getAllOrderTemplates()).thenReturn(OrderTemplateList);
-		Mockito.when(capacityModelRepository.findByConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any())).thenReturn(modelEntityList);
+		Mockito.when(capacityModelRepository.findByConceptId(Mockito.any())).thenReturn(modelEntityList);
 		Mockito.when(locationClient.getAllRestaurants()).thenReturn(locations);
 		List<CapacityModel> res = capacityTemplateModelServiceImpl.getAllCapacityModels("1");
 		assertNotNull(res);
@@ -265,7 +264,6 @@ class CapacityModelServiceImplTest {
 		capacityModelEntityResponse.setCreatedDatetime(Instant.now());
 		capacityModelEntityResponse.setLastModifiedBy("user");
 		capacityModelEntityResponse.setLastModifiedDatetime(Instant.now());
-		capacityModelEntityResponse.setIsDeletedFlg("N");
 		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
 		CapacityModelAndCapacityTemplateEntity capacityModelAndCapacityTemplateEntity = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK capacityModelAndCapacityTemplatePK = new CapacityModelAndCapacityTemplatePK();
@@ -360,7 +358,6 @@ class CapacityModelServiceImplTest {
 		capacityModelEntityResponse.setCreatedDatetime(Instant.now());
 		capacityModelEntityResponse.setLastModifiedBy("user");
 		capacityModelEntityResponse.setLastModifiedDatetime(Instant.now());
-		capacityModelEntityResponse.setIsDeletedFlg("N");
 		List<CapacityModelAndCapacityTemplateEntity> list = new ArrayList<>();
 		CapacityModelAndCapacityTemplateEntity capacityModelAndCapacityTemplateEntity = new CapacityModelAndCapacityTemplateEntity();
 		CapacityModelAndCapacityTemplatePK capacityModelAndCapacityTemplatePK = new CapacityModelAndCapacityTemplatePK();
@@ -379,7 +376,7 @@ class CapacityModelServiceImplTest {
 		capacityModelEntityResponse.setCapacityModelAndLocations(listNew);
 		Mockito.lenient().when(capacityTemplateRepo.findById(Mockito.any()))
 				.thenReturn(Optional.of(capacityTemplateEntityRes));
-		Mockito.lenient().when(capacityModelRepository.findByCapacityModelIdAndIsDeletedFlgAndConceptId(Mockito.any(), Mockito.any(), Mockito.any()))
+		Mockito.lenient().when(capacityModelRepository.findByCapacityModelIdAndConceptId(Mockito.any(), Mockito.any()))
 				.thenReturn(Optional.of(capacityModelEntityResponse));
 		Mockito.doNothing().when(capacityModelAndLocationRepo).deleteAllByCapacityModel(Mockito.any());	
 		Mockito.lenient().when(capacityModelAndLocationRepo.saveAll(Mockito.any())).thenReturn(Collections.emptyList());
@@ -499,7 +496,6 @@ class CapacityModelServiceImplTest {
 		request.setFriFlg("N");
 		request.setSatFlg("Y");
 		request.setSunFlg("Y");
-		request.setIsDeletedFlg("N");	
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
 		List<String> matchingTemplate = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("2"));
@@ -597,7 +593,7 @@ class CapacityModelServiceImplTest {
 		capacityModelEntity.setCapacityModelNm("test");
 		RequestContext.setConcept("1");
 		Mockito.when(capacityModelRepository
-				.findByCapacityModelNmAndConceptIdAndIsDeletedFlg(Mockito.any(), Mockito.any(), Mockito.any()))
+				.findByCapacityModelNmAndConceptId(Mockito.any(), Mockito.any()))
 				.thenReturn(Collections.singletonList(capacityModelEntity));
 		assertEquals(true, capacityTemplateModelServiceImpl.validateModelTemplateNm("test"));
 	}
@@ -666,7 +662,6 @@ class CapacityModelServiceImplTest {
 		request.setFriFlg("Y");
 		request.setSatFlg("Y");
 		request.setSunFlg("Y");
-		request.setIsDeletedFlg("N");
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
 		List<String> matchingTemplate = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("3"));
@@ -738,7 +733,6 @@ class CapacityModelServiceImplTest {
 		request.setFriFlg("Y");
 		request.setSatFlg("Y");
 		request.setSunFlg("Y");
-		request.setIsDeletedFlg("N");	
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("3"));
 		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(list);
@@ -811,7 +805,6 @@ class CapacityModelServiceImplTest {
 		request.setFriFlg("Y");
 		request.setSatFlg("Y");
 		request.setSunFlg("Y");
-		request.setIsDeletedFlg("N");
 		ArrayList<BigInteger> otherTemplateId = new ArrayList<>();
 		otherTemplateId.add(new BigInteger("3"));
 		Mockito.when(capacityTemplateRepo.findAllById(Mockito.anyIterable())).thenReturn(list);
@@ -826,8 +819,7 @@ class CapacityModelServiceImplTest {
 		capacityModelEntity.setConceptId(BigInteger.ONE);
 		capacityModelEntity.setCapacityModelNm("test");
 		capacityModelEntity.setCapacityModelId(new BigInteger("1"));
-		capacityModelEntity.setIsDeletedFlg("N");
-		when(capacityModelRepository.findByCapacityModelNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(capacityModelEntity));
+		when(capacityModelRepository.findByCapacityModelNmAndConceptId(Mockito.anyString(), Mockito.any())).thenReturn(Collections.singletonList(capacityModelEntity));
 		assertEquals(true, capacityTemplateModelServiceImpl.validateModelTemplateNmForUpdate("test", "2"));
 	}
 	
@@ -849,7 +841,6 @@ class CapacityModelServiceImplTest {
 		capacityModelEntity.setCapacityModelId(BigInteger.ONE);
 		capacityModelEntity.setCapacityModelNm("name");
 		capacityModelEntity.setConceptId(BigInteger.ONE);
-		capacityModelEntity.setIsDeletedFlg("Y");
 		List<OrderList> orderList1 = new ArrayList<>();
 		OrderList orderList = new OrderList();
 		orderList.setListId(BigInteger.ONE);
@@ -873,7 +864,6 @@ class CapacityModelServiceImplTest {
 		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(auditService).addAuditData(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		capacityTemplateModelServiceImpl.deleteTemplateModel("1","USER","Y");
-		assertEquals("Y",capacityModelEntity.getIsDeletedFlg());
 	}
 	
 	@Test
@@ -882,7 +872,6 @@ class CapacityModelServiceImplTest {
 		capacityModelEntity.setCapacityModelId(BigInteger.ONE);
 		capacityModelEntity.setCapacityModelNm("name");
 		capacityModelEntity.setConceptId(BigInteger.ONE);
-		capacityModelEntity.setIsDeletedFlg("Y");
 		capacityModelEntity.setCapacityModelAndLocations(modelAndLocationList);
 		List<OrderList> orderList1 = new ArrayList<>();
 		OrderList orderList = new OrderList();
@@ -922,7 +911,6 @@ class CapacityModelServiceImplTest {
 		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(auditService).addAuditData(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		capacityTemplateModelServiceImpl.deleteTemplateModel("1","USER","Y");
-		assertEquals("Y",capacityModelEntity.getIsDeletedFlg());
 	}
 	
 }

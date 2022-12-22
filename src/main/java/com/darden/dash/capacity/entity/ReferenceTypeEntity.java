@@ -37,9 +37,6 @@ public class ReferenceTypeEntity extends Audit implements Serializable {
 	@Column(name=CapacityConstants.REFERENCE_TYPE_ID)
 	private BigInteger referenceTypeId;
 
-	@Column(name=CapacityConstants.IS_DELETED_FLG)
-	private String isDeletedFlg;
-
 	@Column(name=CapacityConstants.REFERENCE_TYPE_NM)
 	private String referenceTypeNm;
 
