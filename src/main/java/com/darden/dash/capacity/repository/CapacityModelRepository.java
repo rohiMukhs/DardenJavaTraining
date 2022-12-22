@@ -54,9 +54,6 @@ public interface CapacityModelRepository extends JpaRepository<CapacityModelEnti
 	 * @param capacityModelId BigInteger contains the value of capacity model id to be
 	 * 							fetched.
 	 * 
-	 * @param isdeletedflg String contains the value of delete status of data to be
-	 * 							fetched
-	 * 						
 	 * @param conceptId String contains the value of concept id from header.
 	 * 
 	 * @return Optional<CapacityModelEntity> Optional of Capacity Template entity class retrieved 
