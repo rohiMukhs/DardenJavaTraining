@@ -306,9 +306,12 @@ public class CapacityConstants {
 	public static final String RESTAURANT_LIST = "restaurant list";
 	public static final String ORDER_TEMPLATE = "order template";
 	
+	public static final String CAPACITY_CHANNEL_WITH_CHANNELID = "/capacity-channel/{channelId}";
+	public static final String CAPACITY_CHANNEL_DELETED = " deleted successfully";
 	public static final String RESTAURANTS_CACHE = "restaurants";
 	public static final String CAPACITY_CHANNEL_CACHENAME = "capacityChannel";
 	public static final String CAPACITY_CHANNEL_CACHE_KEY = "#editChannelInformationRequest.toString()";
+	public static final String CAPACITY_CHANNELS_CACHE_KEY = "#channelId";
 	public static final String CAPACITY_TEMPLATE_CACHE = "capacityTemplate";
 	public static final String CAPACITY_TEMPLATE_CACHE_KEY = "#templateId";
 	public static final String CAPACITY_MODEL_CACHE = "capacityModels";

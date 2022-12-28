@@ -1,9 +1,13 @@
 package com.darden.dash.capacity.repository;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.darden.dash.capacity.entity.CapacityChannelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelEntity;
 import com.darden.dash.capacity.entity.CapacityTemplateAndCapacityChannelPK;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
@@ -30,5 +34,14 @@ public interface CapacityTemplateAndCapacityChannelRepository extends JpaReposit
 	 * 							Template And Capacity Channel Entity.
 	 */
 	void deleteAllBycapacityTemplate(CapacityTemplateEntity capacityTemplate);
+	
+	
+	/**
+	 * This method is used to return a list of CapacityTemplateAndCapacityChannelEntity values, 
+	 * based on the value of capacityChannelId.
+	 * 
+	 * @param capacityChannelId BigInteger Id of Capacity Channel.
+	 */
+	List<CapacityTemplateAndCapacityChannelEntity> findByCapacityChannel(CapacityChannelEntity capacityChannel);
 	
 }

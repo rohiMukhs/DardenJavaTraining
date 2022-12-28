@@ -5,8 +5,10 @@ import java.math.BigInteger;
 import java.sql.Time;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -62,12 +64,12 @@ public class CapacityChannelEntity extends Audit implements Serializable {
 
 	//bi-directional many-to-one association to CapacityChannelAndCombinedChannel
 	@JsonBackReference
-	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL1)
+	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL1, cascade=CascadeType.REMOVE, fetch= FetchType.LAZY)
 	private List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannels1;
 
 	//bi-directional many-to-one association to CapacityChannelAndCombinedChannel
 	@JsonBackReference
-	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL2)
+	@OneToMany(mappedBy=CapacityConstants.CAPACITY_CHANNEL2, cascade=CascadeType.REMOVE, fetch= FetchType.LAZY)
 	private List<CapacityChannelAndCombinedChannelEntity> capacityChannelAndCombinedChannels2;
 
 	//bi-directional many-to-one association to CapacityChannelAndOrderChannel
