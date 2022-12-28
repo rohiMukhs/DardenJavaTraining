@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.service;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
 
@@ -110,4 +111,17 @@ public interface CapacityChannelService {
 	 * 				condition value is set.
 	 */
 	public Set<Integer> validateBaseChannelCombindation(Set<String> channelsNames);
+
+	/**
+	 * This service method is used to delete a combined channel.
+	 *
+	 *
+	 * @param channelId Id of combined channel to be deleted
+	 * 
+	 * @param userDetail String denoting user's details
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	public void deleteCombinedChannel(BigInteger channelId, String userDetail) throws JsonProcessingException;
 }
