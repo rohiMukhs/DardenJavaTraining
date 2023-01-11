@@ -562,14 +562,36 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		return value;
 	}
 	
-	/*
-     * This method is used in deleteCombinedChannel method to validate whether the 
-     * given combined channel is assigned to a Capacity Template
-     * */
-    private void checkDependencyCapacityChannelAndCapacityTemplate(CapacityChannelEntity capacityChannel, ApplicationErrors applicationErrors) {
+	/**
+	 * This method is validate if the CombinedCapacityChannel is assigned to the CapacityTemplate Model 
+	 * in the database it checks if there is any channelId is present in capacityTemplateAndCapacityChannel
+	 * table for the validation.
+	 * 
+	 * @param channelId Channel Id of Capacity Channel to be validated 
+	 * 						in database.
+	 * 
+	 * @param applicationErrors error class to raise error if validation
+	 * 						fails.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
+    public void checkDependencyCapacityChannelAndCapacityTemplate(String channelId, ApplicationErrors applicationErrors) {
+    	
+		//Fetching the CapacityChannelEntity by channel id within the concept.
+      Optional<CapacityChannelEntity> dbChannelValue = capacityChannelRepository
+      		.findByCapacityChannelIdAndConceptId(new BigInteger(channelId), new BigInteger(RequestContext.getConcept()));
+
+      //Raising exception if no entity found.
+       if(dbChannelValue.isEmpty()) {
+           applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
+                   CapacityConstants.CAPACITY_CHANNEL_ID);
+           applicationErrors.raiseExceptionIfHasErrors();
+       }
+       
+       CapacityChannelEntity capacityChannelEntity = dbChannelValue.get();
 		
          List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannelEntityList = capacityTemplateAndCapacityChannelRepository
-        		 .findByCapacityChannel(capacityChannel);
+        		 .findByCapacityChannel(capacityChannelEntity);
          
          if(CollectionUtils.isNotEmpty(capacityTemplateAndCapacityChannelEntityList)) {
         	 List<String> capacityTemplateNameList = new ArrayList<>();
@@ -587,7 +609,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
         	 headerFooterList.add(CapacityConstants.CAPACITY_TEMPLATE);
         	 deleteResponseBodyFormatList.add(capacityTemplateListBody);
         	 
-        	 globalDataCall.raiseException(headerFooterList, deleteResponseBodyFormatList, capacityChannel.getCapacityChannelNm(), applicationErrors);
+        	 globalDataCall.raiseException(headerFooterList, deleteResponseBodyFormatList, capacityChannelEntity.getCapacityChannelNm(), applicationErrors);
         }
      }
     
@@ -598,36 +620,33 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	 *
 	 * @param channelId Id of combined channel to be deleted
 	 * 
+	 * @param deleteConfirmed String denoting whether delete operation is confirmed
+	 * 
 	 * @param userDetail String denoting user's details
 	 * 
 	 * @throws JsonProcessingException if any json processing exception is thrown at
 	 *                                 runtime e.g json parsing.
+	 * 
+	 * @returns String Combined Capactiy Channel Name
 	 */
     
     @Override
     @Transactional
     @Caching(evict = { @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key = CapacityConstants.CAPACITY_CHANNELS_CACHE_KEY),
             @CacheEvict(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, allEntries = true) })
-    public void deleteCombinedChannel(BigInteger channelId, String userDetail) throws JsonProcessingException{
+    public String deleteCombinedChannel(String channelId, String deleteConfirmed, String userDetail) throws JsonProcessingException{
 		
 		ApplicationErrors applicationErrors = new ApplicationErrors();
+		      
+		//Fetch the combined capacity channel
+		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository
+         		.findByCapacityChannelIdAndConceptId(new BigInteger(channelId), new BigInteger(RequestContext.getConcept())).get();
 		
-		//Fetching the CapacityChannelEntity by channel id within the concept.
-        Optional<CapacityChannelEntity> dbChannelValue = capacityChannelRepository
-        		.findByCapacityChannelIdAndConceptId(channelId, new BigInteger(RequestContext.getConcept()));
-
-        //Raising exception if no entity found.
-         if(dbChannelValue.isEmpty()) {
-             applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012),
-                     CapacityConstants.CAPACITY_CHANNEL_ID);
-             applicationErrors.raiseExceptionIfHasErrors();
-         }
-         
-         CapacityChannelEntity capacityChannelEntity = dbChannelValue.get();
-         
+		if(deleteConfirmed.equals(CapacityConstants.Y)) {
+			        
          // checking for dependencies with capacity template
-         checkDependencyCapacityChannelAndCapacityTemplate(capacityChannelEntity, applicationErrors);
-
+         checkDependencyCapacityChannelAndCapacityTemplate(channelId, applicationErrors);
+         
          // if no dependencies are present, then delete the combined channel
          // here we are deleting the relation between combined channel and capacity channel stored in capacityChannelAndCombinedChannelRepository
          // using composite key with combined channel id and capacity channel id stored in capacityChannelEntity capacityChannelAndCombinedChannels1
@@ -639,5 +658,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
          capacityChannelRepository.delete(capacityChannelEntity);
          
          auditService.addAuditData(CapacityConstants.CAPACITY_CHANNEL, AuditActionValues.DELETE_HARD, null, capacityChannelEntity, userDetail);
+		}
+         return capacityChannelEntity.getCapacityChannelNm();
     }
 }

@@ -556,11 +556,11 @@ public class CapacityManagementController {
 				OperationConstants.OPERATION_DELETE.getCode());
 		
 		// service method to delete combined channel 
-		capacityChannelService.deleteCombinedChannel(new BigInteger(channelId), userDetail);
+		String combinedChannelNm = capacityChannelService.deleteCombinedChannel(channelId, deleteConfirmed, userDetail);
 
 		return new ServiceResponse()
-				.build((CapacityConstants.Y.equals(deleteConfirmed) ? (CapacityConstants.CAPACITY_CHANNEL_DELETED)
-						: (CapacityConstants.CAPACITY_MODEL_READY_FOR_DELETE)), CapacityConstants.STATUS_CODE_INT_202);
+				.build((CapacityConstants.Y.equals(deleteConfirmed) ? combinedChannelNm.concat(CapacityConstants.CAPACITY_CHANNEL_DELETED)
+						: combinedChannelNm.concat(CapacityConstants.CAPACITY_MODEL_READY_FOR_DELETE)), CapacityConstants.STATUS_CODE_INT_202);
 
 	}
 }
