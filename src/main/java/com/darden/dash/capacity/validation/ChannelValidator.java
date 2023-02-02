@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
+import com.darden.dash.capacity.model.DeleteCapacityChannelRequest;
+import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.capacity.util.CapacityManagementUtils;
@@ -122,6 +124,21 @@ public class ChannelValidator implements DashValidator {
 			applicationErrors.raiseExceptionIfHasErrors();
 		}
 		
+		
+		/**
+		 * This validation method is used for the database validation of the
+		 * parameter passed stored in a model class which is used for the DELETE 
+		 * operation. Based on the requirement of validation on specific field is 
+		 * checked if validation fails application error is raised.
+		 */
+		if (OperationConstants.OPERATION_DELETE.getCode().equals(operation)) {
+			DeleteCapacityChannelRequest deleteCapacityTemplateRequest = buildDeleteObject(object);
+			validateInDbForDelete(buildDeleteObject(object), applicationErrors);
+			applicationErrors.isValidObject(deleteCapacityTemplateRequest);
+			applicationErrors.raiseExceptionIfHasErrors();
+			return;
+		}
+		
 	}
 
 
@@ -218,6 +235,22 @@ public class ChannelValidator implements DashValidator {
 			applicationErrors.addErrorMessage(Integer.parseInt(CapacityConstants.EC_4504));
 		}
 	}
+	
+	
+	/**
+	 * This validation method is used to validate if the CombinedCapacityChannel is 
+	 * assigned to capacityTemplate model,based on the channelId which is passed
+	 * in parameter to perform delete operation
+	 * 
+	 * @param buildObject request class containing the value of capacity channel
+	 * 					to be deleted is validated.
+	 * 
+	 * @param applicationErrors error class is used to raise application errors 
+	 * 					for invalid condition.
+	 */
+	private void validateInDbForDelete(DeleteCapacityChannelRequest buildObject, ApplicationErrors applicationErrors) {
+		channelService.checkDependencyCapacityChannelAndCapacityTemplate(buildObject.getChannelId(), applicationErrors);
+	}
 
 	/**
 	 * This method is used to build object of request body for validation.
@@ -257,6 +290,28 @@ public class ChannelValidator implements DashValidator {
 		String json = mapper.writeValueAsString(object);
 		Gson gson = new Gson();
 		return gson.fromJson(json, CreateCombineChannelRequest.class);
+	}
+	
+	
+	/**
+	 * This method is for validating the delete combined channel request
+	 * 
+	 * @param object Class Object is the root of the class hierarchy.
+	 * 
+	 * @return DeleteCapacityChannelRequest returns request class with
+	 * 					after converting it to json and  deserialized into 
+	 * 					the model class. 
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+
+	private DeleteCapacityChannelRequest buildDeleteObject(Object object) throws JsonProcessingException  {
+		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
+				.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
+		String json = mapper.writeValueAsString(object);
+		Gson gson = new Gson();
+		return gson.fromJson(json, DeleteCapacityChannelRequest.class);
 	}
 	
 }
