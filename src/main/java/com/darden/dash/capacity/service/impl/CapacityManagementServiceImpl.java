@@ -68,9 +68,7 @@ import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
-import com.darden.dash.common.entity.AppParameterEntity;
 import com.darden.dash.common.enums.AuditActionValues;
-import com.darden.dash.common.enums.CharacterConstants;
 import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.model.DeleteResponseBodyFormat;
 import com.darden.dash.common.service.AppParameterService;
@@ -209,6 +207,108 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		
 		//Setting the list of capacityTemplate and reference data to CapacityResponse model class.
 		return new CapacityResponse(capacityTemplates, referenceData);
+	}
+	/**
+	 * Method is used to get the CapacityTemplate buy id for the respective
+	 * CapacityTemplate Info id.Used Builder Design pattern to create and set the
+	 * CapacityTemplate object.**
+	 *
+	 * @param capacityTemplateId, Id of capacityTemplate
+	 * @return capacityTemplate {@code capacityTemplate}
+	 */
+	@Override
+	public CapacityTemplate getCapacityTemplateById(BigInteger capacityTemplateId) {
+		ApplicationErrors applicationErrors = new ApplicationErrors();
+
+		// fetching the capacity template entity by Id within the concept.
+		Optional<CapacityTemplateEntity> findByCapacityTemplateIdAndConceptId = capacityTemplateRepo
+				.findByCapacityTemplateIdAndConceptId(capacityTemplateId, new BigInteger(RequestContext.getConcept()));
+		if (findByCapacityTemplateIdAndConceptId.isEmpty()) {
+			applicationErrors.addErrorMessage(Integer.parseInt(ErrorCodeConstants.EC_4012), "capacityTemplateId");
+			applicationErrors.raiseExceptionIfHasErrors();
+		}
+
+		// mapping the channels related to capacityTemplateEntity to model class
+		// channels.
+		List<Channel> capacityTemplateChannels = capacityTemplateMapper
+				.getCapacityTemplateChannels(findByCapacityTemplateIdAndConceptId.get());
+
+		// fetching all the capacity slots related to capacity template entity.
+		List<CapacitySlotEntity> capacitySlots = findByCapacityTemplateIdAndConceptId.get().getCapacitySlots();
+		MultiValuedMap<String, SlotDetail> channelSlotDetails = new ArrayListValuedHashMap<>();
+		Set<String> channelIds = new HashSet<>();
+		Map<String, String> channelNames = new HashMap<>();
+
+		// mapping capacity channel and slot details related to capacityTemplateEntity
+		// to channelSlotDetails and group it based on
+		// channel id.
+		capacityTemplateMapper.mapCapacitySlots(capacitySlots, channelSlotDetails, channelIds, channelNames);
+
+		// mapping all capacity channels and slots related to capacityTemplateEntity to
+		// list of slotChannels model class.
+		List<SlotChannel> slotChannels = capacityTemplateMapper.mapSlotChannels(channelSlotDetails, channelIds,
+				channelNames);
+
+		// mapping the capacityTemplateEntity data to CapacityTemplate model class and
+		// adding it to list.
+
+		return mapTemplateModel(findByCapacityTemplateIdAndConceptId.get(), capacityTemplateChannels, slotChannels);
+
+	}
+	/**
+	 * 
+	 * This method is used to map slot details ,slot channels to capacity template
+	 * model Here by using mapstruct capacity template entities are mapped to
+	 * capacity template
+	 * 
+	 * @param capacityTemplateModels list of model class containing the detail of
+	 *                               Capacity Template models.
+	 * 
+	 * @param capacityTemplateEntity entity class containing the detail of capacity
+	 *                               template.
+	 * 
+	 * @param channels               list of model class containing the detail of
+	 *                               channel.
+	 * 
+	 * @param slotChannels           list of model class containing the detail of
+	 *                               slot channels.
+	 */
+
+	private CapacityTemplate mapTemplateModel(CapacityTemplateEntity capacityTemplateEntity, List<Channel> channels,
+			List<SlotChannel> slotChannels) {
+
+		// mapping capacityTemplateEntity to capacityTemplate model class.
+		CapacityTemplate capacityTemplateModel = capacityTemplateMapper.map(capacityTemplateEntity);
+		capacityTemplateModel
+				.setCapacityTemplateType(capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm());
+		capacityTemplateModel.setSlotStartTime(String.valueOf(capacityTemplateEntity.getStartTime()));
+		capacityTemplateModel.setSlotEndTime(String.valueOf(capacityTemplateEntity.getEndTime()));
+
+		// mapping days related fields if templateTypeName is DAYS.
+		if (capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm()
+				.equals(CapacityConstants.DAYS)) {
+			capacityTemplateMapper.mapToCapacityTemplateFromEntity(capacityTemplateEntity, capacityTemplateModel);
+		}
+
+		// mapping days related fields if templateTypeName is DATES.
+		else if (capacityTemplateEntity.getCapacityTemplateType().getCapacityTemplateTypeNm()
+				.equals(CapacityConstants.DATES)) {
+			List<BusinessDate> datesAssigned = new ArrayList<>();
+
+			// multiple dates can be assigned to capacityTemplateEntity mapping all dates
+			// related to capacityTemplateEntity.
+			capacityTemplateEntity.getCapacityTemplateAndBusinessDates().stream().filter(Objects::nonNull)
+					.forEach(d -> {
+						BusinessDate date = new BusinessDate();
+						date.setDate(DateUtil.dateToString(d.getId().getBusinessDate()));
+						datesAssigned.add(date);
+					});
+			capacityTemplateModel.setBusinessDate(datesAssigned);
+		}
+		capacityTemplateModel.setSlotChannels(slotChannels);
+		capacityTemplateModel.setChannels(channels);
+
+		return capacityTemplateModel;
 	}
 
 	/**

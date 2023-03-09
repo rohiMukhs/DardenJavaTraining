@@ -941,18 +941,11 @@ public class CapacityTemplateModelServiceImpl implements CapacityTemplateModelSe
 		
 		//iterating through the order templates.
 		List<OrderTemplate> orderTemplates1 = orderTemplates
-				.stream()
-				.filter(orderTemplate->
-					orderTemplate.getOrderLists()
-					.stream()
-					//Checks for list type string with capacity model list.
-					.anyMatch(list->list.getListType().equalsIgnoreCase(CapacityConstants.ORDER_TEMPLATE_TYPE)))
-					.filter(orderTemplate->
-							orderTemplate.getOrderLists()
-							.stream()
-							//Checks if list id equals capacity model id.
-							.anyMatch(list->list.getListId().equals(capacityModelEntity.getCapacityModelId())))
-					.collect(Collectors.toList());
+				.stream().filter(orderTemplate -> orderTemplate.getOrderLists().stream()
+						// Checks for list type string with capacity model list.
+						.anyMatch(list -> list.getListType().equalsIgnoreCase(CapacityConstants.ORDER_TEMPLATE_TYPE)
+								&& list.getListId().equals(capacityModelEntity.getCapacityModelId())))
+				.collect(Collectors.toList());
 		
 		//if both dependency list not empty.
 		if(!orderTemplates1.isEmpty()||!restaurantNumberList.isEmpty()) {

@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.common.error.ApplicationErrors;
@@ -150,4 +151,14 @@ public interface CapacityManagementService {
 	 */
 	public List<CapacityModel> getAllModelsRelatingToTemplateIdList(Set<BigInteger> templateIds);
 	
+	/**
+	 * Method is used to get the CapacityTemplate buy id for the respective
+	 * CapacityTemplate Info id.Used Builder Design pattern to create and set
+	 * the CapacityTemplate object.**
+	 *
+	 * @param capacityTemplateId, Id of capacityTemplate
+	 * @return capacityTemplate {@code capacityTemplate}
+	 */
+
+	CapacityTemplate getCapacityTemplateById(BigInteger capacityTemplateId);
 }
