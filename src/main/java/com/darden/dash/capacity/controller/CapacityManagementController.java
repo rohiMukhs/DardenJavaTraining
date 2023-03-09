@@ -21,6 +21,8 @@ import com.darden.dash.capacity.client.LocationClient;
 import com.darden.dash.capacity.model.CapacityModelRequest;
 import com.darden.dash.capacity.model.CapacityModelResponse;
 import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacityTemplate;
+import com.darden.dash.capacity.model.CapacityTemplateResponse;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateResponse;
@@ -121,7 +123,38 @@ public class CapacityManagementController {
 		capacityValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
 		return capacityManagementService.getAllCapacityTemplates(isRefDataReq, RequestContext.getConcept()).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
 	}
-	
+	/**
+	 * Method is used to get the a Capacity template using Id for the respective
+	 * concept and Reference from the {@link CapacityManagementService} Then map the
+	 * retrieved Capacity template of @CapacityTemplateResponse object. At last the
+	 * API successful response is built and returned.
+	 *
+	 * @param accessToken token used to authenticate the user and extract the
+	 *                    userName for this application
+	 * @return CapacityTemplateResponse return entire response to the user.
+	 * @throws JsonProcessingException if any JSON processing exception is thrown at
+	 *                                 runtime e.g JSON parsing
+	 */
+	@GetMapping(value = CapacityConstants.GET_TEMPLATES, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.CAPACITY_TEMPLATE_SINGLE_API_TITLE, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CapacityTemplateResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> getCapacityTempalteId(@PathVariable String templateId,
+			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken,
+			@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId)
+			throws JsonProcessingException {
+		jwtUtils.findUserDetail(accessToken);
+		capacityValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
+		CapacityTemplate capacityTemplate = null;
+		if (Integer.parseInt(templateId) != 0) {
+			capacityTemplate = capacityManagementService.getCapacityTemplateById(new BigInteger(templateId));
+		}
+		return new CapacityTemplateResponse(capacityTemplate, capacityChannelService.getReferenceData())
+				.build(CapacityConstants.CAPACITY_TEMPLATE_SINGLE_API_TITLE, CapacityConstants.STATUS_CODE_200);
+
+	}
+
 	/**
 	 * Method is used for CREATE operation for the respective concept. The request
 	 * body is sent to CapacityTemplate service. Before sending the request

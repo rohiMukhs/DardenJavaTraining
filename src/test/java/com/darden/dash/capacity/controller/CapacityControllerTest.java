@@ -112,6 +112,15 @@ public class CapacityControllerTest {
 				.headers(getHeaders())).andExpect(status().isOk())
 				.andExpect(result -> result.getResponse());
 	}
+	@Test
+	void testGetCapacityTempalteId() throws Exception
+	{
+		CapacityTemplate CapacityTemplate = new CapacityTemplate();
+		Mockito.when(capacityManagementService.getCapacityTemplateById(Mockito.any())).thenReturn(CapacityTemplate);
+		mockMvc.perform(get("/api/v1/capacity-templates/{templateId}", 1)
+				.headers(getHeaders())).andExpect(status().isOk())
+				.andExpect(result -> result.getResponse());
+	}
 
 	public static final HttpHeaders getHeaders() {
 		final HttpHeaders headers = new HttpHeaders();

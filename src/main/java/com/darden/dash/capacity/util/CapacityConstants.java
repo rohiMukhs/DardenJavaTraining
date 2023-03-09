@@ -264,8 +264,12 @@ public class CapacityConstants {
 	
 	public static final String CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY = "capacity template updated successfully";
 	
+	public static final String CAPACITY_TEMPLATE_SINGLE_API_TITLE = "One capacity template loading successfully";
+
 	public static final String EDIT_TEMPLATES = "/capacity-templates/{templateId}";
 	
+	public static final String GET_TEMPLATES = "/capacity-templates/{templateId}";
+
 	public static final String STATUS_CODE_UPDATED = "202";
 	
 	public static final String INTEGER = "Integer";

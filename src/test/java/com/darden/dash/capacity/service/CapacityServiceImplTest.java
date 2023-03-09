@@ -45,6 +45,7 @@ import com.darden.dash.capacity.entity.ReferenceEntity;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
 import com.darden.dash.capacity.model.ReferenceDatum;
@@ -61,7 +62,6 @@ import com.darden.dash.capacity.repository.CapacityTemplateTypeRepository;
 import com.darden.dash.capacity.repository.ReferenceRepository;
 import com.darden.dash.capacity.service.impl.CapacityManagementServiceImpl;
 import com.darden.dash.common.RequestContext;
-import com.darden.dash.common.entity.AppParameterEntity;
 import com.darden.dash.common.error.ApplicationErrors;
 import com.darden.dash.common.exception.ApplicationException;
 import com.darden.dash.common.service.AppParameterService;
@@ -146,7 +146,48 @@ class CapacityServiceImplTest {
 		CapacityResponse res = capacityManagementServiceImpl.getAllCapacityTemplates(false, "1");
 		assertNotNull(res);
 	}
-
+	@Test
+	void testGetAllCapacityTemplateId() throws Exception {
+		List<CapacityTemplateEntity> capacityList = new ArrayList<>();
+		List<CapacityModelAndCapacityTemplateEntity> cteList = new ArrayList<>();
+		CapacityModelEntity model = new CapacityModelEntity();
+		model.setCapacityModelId(BigInteger.ONE);
+		model.setCapacityModelNm("hhijhihxss");
+		CapacityModelAndCapacityTemplateEntity cte = new CapacityModelAndCapacityTemplateEntity();
+		CapacityModelAndCapacityTemplatePK pid = new CapacityModelAndCapacityTemplatePK();
+		pid.setCapacityModelId(BigInteger.ONE);
+		pid.setCapacityTemplateId(BigInteger.ONE);
+		cte.setId(pid);
+		cte.setCapacityModel(model);
+		cteList.add(cte);
+		CapacityTemplateTypeEntity type = new CapacityTemplateTypeEntity();
+		type.setCapacityTemplateTypeId(new BigInteger("1"));
+		type.setCapacityTemplateTypeNm("Date");
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
+		capacityTemplateEntity.setCapacityModelAndCapacityTemplates(cteList);
+		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
+		capacityTemplateEntity.setEffectiveDate(new Date());
+		capacityTemplateEntity.setExpiryDate(new Date());
+		capacityTemplateEntity.setCapacityTemplateType(type);
+		capacityTemplateEntity.setMonFlg("Y");
+		capacityTemplateEntity.setTueFlg("Y");
+		capacityTemplateEntity.setWedFlg("Y");
+		capacityTemplateEntity.setThuFlg("N");
+		capacityTemplateEntity.setFriFlg("N");
+		capacityTemplateEntity.setSatFlg("Y");
+		capacityTemplateEntity.setSunFlg("Y");
+		capacityTemplateEntity.setConceptId(BigInteger.ONE);
+		capacityTemplateEntity.setStartTime(java.time.LocalTime.parse("11:46:55"));
+		capacityTemplateEntity.setEndTime(java.time.LocalTime.parse("12:46:55"));
+		capacityTemplateEntity.setCapacityTemplateAndCapacityChannels(getCapacityTemplateAndChannels());
+		capacityTemplateEntity.setCapacitySlots(getCapacitySlots());
+		Mockito.when(capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(Mockito.any(), Mockito.any()))
+				.thenReturn(Optional.of(capacityTemplateEntity));
+		CapacityTemplate allCapacityTemplateId = capacityManagementServiceImpl
+				.getCapacityTemplateById(new BigInteger("1"));
+		assertNotNull(allCapacityTemplateId);
+	}
 //	@Test
 //	void testGetAllCapacityTemplatesForInvalidConcept() {
 //		RequestContext.setConcept(null);
