@@ -43,7 +43,7 @@ public class CapacityConstants {
 	public static final String CAPACITY_MODEL = "capacity_model";
 	public static final String CAPACITY_TEMPLATE_ID = "capacity_template_id";
 	public static final String CAPACITY_MODEL_AND_CAPACITY_TEMPLATE = "capacity_model_and_capacity_template";
-	public static final String CAPACITY_MODEL_AND_LOCATION = "capacity_model_and_location";
+	public static final String CAPACITY_MODEL_AND_LOCATION = "overriding_capacity_model_and_location";
 	public static final String LOCATION_ID = "location_id";
 	public static final String CAPACITY_SLOT_STATUS_REF_ID = "capacity_slot_status_ref_id";
 	public static final String CAPACITY_SLOT_TYPE_ID = "capacity_slot_type_id";
