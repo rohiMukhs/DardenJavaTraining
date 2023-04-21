@@ -7,8 +7,6 @@ import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.capacity.util.CapacityManagementUtils;
-import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.error.ApplicationErrors;
@@ -32,7 +30,6 @@ import com.google.gson.Gson;
 public class CapacityValidator implements DashValidator {
 
 	private CapacityManagementService capacityManagementService;
-	private CapacityManagementUtils capacityManagementUtils;
 
 	/**
 	 * required Autowiring.
@@ -41,10 +38,9 @@ public class CapacityValidator implements DashValidator {
 	 * @param capacityManagementUtils
 	 */
 	@Autowired
-	public CapacityValidator(CapacityManagementService capacityManagementService,CapacityManagementUtils capacityManagementUtils) {
+	public CapacityValidator(CapacityManagementService capacityManagementService) {
 		super();
 		this.capacityManagementService = capacityManagementService;
-		this.capacityManagementUtils=capacityManagementUtils;
 	}
 	
 	/**
@@ -73,7 +69,6 @@ public class CapacityValidator implements DashValidator {
 		 */
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
-		capacityManagementUtils.validateConceptId(RequestContext.getConcept(), applicationErrors);
 		
 		/**
 		 * This validation method is used for the validation of the

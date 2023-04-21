@@ -6,11 +6,8 @@ import org.springframework.stereotype.Component;
 import com.darden.dash.capacity.model.ChannelListRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.DeleteCapacityChannelRequest;
-import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.capacity.util.CapacityManagementUtils;
-import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.error.ApplicationErrors;
@@ -35,7 +32,6 @@ import com.google.gson.Gson;
 public class ChannelValidator implements DashValidator {
 	
 	private CapacityChannelService channelService;
-	private CapacityManagementUtils capacityManagementUtils;
 	
 	/**
 	 * Autowiring required properties
@@ -44,10 +40,9 @@ public class ChannelValidator implements DashValidator {
 	 * @param capacityManagementUtils
 	 */
 	@Autowired
-	public ChannelValidator(CapacityChannelService channelService,CapacityManagementUtils capacityManagementUtils) {
+	public ChannelValidator(CapacityChannelService channelService) {
 		super();
 		this.channelService = channelService;
-		this.capacityManagementUtils=capacityManagementUtils;
 	}
 
 	/**
@@ -76,7 +71,6 @@ public class ChannelValidator implements DashValidator {
 		 */
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
-		capacityManagementUtils.validateConceptId(RequestContext.getConcept(), applicationErrors);
 		/**
 		 * This validation method is used to validate if the values passed in 
 		 * request body are not null, not blank ,no duplicate values for specific field ,

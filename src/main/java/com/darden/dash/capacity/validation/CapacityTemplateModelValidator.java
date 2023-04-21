@@ -17,8 +17,6 @@ import com.darden.dash.capacity.model.TemplatesAssigned;
 import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.capacity.util.CapacityManagementUtils;
-import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.error.ApplicationErrors;
@@ -45,7 +43,6 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	
 	private CapacityTemplateModelService capacityTemplateModelService;
 	private CapacityTemplateRepo capacityTemplateRepo;
-	private CapacityManagementUtils capacityManagementUtils;
 	
 	/**
 	 * Autowiring
@@ -56,11 +53,10 @@ public class CapacityTemplateModelValidator implements DashValidator {
 	 * @param capacityManagementUtils
 	 */
 	@Autowired
-	public CapacityTemplateModelValidator(CapacityTemplateModelService capacityTemplateModelService, CapacityTemplateRepo capacityTemplateRepo,CapacityManagementUtils capacityManagementUtils) {
+	public CapacityTemplateModelValidator(CapacityTemplateModelService capacityTemplateModelService, CapacityTemplateRepo capacityTemplateRepo) {
 		super();
 		this.capacityTemplateModelService = capacityTemplateModelService;
 		this.capacityTemplateRepo = capacityTemplateRepo;
-		this.capacityManagementUtils=capacityManagementUtils;
 	}
 	
 	/**
@@ -82,7 +78,6 @@ public class CapacityTemplateModelValidator implements DashValidator {
 		 */
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		ValidatorUtils.validateCorrelationAndConceptModel(applicationErrors);
-		capacityManagementUtils.validateConceptId(RequestContext.getConcept(), applicationErrors);
 
 		/**
 		 * This validation method is used to validate if the values passed in request

@@ -45,6 +45,7 @@ import com.darden.dash.capacity.entity.ReferenceEntity;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacitySlotTypeRefModel;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
@@ -200,6 +201,8 @@ class CapacityServiceImplTest {
 	private List<CapacityTemplateEntity> getAllCapacityTemplates() {
 		List<CapacityTemplateEntity> capacityList = new ArrayList<>();
 		List<CapacityModelAndCapacityTemplateEntity> cteList = new ArrayList<>();
+		Date effective = DateUtil.stringToDate("01/01/2000");
+		Date expiry = DateUtil.stringToDate("01/01/3000");
 		CapacityModelEntity model = new CapacityModelEntity();
 		model.setCapacityModelId(BigInteger.ONE);
 		model.setCapacityModelNm("hhijhihxss");
@@ -217,8 +220,8 @@ class CapacityServiceImplTest {
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.valueOf(1));
 		capacityTemplateEntity.setCapacityModelAndCapacityTemplates(cteList);
 		capacityTemplateEntity.setCapacityTemplateNm("Lorum Ipsum");
-		capacityTemplateEntity.setEffectiveDate(new Date());
-		capacityTemplateEntity.setExpiryDate(new Date());
+		capacityTemplateEntity.setEffectiveDate(effective);
+		capacityTemplateEntity.setExpiryDate(expiry);
 		capacityTemplateEntity.setCapacityTemplateType(type);
 		capacityTemplateEntity.setMonFlg("Y");
 		capacityTemplateEntity.setTueFlg("Y");
@@ -455,6 +458,7 @@ class CapacityServiceImplTest {
 				capacityTemplateRepo.findByCapacityTemplateIdAndConceptId(Mockito.any(), Mockito.any()))
 				.thenReturn(Optional.of(test));
 		capacityManagementServiceImpl.deleteByTemplateId("1", "Y", "USER");
+		assertNotNull(test);
 	}
 
 	@Test
@@ -1252,7 +1256,7 @@ class CapacityServiceImplTest {
 		request.setCapacityTemplateName("name");
 		request.setTemplateTypeId(new BigInteger("1"));
 		request.setEffectiveDate("01/01/2011");
-		request.setExpiryDate("01/01/2011");
+		request.setExpiryDate("01/01/3011");
 		request.setMonDay("Y");
 		request.setTueDay("Y");
 		request.setWedDay("Y");
@@ -1334,4 +1338,79 @@ class CapacityServiceImplTest {
 		assertEquals(true, res);
 	}
 	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateMonday() {
+		Mockito.when(capacityTemplateRepo.findByMonFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/17/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateTuesday() {
+		Mockito.when(capacityTemplateRepo.findByTueFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/18/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateWednesday() {
+		Mockito.when(capacityTemplateRepo.findByWedFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/19/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateThursday() {
+		Mockito.when(capacityTemplateRepo.findByThuFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/20/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateFriday() {
+		Mockito.when(capacityTemplateRepo.findByFriFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/21/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateSaturday() {
+		Mockito.when(capacityTemplateRepo.findBySatFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/22/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateSunday() {
+		Mockito.when(capacityTemplateRepo.findBySunFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/23/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateOnly() {
+		CapacityTemplateAndBusinessDateEntity entity = new CapacityTemplateAndBusinessDateEntity();
+		entity.setCapacityTemplate(getAllCapacityTemplates().get(0));
+		Mockito.when(capacityTemplateRepo.findBySunFlg(Mockito.anyString())).thenReturn(new ArrayList<>());
+		Mockito.when(capacityTemplateAndBusinessDateRepository.findByIdBusinessDate(Mockito.any())).thenReturn(Optional.of(entity));
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/23/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacityTemplatesBasedOnDateNoTemplate() {
+		Mockito.when(capacityTemplateRepo.findBySunFlg(Mockito.anyString())).thenReturn(new ArrayList<>());
+		Mockito.when(capacityTemplateAndBusinessDateRepository.findByIdBusinessDate(Mockito.any())).thenReturn(Optional.empty());
+		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/23/2023");
+		assertNotNull(response);
+	}
+	
+	@Test
+	void testGetAllCapacitySlotTypes() {
+		CapacitySlotTypeEntity slotType = new CapacitySlotTypeEntity();
+		slotType.setCapacitySlotTypeNm("baam");
+		slotType.setCapacitySlotTypeId(BigInteger.ONE);
+		Mockito.when(capacitySlotTypeRepository.findAll()).thenReturn(Collections.singletonList(slotType));
+		assertNotNull(capacityManagementServiceImpl.getAllCapacitySlotTypes());
+	}
 }

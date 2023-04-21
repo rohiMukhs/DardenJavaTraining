@@ -1,10 +1,8 @@
 package com.darden.dash.capacity.service;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
 
-import com.darden.dash.capacity.entity.CapacityChannelEntity;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.CombineChannel;
@@ -147,4 +145,14 @@ public interface CapacityChannelService {
 	 * @returns String Combined Capacity Channel Name
 	 */
 	public String deleteCombinedChannel(String channelId, String deleteConfirmed, String userDetail) throws JsonProcessingException;
+	
+	/**
+	 * This service method is used to return reference data for capacity
+	 * channels its contains all capacity channel irrespective of basic or
+	 * combine channel.
+	 * 
+	 * @return List<CapacityChannel> list of model class containing the value of
+	 * capacity channels.
+	 */
+	public List<CapacityChannel> getAllCapacityChannels();
 }

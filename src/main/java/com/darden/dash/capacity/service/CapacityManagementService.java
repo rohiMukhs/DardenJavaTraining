@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import com.darden.dash.capacity.model.CapacityModel;
 import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacitySlotTypeRefModel;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
@@ -161,4 +162,31 @@ public interface CapacityManagementService {
 	 */
 
 	CapacityTemplate getCapacityTemplateById(BigInteger capacityTemplateId);
+	
+	/**
+	 * This method is to get list of Capacity Templates from database along with
+	 * list of channel data from CapacityTemplate,
+	 * CapacityTemplateAndCapacityChannel , CapacitySlot ,CapacityChannel entities
+	 * and mapping the capacity channel mapper for reference data based on
+	 * specified date.
+	 * 
+	 * @param isRefDataReq conatins flag for reference data.
+	 * 
+	 * @param date contains data for which date template should be displayed.
+	 * 
+	 * @param conceptId contains data of concept id.
+	 * 
+	 * @return ResponseEntity response containing all list of 
+	 * 							capacity Template.
+	 * 
+	 */
+	public CapacityResponse getAllCapacityTemplatesBasedOnDate(Boolean isRefDataReq, String conceptId, String date);
+	
+	/**
+	 * This method is fetch all capacity slot type data.
+	 * 
+	 * @return List<CapacitySlotTypeRefModel> contains all 
+	 * 			the data related to capacity slot type.
+	 */
+	public List<CapacitySlotTypeRefModel> getAllCapacitySlotTypes();
 }
