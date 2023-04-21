@@ -8,6 +8,7 @@ import com.darden.dash.capacity.model.ChannelInformationRequest;
 import com.darden.dash.capacity.model.CombineChannel;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.ReferenceDatum;
+import com.darden.dash.common.error.ApplicationErrors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 /**
  * 
@@ -110,4 +111,48 @@ public interface CapacityChannelService {
 	 * 				condition value is set.
 	 */
 	public Set<Integer> validateBaseChannelCombindation(Set<String> channelsNames);
+	
+	
+	
+	/**
+	 * This method is validate if the CombinedCapacityChannel is assigned to the CapacityTemplate Model 
+	 * in the database it checks if there is any channelId is present in capacityTemplateAndCapacityChannel
+	 * table for the validation.
+	 * 
+	 * @param channelId Channel Id of Capacity Channel to be validated 
+	 * 						in database.
+	 * 
+	 * @param applicationErrors error class to raise error if validation
+	 * 						fails.
+	 * 
+	 * @return boolean returns the boolean value based on the condition.
+	 */
+    public void checkDependencyCapacityChannelAndCapacityTemplate(String capacityChannelId, ApplicationErrors applicationErrors);
+
+	/**
+	 * This service method is used to delete a combined channel.
+	 *
+	 *
+	 * @param channelId String denoting Id of combined channel to be deleted
+	 * 
+	 * @param deleteConfirmed String denoting whether delete operation is confirmed
+	 * 
+	 * @param userDetail String denoting user's details
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 *                                 
+	 * @returns String Combined Capacity Channel Name
+	 */
+	public String deleteCombinedChannel(String channelId, String deleteConfirmed, String userDetail) throws JsonProcessingException;
+	
+	/**
+	 * This service method is used to return reference data for capacity
+	 * channels its contains all capacity channel irrespective of basic or
+	 * combine channel.
+	 * 
+	 * @return List<CapacityChannel> list of model class containing the value of
+	 * capacity channels.
+	 */
+	public List<CapacityChannel> getAllCapacityChannels();
 }

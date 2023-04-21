@@ -864,6 +864,7 @@ class CapacityModelServiceImplTest {
 		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(auditService).addAuditData(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		capacityTemplateModelServiceImpl.deleteTemplateModel("1","USER","Y");
+		assertNotNull(capacityModelEntity);
 	}
 	
 	@Test
@@ -911,6 +912,7 @@ class CapacityModelServiceImplTest {
 		Mockito.lenient().doNothing().when(capacityModelAndCapacityTemplateRepo).deleteAllByCapacityModel(Mockito.any());
 		Mockito.lenient().doNothing().when(auditService).addAuditData(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		capacityTemplateModelServiceImpl.deleteTemplateModel("1","USER","Y");
+		assertNotNull(capacityModelEntity);
 	}
 	
 }

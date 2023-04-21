@@ -28,6 +28,7 @@ import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateCapacityTemplateResponse;
 import com.darden.dash.capacity.model.CreateCombineChannelRequest;
 import com.darden.dash.capacity.model.CreateCombineChannelResponse;
+import com.darden.dash.capacity.model.DeleteCapacityChannelRequest;
 import com.darden.dash.capacity.model.DeleteCapacityTemplateRequest;
 import com.darden.dash.capacity.model.DeleteModelTemplateRequest;
 import com.darden.dash.capacity.model.EditChannelResponse;
@@ -542,5 +543,57 @@ public class CapacityManagementController {
 		jwtUtils.findUserDetail(accessToken);
 		channelValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
 		return new ViewCapacityChannels(capacityChannelService.getReferenceData()).build(CapacityConstants.CAPACITY_CHANNELS_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
+	}
+	
+	
+	/**
+	 * Method is used for DELETE operation for the respective concept. The request
+	 * path variable channelId contains the id of combineCapacityChannel to be
+	 * deleted. Before sending the request, DeleteCapacityChannelRequest is
+	 * constructed with channelId and deleteConfirmed variable and validated for 
+	 * whether a combined channel with the given channelId is present and whether the
+	 * deleteConfirmed is true. Using the authorization bearer token
+	 * value user name is retrieved.Both channelId and user detail
+	 * is passed in capacity channel service and the deleted data is added to the
+	 * audit service. At last the API response is built with successful response 
+	 * and returned.
+	 *
+	 *
+	 * @param channelId Id of combined channel to be deleted
+	 * 
+	 * @param deleteConfirmed String denoting whether delete action is confirmed
+	 *
+	 * @param accessToken                 Token used to authenticate the user and
+	 *                                    extract the userDetails for this API.
+	 *
+	 * @return ServiceResponse class with information of the
+	 *         Object containing Combine Channel detail.
+	 *
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+	@PatchMapping(value = CapacityConstants.CAPACITY_CHANNEL_WITH_CHANNELID, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_202, description = CapacityConstants.CAPACITY_CHANNEL_DELETED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ServiceResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> deleteCombinedChannel(
+			@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
+			@PathVariable String channelId, @RequestParam String deleteConfirmed,
+			@RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
+			throws JsonProcessingException {
+
+		String userDetail = jwtUtils.findUserDetail(accessToken);
+
+		channelValidator.validate(new DeleteCapacityChannelRequest(channelId, deleteConfirmed),
+				OperationConstants.OPERATION_DELETE.getCode());
+		
+		// service method to delete combined channel 
+		String combinedChannelNm = capacityChannelService.deleteCombinedChannel(channelId, deleteConfirmed, userDetail);
+
+		return new ServiceResponse()
+				.build((CapacityConstants.Y.equals(deleteConfirmed) ? combinedChannelNm.concat(CapacityConstants.CAPACITY_CHANNEL_DELETED)
+						: combinedChannelNm.concat(CapacityConstants.CAPACITY_MODEL_READY_FOR_DELETE)), CapacityConstants.STATUS_CODE_INT_202);
+
 	}
 }

@@ -310,9 +310,12 @@ public class CapacityConstants {
 	public static final String RESTAURANT_LIST = "restaurant list";
 	public static final String ORDER_TEMPLATE = "order template";
 	
+	public static final String CAPACITY_CHANNEL_WITH_CHANNELID = "/capacity-channel/{channelId}";
+	public static final String CAPACITY_CHANNEL_DELETED = " deleted successfully";
 	public static final String RESTAURANTS_CACHE = "restaurants";
 	public static final String CAPACITY_CHANNEL_CACHENAME = "capacityChannel";
 	public static final String CAPACITY_CHANNEL_CACHE_KEY = "#editChannelInformationRequest.toString()";
+	public static final String CAPACITY_CHANNELS_CACHE_KEY = "#channelId";
 	public static final String CAPACITY_TEMPLATE_CACHE = "capacityTemplate";
 	public static final String CAPACITY_TEMPLATE_CACHE_KEY = "#templateId";
 	public static final String CAPACITY_MODEL_CACHE = "capacityModels";
@@ -358,6 +361,13 @@ public class CapacityConstants {
 	public static final String CHANNEL_WAS_UPDATED = "Channel was updated";
 	public static final String CONCEPT_ID_CACHE_KEY = "#conceptId";
 	public static final String PATTERN_ALPHANUMERIC_GLOBAL_SPL_CHARACTERS = "^[a-zA-Z0-9- @ # $ ! & _ . * ( ) + , < > / ? ' % s]*+$";
+	
+	//foh capacity template controller
+	public static final String MSG_REFERENCE_DATA_LOADED_SUCESSFULLY = "reference data loaded sucessfully";
+	public static final String UA_CAPACITY_MANAGER_SLOTS_VIEW = "CapacityManager.Slots.View";
+	public static final String PATH_SLASH = "/";
+	public static final String PATH_FOH_CAPACITY_TEMPLATES = PATH_SLASH+"foh-capacity-templates";
+	public static final String PATH_FOH_REFERENCEDATA = PATH_SLASH+"foh-referencedata";
 	
 	private CapacityConstants() {
 

@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>com.darden.dash</groupId>
 			<artifactId>darden-dash-common</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>

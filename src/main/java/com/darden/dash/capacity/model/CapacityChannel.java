@@ -12,7 +12,7 @@ import lombok.Setter;
 
 /**
  * @author skashala
- * 
+ *
  * This Model class is written for the purpose of showing the
  *       values of capacity channel
  *
@@ -30,6 +30,7 @@ public class CapacityChannel implements Serializable{
 	private String operationalHoursStartTime;
 	private String operationalHoursEndTime;
 	private String isCombinedFlg;
+	private String lastModifiedDate;
 	private List<Channel> combinedChannels=new ArrayList<>();
-  
+
 }
