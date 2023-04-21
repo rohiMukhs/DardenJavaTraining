@@ -61,28 +61,4 @@ public interface CapacityModelRepository extends JpaRepository<CapacityModelEnti
 	 */
 	Optional<CapacityModelEntity> findByCapacityModelIdAndConceptId(BigInteger capacityModelId, BigInteger conceptId);
 	
-//	/**
-//	 * This repository method is to retrieve the optional value of capacity Model
-//	 * Entity based on the value of capacity model name and concept id provided in 
-//	 * header.
-//	 * 
-//	 * @param capacityModelNm String contains the value of capacity model name to be
-//	 * 							fetched.
-//	 * 
-//	 * @param conceptId String contains the value of concept id from header.
-//	 * 
-//	 * @return Optional<CapacityModelEntity> Optional of Capacity Template entity class retrieved 
-//	 * 									   based on the parameters passed.
-//	 */
-//	Optional<CapacityModelEntity> findByCapacityModelNmAndConceptId(String capacityModelNm, BigInteger conceptId);
-	
-//	/**
-//	 * This repository method is to retrieve the optional value of capacity Model
-//	 * Entity based on the value of capacity model id and concept id provided in 
-//	 * header.
-//	 * @param ModelId  String containig the value of model id
-//	 * @param conceptId containg the value from header concept id
-//	 * @return
-//	 */
-//	Optional<CapacityModelEntity> findByCapacityModelIdAndConceptId(BigInteger modelId, BigInteger conceptId);
 }

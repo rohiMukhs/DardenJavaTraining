@@ -59,5 +59,75 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * 							based on the parameters passed.
 	 */
 	Optional<CapacityTemplateEntity> findByCapacityTemplateIdAndConceptId(BigInteger templateId, BigInteger conceptId);
-
+	
+	/**
+	 * This method is to fetch capacity templates by Monday flag.
+	 * 
+	 * @param monFlg contains value of flag
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityTemplateEntity> findByMonFlg(String monFlg);
+	
+	/**
+	 * This method is to fetch capacity templates by Tuesday flag.
+	 * 
+	 * @param tueFlg contains value of flag
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityTemplateEntity> findByTueFlg(String tueFlg);
+	
+	/**
+	 * This method is to fetch capacity templates by Wednesday flag.
+	 * 
+	 * @param wedFlg contains value of flag
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityTemplateEntity> findByWedFlg(String wedFlg);
+	
+	/**
+	 * This method is to fetch capacity templates by Thursday flag.
+	 * 
+	 * @param thuFlg contains value of flag
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityTemplateEntity> findByThuFlg(String thuFlg);
+	
+	/**
+	 * This method is to fetch capacity templates by Friday flag.
+	 * 
+	 * @param friFlg contains value of flag
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityTemplateEntity> findByFriFlg(String friFlg);
+	
+	/**
+	 * This method is to fetch capacity templates by Saturday flag.
+	 * 
+	 * @param satFlg contains value of flag
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityTemplateEntity> findBySatFlg(String satFlg);
+	
+	/**
+	 * This method is to fetch capacity templates by Sunday flag.
+	 * 
+	 * @param sunFlg contains value of flag
+	 * 
+	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
+	 * 									   based on the parameters passed.
+	 */
+	List<CapacityTemplateEntity> findBySunFlg(String sunFlg);
+	
 }

@@ -443,11 +443,28 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 	@Override
 	public ReferenceDatum getReferenceData() {
 
+		List<CapacityChannel> channels = getAllCapacityChannels();
+		
+		ReferenceDatum referenceDatum = new ReferenceDatum();
+		//Setting list of channel to model class.
+		referenceDatum.setCapacityChannel(channels);
+		return referenceDatum;
+	}
+
+	/**
+	 * This service method is used to return reference data for capacity
+	 * channels its contains all capacity channel irrespective of basic or
+	 * combine channel.
+	 * 
+	 * @return List<CapacityChannel> list of model class containing the value of
+	 * capacity channels.
+	 */
+	@Override
+	public List<CapacityChannel> getAllCapacityChannels() {
+		List<CapacityChannel> channels = new ArrayList<>();
 		// Fetching the list of channel entities within the concept.
 		List<CapacityChannelEntity> channelEntities = capacityChannelRepository
 				.findByConceptId(new BigInteger(RequestContext.getConcept()));
-		ReferenceDatum referenceDatum = new ReferenceDatum();
-		List<CapacityChannel> channels = new ArrayList<>();
 
 		//iterating through channel entities.
 		channelEntities
@@ -460,10 +477,7 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 			//Adding to list.
 			channels.add(channel);
 		});
-		
-		//Setting list of channel to model class.
-		referenceDatum.setCapacityChannel(channels);
-		return referenceDatum;
+		return channels;
 	}
 
 	/**
@@ -588,7 +602,9 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
            applicationErrors.raiseExceptionIfHasErrors();
        }
        
-       CapacityChannelEntity capacityChannelEntity = dbChannelValue.get();
+       CapacityChannelEntity capacityChannelEntity = new CapacityChannelEntity();
+       if(dbChannelValue.isPresent())
+    	   capacityChannelEntity = dbChannelValue.get();
 		
          List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannelEntityList = capacityTemplateAndCapacityChannelRepository
         		 .findByCapacityChannel(capacityChannelEntity);
@@ -639,8 +655,11 @@ public class CapacityChannelServiceImpl implements CapacityChannelService{
 		ApplicationErrors applicationErrors = new ApplicationErrors();
 		      
 		//Fetch the combined capacity channel
-		CapacityChannelEntity capacityChannelEntity = capacityChannelRepository
-         		.findByCapacityChannelIdAndConceptId(new BigInteger(channelId), new BigInteger(RequestContext.getConcept())).get();
+		CapacityChannelEntity capacityChannelEntity = new CapacityChannelEntity();
+		Optional<CapacityChannelEntity> capacityChannelEntityOpt = capacityChannelRepository
+         		.findByCapacityChannelIdAndConceptId(new BigInteger(channelId), new BigInteger(RequestContext.getConcept()));
+		if(capacityChannelEntityOpt.isPresent())
+			capacityChannelEntity = capacityChannelEntityOpt.get();
 		
 		if(deleteConfirmed.equals(CapacityConstants.Y)) {
 			        

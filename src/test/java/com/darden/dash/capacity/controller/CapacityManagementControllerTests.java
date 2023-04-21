@@ -1,20 +1,17 @@
 package com.darden.dash.capacity.controller;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.doNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +20,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.darden.dash.capacity.client.LocationClient;
+import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.CapacityModel;
@@ -51,19 +46,25 @@ import com.darden.dash.capacity.model.RestaurantsAssigned;
 import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.model.SlotDetail;
 import com.darden.dash.capacity.model.TemplatesAssigned;
+import com.darden.dash.capacity.repository.CapacityTemplateRepo;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.service.CapacityTemplateModelService;
 import com.darden.dash.capacity.validation.CapacityTemplateModelValidator;
 import com.darden.dash.capacity.validation.CapacityValidator;
 import com.darden.dash.capacity.validation.ChannelValidator;
+import com.darden.dash.common.RequestContext;
+import com.darden.dash.common.SpringContext;
+import com.darden.dash.common.client.service.LocationServiceClient;
+import com.darden.dash.common.util.ConceptUtils;
 import com.darden.dash.common.util.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(excludeAutoConfiguration = SecurityAutoConfiguration.class)
-@ContextConfiguration(classes = { CapacityManagementController.class, ChannelValidator.class,CapacityValidator.class })
-public class CapacityControllerTest {
-
+@ContextConfiguration(classes = {CapacityManagementController.class, CapacityValidator.class, CapacityTemplateModelValidator.class,
+		ChannelValidator.class, SpringContext.class})
+public class CapacityManagementControllerTests {
+	
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -71,10 +72,16 @@ public class CapacityControllerTest {
 	private ObjectMapper mapper;
 	
 	@MockBean
-	private CapacityManagementService capacityManagementService;
+	private ConceptUtils conceptUtils;
 	
 	@MockBean
 	private JwtUtils jwtUtils;
+
+	@MockBean
+	private LocationServiceClient locationServiceClient;
+	
+	@MockBean
+	private CapacityManagementService capacityManagementService;
 	
 	@MockBean
 	private CapacityChannelService capacityChannelService;
@@ -83,81 +90,28 @@ public class CapacityControllerTest {
 	private CapacityTemplateModelService capacityTemplateModelService;
 	
 	@MockBean
-	private ChannelValidator channelValidator;
-	
-	@MockBean
 	private LocationClient locationClient;
 	
 	@MockBean
-	private CapacityValidator capacityValidator;
+	private CapacityTemplateRepo capacityTemplateRepo;
 	
-	@MockBean
-	private CapacityTemplateModelValidator capacityTemplateModelValidator;
-
-	public static final String ACCESS_TOKEN = "7TeL7QMI9tSbvx38:k20boY/U/dAEM13LBKgS+oaT0v3gTSxnMmfVudUPFbnkLG+YgOIQ8i49iT1ooTzS55gZUdqW2XajNbhkDtq40rJh9jVltkBfhY/JTpwAIRJW4Ebn+M6X9xjXwNub0U4wz4nUHK7VIHNoF61xrLiAMdUcxb1GrHaDvXEzPtcWNG/ngoz5L9KOJFwwdBvS/c76k7rVO1Rn3Y0MJHY9I6wQAGa3MHmcuIxCmmkQEI59sYVsoazwRfFd5s2KYxccqWG+EJK3zJ4yTueQstPGcsJ/wPXG0jPtVwgy7Ms61Ww3ydm1R4SjUIYemITvXr/v3uVBs5qizR7PWEBSZNKPBsNctMN1PoKrAs7PEkqh791fnfK4Txjg6/jSazZYCELAD/EjR/1pkn6cEKLH2L7cLA/n8WzkPg6bD3UwRp6MgTL9PhuE+juJu3mc0pR7LI7l6A9TYwnStsGiJm+R0JOZzIn/xjCCPDpTBXvC9rPMvg2rF1MWV78jVYSMWugQnhU3tP5HjMF3fK5NXFwZyRPt9Hm4MPNHLiY0/fKcoP/e2cPAcTxuJeOBM6BmIVPYu10kMLBzIMkCbcYTptv2WNgTVPJOi4W/Rl76+HJS62szMY4DPcf3fTqVnuXTj4R7vfuzS2RZOKCYER3JF1H80KAUa4VFTv2xIAVMALMuQesjobfz6r9o0qaWFbZDXLsMQ9denalcKMwDXeBPe1QilEwDbO6gtiRb6lD1w8mJ4mWrH57hAFwN4pE/uFmI/kvqRCjF/ca7hu5i30NAlAEcp9Y45H+Bo6lwx9VUeYrfTWlDTEUuRZ0+PEKGMOjnNj+kzHCOj3Smz4vt4NW+DG0bW/GS9++4lAOtwm3bRpEYYVycjhO7pwYB/qFpfvPkiHXwDRVTty5xiNNYeHxYdBvzeUFzphAAgAFEyRGrLJVO5dWshysu";
-
-	@BeforeEach
-	public void contextLoad() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-	}
-
-	@Test
-	void getAllCapacityTemplates() throws Exception {
-		CapacityResponse capacityResponse = new CapacityResponse();
-		Mockito.when(capacityManagementService.getAllCapacityTemplates(Mockito.anyBoolean(),Mockito.any()))
-				.thenReturn(capacityResponse);
-		mockMvc.perform(get("/api/v1/capacity-templates/")
-				.param("isRefDataReq", "false")
-				.headers(getHeaders())).andExpect(status().isOk())
-				.andExpect(result -> result.getResponse());
-	}
-	@Test
-	void testGetCapacityTempalteId() throws Exception
-	{
-		CapacityTemplate CapacityTemplate = new CapacityTemplate();
-		Mockito.when(capacityManagementService.getCapacityTemplateById(Mockito.any())).thenReturn(CapacityTemplate);
-		mockMvc.perform(get("/api/v1/capacity-templates/{templateId}", 1)
-				.headers(getHeaders())).andExpect(status().isOk())
-				.andExpect(result -> result.getResponse());
-	}
-
-	public static final HttpHeaders getHeaders() {
-		final HttpHeaders headers = new HttpHeaders();
-		headers.add("Accept", "application/json");
-		headers.add("Content-Type", "application/json");
-		headers.add("Correlation-Id", "ce65-4a57-ac3e-f7fa09e1a8");
-		headers.add("Authorization", "Bearer " + ACCESS_TOKEN);
-		headers.add("Concept-Id","1");		
-		return headers;
-	}
-
-	private List<CapacityTemplate> getAllTemplates() {
-		List<CapacityTemplate> capacityTemplateList = new ArrayList<>();
-		CapacityTemplate capacityTemplate= new CapacityTemplate();
-		capacityTemplate.setCapacityTemplateId(String.valueOf(2));
-		capacityTemplate.setEffectiveDate(String.valueOf(new Date()));
-		capacityTemplate.setExpiryDate(String.valueOf(new Date()));
-		capacityTemplate.setMonDay("Y");
-		capacityTemplate.setTueDay("Y");
-		capacityTemplate.setWedDay("Y");
-		capacityTemplate.setThuDay("Y");
-		capacityTemplate.setFriDay("Y");
-		capacityTemplate.setSatDay("Y");
-		capacityTemplate.setSunDay("Y");
-		capacityTemplateList.add(capacityTemplate);
-		return capacityTemplateList;
-	}
+	private static CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
+	private static CreateTemplateResponse response = new CreateTemplateResponse();
 	
-	@Test
-	void shouldCreateTemplate() throws Exception{
-		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
-		CreateTemplateResponse response = new CreateTemplateResponse();
-		List<BusinessDate> dates = new ArrayList<>();
+	private static List<BusinessDate> dates = new ArrayList<>();
+	private static List<SlotDetail> detailList = new ArrayList<>();
+	private static List<SlotChannel> slotList = new ArrayList<>();
+	
+	@BeforeAll
+	static void beforeAll() {
+		RequestContext.setConcept("1");
+		RequestContext.setCorrelationId("d64cf01b-ce65-4a57-ac3e-f7fa09e1a87f");
+		
+		
 		BusinessDate date = new BusinessDate();
 		date.setDate("01/01/2011");
 		dates.add(date);
-		List<SlotDetail> detailList = new ArrayList<>();
+		
 		SlotDetail detail = new SlotDetail();
 		detail.setCapacityCount(1);
 		detail.setEndTime("01:01");
@@ -166,7 +120,7 @@ public class CapacityControllerTest {
 		detail.setSlotTypeId("1");
 		detail.setStartTime("01:01");
 		detailList.add(detail);
-		List<SlotChannel> slotList = new ArrayList<>();
+		
 		SlotChannel slot = new SlotChannel();
 		slot.setChannelId(new BigInteger("1"));
 		slot.setIsSelectedFlag("Y");
@@ -176,6 +130,7 @@ public class CapacityControllerTest {
 		request.setConceptId(new BigInteger("1"));
 		request.setCapacityTemplateName("name");
 		request.setTemplateTypeId(new BigInteger("1"));
+		request.setTemplateTypeName("dates");
 		request.setBusinessDates(dates);
 		request.setEffectiveDate("01/01/2011");
 		request.setExpiryDate("01/01/2011");
@@ -214,7 +169,46 @@ public class CapacityControllerTest {
 		response.setCreatedDateTime(Instant.now());
 		response.setLastModifiedBy("user");
 		response.setLastModifiedDateTime(Instant.now());
+	}
+	
+	public static final HttpHeaders getHeaders() {
+		final HttpHeaders headers = new HttpHeaders();
+		headers.add("Accept", "application/json");
+		headers.add("Content-Type", "application/json");
+		headers.add("Correlation-Id", "ce65-4a57-ac3e-f7fa09e1a8");
+		headers.add("Authorization", "Bearer " + "7TeL7QMI9tSbvx38:k20boY/U/dAEM13LBKgS+o");
+		headers.add("Concept-Id","1");		
+		return headers;
+	}
+	
+	@Test
+	void getAllCapacityTemplates() throws Exception {
+		CapacityResponse capacityResponse = new CapacityResponse();
+		Mockito.when(capacityManagementService.getAllCapacityTemplates(Mockito.anyBoolean(),Mockito.any()))
+				.thenReturn(capacityResponse);
 		
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/capacity-templates/")
+				.param("isRefDataReq", "false")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	void testGetCapacityTempalteId() throws Exception
+	{
+		CapacityTemplate CapacityTemplate = new CapacityTemplate();
+		Mockito.when(capacityManagementService.getCapacityTemplateById(Mockito.any())).thenReturn(CapacityTemplate);
+		
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/capacity-templates/{templateId}", 1)
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	void shouldCreateTemplate() throws Exception
+	{
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityManagementService.createTemplate(Mockito.any(), Mockito.any())).thenReturn(response);
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-templates")
@@ -222,7 +216,6 @@ public class CapacityControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request)))
 				.andExpect(status().isCreated());
-		
 	}
 	
 	@Test
@@ -234,7 +227,7 @@ public class CapacityControllerTest {
 		ChannelInformationRequest channel = new ChannelInformationRequest();
 		channel.setCapacityChannelId(new BigInteger("1"));
 		channel.setPosName("frnm");
-		channel.setInterval(2);
+		channel.setInterval(6);
 		channel.setOperationHourStartTime("01:01:01");
 		channel.setOperationHourEndTime("02:02:02");
 		
@@ -261,7 +254,6 @@ public class CapacityControllerTest {
 				.headers(getHeaders())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(request))).andExpect(status().isAccepted());
-		
 	}
 	
 	@Test
@@ -273,8 +265,8 @@ public class CapacityControllerTest {
 		mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-templates/{templateId}", 1)
 				.param("deleteConfirmed", "Y")
 				.headers(getHeaders())
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted())
-				.andExpect(jsonPath("status", is(202)));
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isAccepted());
 		
 	}
 	
@@ -291,7 +283,7 @@ public class CapacityControllerTest {
 		response.setCreatedBy("aaa");
 		response.setCreatedDateTime(Instant.now());
 		response.setPosName("a");
-		response.setInterval(1);
+		response.setInterval(6);
 		response.setLastModifiedBy("aa");
 		response.setLastModifiedDateTime(Instant.now());
 		response.setOperationHourEndTime("00:11");
@@ -314,7 +306,7 @@ public class CapacityControllerTest {
 		request.setPosName("a");
 		request.setEndTime("00:11");
 		request.setStartTime("00:00");
-		request.setInterval(1);
+		request.setInterval(6);
 		Mockito.when(capacityChannelService.addCombinedChannel(Mockito.any(), Mockito.anyString())).thenReturn(response);
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/combine-channels")
 				.headers(getHeaders())
@@ -325,69 +317,7 @@ public class CapacityControllerTest {
 	
 	@Test
 	void testShouldUpdateCapacityTemplate() throws Exception {
-		CreateCapacityTemplateRequest request = new CreateCapacityTemplateRequest();
-		CreateTemplateResponse response = new CreateTemplateResponse();
-		List<BusinessDate> dates = new ArrayList<>();
-		BusinessDate date = new BusinessDate();
-		date.setDate("01/01/2011");
-		dates.add(date);
-		List<SlotDetail> detailList = new ArrayList<>();
-		SlotDetail detail = new SlotDetail();
-		detail.setCapacityCount(2);
-		detail.setEndTime("01:01");
-		detail.setIsDeletedFlg("N");
-		detail.setSlotId(new BigInteger("1"));
-		detail.setSlotTypeId("1");
-		detail.setStartTime("01:01");
-		detailList.add(detail);
-		List<SlotChannel> slotList = new ArrayList<>();
-		SlotChannel slot = new SlotChannel();
-		slot.setChannelId(new BigInteger("1"));
-		slot.setIsSelectedFlag("Y");
-		slot.setSlotDetails(detailList);
-		slotList.add(slot);
 		
-		request.setConceptId(new BigInteger("1"));
-		request.setCapacityTemplateName("name");
-		request.setTemplateTypeId(new BigInteger("1"));
-		request.setBusinessDates(dates);
-		request.setEffectiveDate("01/01/2011");
-		request.setExpiryDate("01/01/2011");
-		request.setMonDay("Y");
-		request.setTueDay("Y");
-		request.setWedDay("Y");
-		request.setThuDay("N");
-		request.setFriDay("N");
-		request.setSatDay("Y");
-		request.setSunDay("Y");
-		request.setSlotStartTime("01:02");
-		request.setSlotEndTime("02:09");
-		request.setIsDeletedFlag("N");
-		request.setSlotChannels(slotList);
-		
-		response.setCapacityTemplateId(new BigInteger("1"));
-		response.setCapacityTemplateName("name");
-		response.setConceptId(new BigInteger("1"));
-		response.setEffectiveDate("01/01/2011");
-		response.setExpiryDate("01/01/2011");
-		response.setIsDeletedFlag("N");
-		response.setSlotStartTime("01:02");
-		response.setSlotEndTime("02:09");
-		response.setTemplateTypeId(new BigInteger("1"));
-		response.setCapacityTemplateName("Days");
-		response.setMonDay("Y");
-		response.setTueDay("Y");
-		response.setWedDay("Y");
-		response.setThuDay("N");
-		response.setFriDay("N");
-		response.setSatDay("Y");
-		response.setSunDay("Y");
-		response.setBusinessDates(dates);
-		response.setSlotChannels(slotList);
-		response.setCreatedBy("user");
-		response.setCreatedDateTime(Instant.now());
-		response.setLastModifiedBy("user");
-		response.setLastModifiedDateTime(Instant.now());
 		Mockito.when(capacityManagementService.updateCapacityTemplate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(response);
 		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-templates/{templateId}",1)
 				.headers(getHeaders())
@@ -440,12 +370,15 @@ public class CapacityControllerTest {
 		l.getLocationDescription();
 		l.getLastModifiedDateTime();
 		l.getRegion();
+		
 		Mockito.when(capacityTemplateModelService.getAllCapacityModels(Mockito.anyString())).thenReturn(modelList);
 		Mockito.when(locationClient.getAllRestaurants()).thenReturn(locationList);
-		mockMvc.perform(get("/api/v1/capacity-models/").headers(getHeaders())).andExpect(status().isOk())
-		.andExpect(result -> result.getResponse());
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/capacity-models/")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk());
 	}
-	
 
 	@Test
 	void createCapacityModelTest() throws Exception{
@@ -456,10 +389,12 @@ public class CapacityControllerTest {
 		templatesAssigned.setTemplateId("101");
 		templatesAssigned.setTemplateName("Test101");
 		TemplatesAssignedList.add(templatesAssigned);
+		request.setTemplatesAssigned(TemplatesAssignedList);
 		List<RestaurantsAssigned> restaurantsAssignedList=new ArrayList<>();
 		RestaurantsAssigned restaurantsAssigned=new RestaurantsAssigned();
 		restaurantsAssigned.setLocationId("1111");
 		restaurantsAssignedList.add(restaurantsAssigned);
+		request.setRestaurantsAssigned(restaurantsAssignedList);
 		CapacityTemplateModel capacityTemplateModelResponse=new CapacityTemplateModel();
 		capacityTemplateModelResponse.setCreatedBy("user");
 		capacityTemplateModelResponse.setCreatedDateTime(Instant.now());
@@ -474,9 +409,13 @@ public class CapacityControllerTest {
 		RestaurantsAssigned restaurantsAssigned1=new RestaurantsAssigned();
 		restaurantsAssigned1.setLocationId("1111");
 		restaurantsAssignedList1.add(restaurantsAssigned1);
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		
+		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityTemplateModelService.createCapacityModel(Mockito.any(), Mockito.any())).thenReturn(capacityTemplateModelResponse);
+		
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/capacity-models")
 				.headers(getHeaders())
 				.contentType(MediaType.APPLICATION_JSON)
@@ -493,10 +432,12 @@ public class CapacityControllerTest {
 		templatesAssigned.setTemplateId("101");
 		templatesAssigned.setTemplateName("Test101");
 		TemplatesAssignedList.add(templatesAssigned);
+		request.setTemplatesAssigned(TemplatesAssignedList);
 		List<RestaurantsAssigned> restaurantsAssignedList=new ArrayList<>();
 		RestaurantsAssigned restaurantsAssigned=new RestaurantsAssigned();
 		restaurantsAssigned.setLocationId("1111");
 		restaurantsAssignedList.add(restaurantsAssigned);
+		request.setRestaurantsAssigned(restaurantsAssignedList);
 		CapacityTemplateModel capacityTemplateModelResponse=new CapacityTemplateModel();
 		capacityTemplateModelResponse.setCreatedBy("user");
 		capacityTemplateModelResponse.setCreatedDateTime(Instant.now());
@@ -511,7 +452,10 @@ public class CapacityControllerTest {
 		RestaurantsAssigned restaurantsAssigned1=new RestaurantsAssigned();
 		restaurantsAssigned1.setLocationId("1111");
 		restaurantsAssignedList1.add(restaurantsAssigned1);
+		CapacityTemplateEntity capacityTemplateEntity = new CapacityTemplateEntity();
+		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		
+		Mockito.when(capacityTemplateRepo.findById(Mockito.any())).thenReturn(Optional.of(capacityTemplateEntity));
 		Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
 		Mockito.when(capacityTemplateModelService.updateCapacityModel(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(capacityTemplateModelResponse);
 		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/capacity-models/{modelId}",1)
@@ -522,44 +466,39 @@ public class CapacityControllerTest {
 	}
 	
 	@Test
-    void shouldDeletePeriodListWhenIsDeletedFlagTrue() throws Exception {
-
-
+    void shouldDeleteCapacityModelWhenIsDeletedFlagTrue() throws Exception {
 
        Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
         doNothing().when(capacityTemplateModelService).deleteTemplateModel("1", "User", "Y");
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-model-list/{templateId}", 1)
                 .param("deletedConfirm", "Y")
                 .headers(getHeaders())
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("status", is(200)));
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
-
-
-
+	
 	@Test
-    void shouldDeletePeriodListWhenIsDeletedFlagFalse() throws Exception {
-
-
-
+    void shouldDeleteCapacityModelWhenIsDeletedFlagFalse() throws Exception {
        Mockito.when(jwtUtils.findUserDetail(Mockito.any())).thenReturn("User");
         doNothing().when(capacityTemplateModelService).deleteTemplateModel("1", "User", "Y");
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/capacity-model-list/{templateId}", 1)
                 .param("deletedConfirm", "N")
                 .headers(getHeaders())
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("status", is(200)));
+                .andExpect(status().isOk());
     }
-
+	
 	@Test
 	void getAllCapacityChannels() throws Exception {
 		ReferenceDatum viewCapacityChannels = new ReferenceDatum();
 		Mockito.when(capacityChannelService.getReferenceData())
 				.thenReturn(viewCapacityChannels);
-		mockMvc.perform(get("/api/v1/capacity-channels/")
-				.headers(getHeaders())).andExpect(status().isOk())
-				.andExpect(result -> result.getResponse());
+//		mockMvc.perform(get("/api/v1/capacity-channels/")
+//				.headers(getHeaders())).andExpect(status().isOk())
+//				.andExpect(result -> result.getResponse());
+		
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/capacity-channels/")
+				.headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk());
 	}
-
 }

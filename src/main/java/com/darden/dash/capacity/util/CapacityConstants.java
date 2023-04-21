@@ -362,6 +362,13 @@ public class CapacityConstants {
 	public static final String CONCEPT_ID_CACHE_KEY = "#conceptId";
 	public static final String PATTERN_ALPHANUMERIC_GLOBAL_SPL_CHARACTERS = "^[a-zA-Z0-9- @ # $ ! & _ . * ( ) + , < > / ? ' % s]*+$";
 	
+	//foh capacity template controller
+	public static final String MSG_REFERENCE_DATA_LOADED_SUCESSFULLY = "reference data loaded sucessfully";
+	public static final String UA_CAPACITY_MANAGER_SLOTS_VIEW = "CapacityManager.Slots.View";
+	public static final String PATH_SLASH = "/";
+	public static final String PATH_FOH_CAPACITY_TEMPLATES = PATH_SLASH+"foh-capacity-templates";
+	public static final String PATH_FOH_REFERENCEDATA = PATH_SLASH+"foh-referencedata";
+	
 	private CapacityConstants() {
 
 	}
