@@ -1,5 +1,7 @@
 package com.darden.dash.capacity.foh.controller;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -18,13 +20,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.darden.dash.capacity.foh.service.CapacityManagementFOHService;
 import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacitySlotRequest;
 import com.darden.dash.capacity.model.CapacitySlotTypeRefModel;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.util.JwtUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ContextConfiguration(classes = {CapacityTemplateController.class})
@@ -41,6 +46,13 @@ class CapacityTemplateControllerTest {
 	
 	@MockBean
 	private CapacityChannelService capacityChannelService;
+	
+	@Autowired
+	private ObjectMapper mapper;
+	
+	@MockBean
+	private CapacityManagementFOHService capacityManagementFOHService;
+
 	
 	@BeforeAll
 	static void beforeAll() {
@@ -84,5 +96,33 @@ class CapacityTemplateControllerTest {
 				.headers(getHeaders())
 				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk());
+	}
+	
+	@Test
+	void testUpdateCapacityManagementSlots() throws Exception {
+		CapacitySlotRequest capacitySlotRequest = new CapacitySlotRequest();
+		capacitySlotRequest.setCapacitytemplateId(1);
+		capacitySlotRequest.setSlots(new ArrayList<>());
+
+		Mockito.when(jwtUtils.isActionCodeExists(Mockito.any(), Mockito.any())).thenReturn(true);
+
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/slot/update").headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(capacitySlotRequest)))
+				.andExpect(jsonPath("status", is(200)));
+
+	}
+
+	@Test
+	void testUpdateCapacityManagementSlotsFalse() throws Exception {
+		CapacitySlotRequest capacitySlotRequest = new CapacitySlotRequest();
+		capacitySlotRequest.setCapacitytemplateId(1);
+		capacitySlotRequest.setSlots(new ArrayList<>());
+
+		Mockito.when(jwtUtils.isActionCodeExists(Mockito.any(), Mockito.any())).thenReturn(false);
+
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/slot/update").headers(getHeaders())
+				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(capacitySlotRequest)))
+				.andExpect(status().isForbidden());
+
 	}
 }
