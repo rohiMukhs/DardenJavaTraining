@@ -8,13 +8,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.darden.dash.capacity.foh.service.CapacityManagementFOHService;
 import com.darden.dash.capacity.model.CapacityResponse;
+import com.darden.dash.capacity.model.CapacitySlotRequest;
 import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.ViewCapacityChannels;
 import com.darden.dash.capacity.service.CapacityChannelService;
@@ -22,6 +26,7 @@ import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.model.ErrorResponse;
+import com.darden.dash.common.model.ServiceResponse;
 import com.darden.dash.common.util.JwtUtils;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -47,7 +52,7 @@ public class CapacityTemplateController {
 	private final JwtUtils jwtUtils;
 	private CapacityManagementService capacityManagementService;
 	private CapacityChannelService capacityChannelService;
-	
+	private CapacityManagementFOHService capacityManagementFOHService;
 	/**
 	 * Autowiring required properties.
 	 * 
@@ -56,11 +61,12 @@ public class CapacityTemplateController {
 	 * @param capacityChannelService
 	 */
 	@Autowired
-	public CapacityTemplateController(JwtUtils jwtUtils, CapacityManagementService capacityManagementService, CapacityChannelService capacityChannelService) {
+	public CapacityTemplateController(JwtUtils jwtUtils, CapacityManagementService capacityManagementService, CapacityChannelService capacityChannelService,CapacityManagementFOHService capacityManagementFOHService) {
 		super();
 		this.jwtUtils = jwtUtils;
 		this.capacityManagementService = capacityManagementService;
 		this.capacityChannelService = capacityChannelService;
+		this.capacityManagementFOHService=capacityManagementFOHService;
 	}
 
 	/**
@@ -125,6 +131,52 @@ public class CapacityTemplateController {
 		reference.setCapacityChannel(capacityChannelService.getAllCapacityChannels());
 		reference.setCapacitySlotTypes(capacityManagementService.getAllCapacitySlotTypes());
 		return new ViewCapacityChannels(reference).build(CapacityConstants.MSG_REFERENCE_DATA_LOADED_SUCESSFULLY, CapacityConstants.STATUS_CODE_200);
+	}
+	
+	
+	/**
+	 * Method is used for UPDATE operation for the respective capacity management
+	 * slot. This request body contains the list of capacity slot values of the
+	 * required field to be updated. Before sending the request
+	 * body @CapacitySlotRequest is validated for such as validation for not null
+	 * and not blank and to avoid the duplicates among the list of channels.Using
+	 * the authorization bearer token value user name is retrieved.Both
+	 * CapacitySlotRequest and user detail is passed in capacity service and the
+	 * edited data is retrieved with additional fields to be displayed in response.
+	 * At last the API updated successful response is built and returned.
+	 * 
+	 * 
+	 * 
+	 * @param CapacitySlotRequest Request class with information to update Capacity
+	 *                            slot Template.
+	 * 
+	 * @param accessToken         Token used to authenticate the user and extract
+	 *                            the userDetails for this API
+	 * 
+	 * @return ServiceResponse class with information of the Object containing
+	 *         modified Capacity Template detail.
+	 * 
+	 * @throws JsonProcessingException if any json processing exception is thrown at
+	 *                                 runtime e.g json parsing.
+	 */
+
+	@PutMapping(value = CapacityConstants.SLOT_UPDATE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_201, description = CapacityConstants.SLOT_UPDATED, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ServiceResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
+	public ResponseEntity<Object> updateCapacityManagementSlots(@RequestBody CapacitySlotRequest capacitySlotRequest,
+			@RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
+			throws GeneralSecurityException {
+		String userName = jwtUtils.findUserDetail(accessToken);
+
+		boolean validateAction = jwtUtils.isActionCodeExists(accessToken, CapacityConstants.CAPACITY_SLOT_EDIT);
+
+		if (!validateAction)
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+		capacityManagementFOHService.updateCapacitySlot(capacitySlotRequest, userName);
+		return new ServiceResponse().build(CapacityConstants.SLOT_UPDATE_RESPONSE, 200);
 	}
 
 }
