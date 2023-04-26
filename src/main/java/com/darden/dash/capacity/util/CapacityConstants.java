@@ -369,7 +369,7 @@ public class CapacityConstants {
 	public static final String PATH_FOH_CAPACITY_TEMPLATES = PATH_SLASH+"foh-capacity-templates";
 	public static final String PATH_FOH_REFERENCEDATA = PATH_SLASH+"foh-referencedata";
 	
-	public static final String SLOT_UPDATE = "/slot/update";
+	public static final String SLOT_UPDATE = "/slots";
 	
 	public static final String SLOT_UPDATE_RESPONSE = "Capacity slot updated successfully";
 	

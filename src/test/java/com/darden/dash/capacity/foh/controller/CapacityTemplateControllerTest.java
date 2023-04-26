@@ -106,7 +106,7 @@ class CapacityTemplateControllerTest {
 
 		Mockito.when(jwtUtils.isActionCodeExists(Mockito.any(), Mockito.any())).thenReturn(true);
 
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/slot/update").headers(getHeaders())
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/slots").headers(getHeaders())
 				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(capacitySlotRequest)))
 				.andExpect(jsonPath("status", is(200)));
 
@@ -120,7 +120,7 @@ class CapacityTemplateControllerTest {
 
 		Mockito.when(jwtUtils.isActionCodeExists(Mockito.any(), Mockito.any())).thenReturn(false);
 
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/slot/update").headers(getHeaders())
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/slots").headers(getHeaders())
 				.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(capacitySlotRequest)))
 				.andExpect(status().isForbidden());
 
