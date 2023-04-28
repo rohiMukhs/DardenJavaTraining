@@ -280,6 +280,8 @@ public class CapacityConstants {
 
 	public static final String PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS = "^[a-zA-Z0-9\\@\\# \\$ \\! \\& \\- \\_ \\. \\s]+$";
 
+	public static final String CAPACITY_TEMPLATE_SPL_CHARACTERS = "^[a-zA-Z0-9- _ . : ' s]*+$";
+
 	public static final String CAPACITY_MODELS = "/capacity-models";
 
 	public static final String CAPACITY_MODEL_LOADED_SUCCESSFULLY = "Capacity template models loaded successfully";
