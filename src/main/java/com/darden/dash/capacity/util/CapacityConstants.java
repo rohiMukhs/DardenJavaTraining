@@ -107,23 +107,23 @@ public class CapacityConstants {
 	public static final String BAD_REQUEST = "Bad Request";
 
 	public static final String STATUS_CODE_405 = "405";
-	
+
 	public static final String STATUS_CODE_401 = "401";
 
 	public static final String STATUS_CODE_400 = "400";
 
 	public static final String STATUS_CODE_201 = "201";
-	
+
 	public static final String STATUS_CODE_202 = "202";
-	
+
 	public static final String STATUS_CODE_SUCCESS = "200";
 
 	public static final String API_V1 = "api/v1";
-	
+
 	public static final String CAPACITY_TEMPLATES = "/capacity-templates";
-	
+
 	public static final String COMBINED_CHANNELS = "/combine-channels";
-	
+
 	public static final String SLASH = "/";
 
 	public static final String CAPACITYMANAGEMENT_CROSS_ORIGIN = "${cross.origin}";
@@ -139,11 +139,11 @@ public class CapacityConstants {
 	public static final String MAPPER_OPERATIONAL_HOURS_START_TIME = "operationalHoursStartTime";
 
 	public static final String Y = "Y";
-	
+
 	public static final String N = "N";
-	
+
 	public static final String DATES = "Dates";
-	
+
 	public static final String DAYS = "Days";
 
 	public static final String CORRELATION_ID = "Correlation Id";
@@ -153,163 +153,165 @@ public class CapacityConstants {
 	public static final String SUCCESS = "Success";
 
 	public static final String MATCHES_THE_HTTP_STATUS_CODE = "Matches the http status code";
-	
+
 	public static final String SAT_DAY = "satDay";
-	
+
 	public static final String MAP_SAT_FLG = "satFlg";
-	
+
 	public static final String FRI_DAY = "friDay";
-	
+
 	public static final String MAP_FRI_FLG = "friFlg";
-	
+
 	public static final String THU_DAY = "thuDay";
-	
+
 	public static final String MAP_THU_FLG = "thuFlg";
-	
+
 	public static final String WED_DAY = "wedDay";
-	
+
 	public static final String MAP_WED_FLG = "wedFlg";
-	
+
 	public static final String TUE_DAY = "tueDay";
-	
+
 	public static final String MAP_TUE_FLG = "tueFlg";
-	
+
 	public static final String MON_DAY = "monDay";
-	
+
 	public static final String MAP_MON_FLG = "monFlg";
-	
+
 	public static final String SUN_DAY = "sunDay";
-	
+
 	public static final String MAP_SUN_FLG = "sunFlg";
-	
+
 	public static final String MAP_EXPIRY_DATE = "expiryDate";
-	
+
 	public static final String TEMPLATE_NAME = "templateName";
-	
+
 	public static final String MAP_CAPACITY_TEMPLATE_NM = "capacityTemplateNm";
-	
+
 	public static final String MAP_EFFECTIVE_DATE = "effectiveDate";
-	
+
 	public static final String SLOT_START_TIME = "slotStartTime";
-	
+
 	public static final String SLOT_END_TIME = "slotEndTime";
-	
+
 	public static final String SLOT_CHANNELS = "slotChannels";
-	
+
 	public static final String CHANNELS = "channels";
-	
+
 	public static final String UTC = "UTC";
 
 	public static final String YYYY_MM_DD_T_HH_MM_SS_Z = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
 	public static final String MM_DD_YYYY = "MM/dd/yyyy";
 
-	public static final String H_MM = "h:mm";   
+	public static final String H_MM = "h:mm";
 
 	public static final String YYYY_MM_DD = "yyyy-MM-dd";
-	
+
 	public static final BigInteger BIG_INT_CONSTANT = BigInteger.valueOf(6);
-	
+
 	public static final String MAP_TO_TEMPLATE_ENTITY = "mapToCapacityTemplateEntity";
-	
+
 	public static final String MAP_TO_BUSSINESS_DATE = "mapToCapacityTemplateAndBusinessDateEntity";
-	
+
 	public static final String MAP_TO_SLOT_ENTITY = "mapToCapacitySlotEntity";
-	
+
 	public static final String MAP_TO_TEMPLATE_CHANNEL_ENTITY = "mapToCapacityTemplateAndCapacityChannelEntity";
-	
+
 	public static final String MAP_TO_TEMPLATE_RESPONSE = "mapToCreateTemplateResponse";
-	
+
 	public static final String MAP_TO_SLOT = "mapToSlotDetail";
-	
+
 	public static final String PATTERN_CHAR_Y_AND_CHAR_N = "^[YN]$";
-	
+
 	public static final String CHANNEL_UPDATED = "Channel was updated";
-	
+
 	public static final String CAPACITYCHANNELID = "capacityChannelId";
-	
+
 	public static final String POSNAME = "posName";
-	
+
 	public static final String INTERVAL_MIN = "Interval should be Minimum value is 5";
-	
+
 	public static final String INTERVAL_MAX = "Interval should be Maximum value is 1440";
-	
+
 	public static final String INT_EXAMPLE = "123";
-	
+
 	public static final String TIME_EXAMPLE = "HH:mm:ss";
-	
+
 	public static final String CAPACITY_SOFT_DELETE = "CAPACITY_SOFT_DELETE";
-	
+
 	public static final boolean FALSE = false;
-	
+
 	public static final String CAPACITY_TEMPLATE_WITH_TEMPLATEID = "/capacity-templates/{templateId}";
-	
+
 	public static final String CAPACITY_TEMPLATE_DELETED = " deleted successfully";
-	
+
 	public static final String APP_PARAMETER_SERVICE = "appParameterService";
-	
+
 	public static final String EC_4501 = "4501";
-	
+
 	public static final String COMBINE_CHANNELS = "/combine-channels";
-	
+
 	public static final String MAP_TO_CHANNEL_ENTITY = "mapToChannelEntity";
-	
+
 	public static final String MAP_TO_CHANNEL_AND_COMBINED_CHANNEL_ENTITY = "mapToCapacityChannelAndCombinedChannelEntity";
-	
+
 	public static final String MAP_TO_COMBINE_CHANNEL_RESPONSE = "maptoCombineChannelResponse";
-	
+
 	public static final String CHANNELS_MUST_BE_MORE_THAN_ONE = "channel more than 1";
 
 	public static final String CAPACITY_CHANNELS_CREATED_SUCCESSFULLY = "Combine channel created successfully";
-	
+
 	public static final String CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY = "capacity template updated successfully";
-	
+
 	public static final String CAPACITY_TEMPLATE_SINGLE_API_TITLE = "One capacity template loading successfully";
 
 	public static final String EDIT_TEMPLATES = "/capacity-templates/{templateId}";
-	
+
 	public static final String GET_TEMPLATES = "/capacity-templates/{templateId}";
 
 	public static final String STATUS_CODE_UPDATED = "202";
-	
+
 	public static final String INTEGER = "Integer";
-	
+
 	public static final String EC_4502 = "4502";
-	
+
 	public static final String PATTERN_ALPHANUMERIC_EXCLUDING= "^[a-zA-Z0-9\\_\\. \\- \\s]+$";
-	
+
 	public static final String PATTERN_ALPHANUMERIC_WITH_ALL_SPL_CHARACTERS = "^[a-zA-Z0-9\\@\\# \\$ \\! \\& \\- \\_ \\. \\s]+$";
-	
+
+	public static final String CAPACITY_TEMPLATE_SPL_CHARACTERS = "^[a-zA-Z0-9- _ . : ' s]*+$";
+
 	public static final String CAPACITY_MODELS = "/capacity-models";
-	
+
 	public static final String CAPACITY_MODEL_LOADED_SUCCESSFULLY = "Capacity template models loaded successfully";
-	
+
 	public static final String EC_4504 = "4504";
-	
+
 	public static final String MAP_TO_CAPACITY_MODEL = "mapToCapacityModel";
-	
+
 	public static final String FEILD_CAPACITY_TEMPLATE_ID = "capacityTemplateId";
-	
+
 	public static final String FEILD_CAPACITY_TEMPLATE_NAME = "capacityTemplateName";
-	
+
 	public static final String EC_4503 = "4503";
-	
+
 	public static final String EC_4505 = "4505";
-	
+
 	public static final String EC_4506 = "4506";
-	
+
 	public static final String CAPACITY_MODELS_WITH_MODEL_ID = "/capacity-models/{modelId}";
-	
+
 	public static final String CAPACITY_MODEL_UPDATED_SUCCESSFULLY = "capacity template model updated successfully";
-	
+
 	public static final String HEADER_CONCEPT_ID = "Concept-Id";
-	
+
 	public static final String CAPACITY_MODEL_LIST = "/capacity-model-list/{templateId}";
 	public static final String CAPACITY_MODEL_READY_FOR_DELETE = " ready for delete";
 	public static final String ORDER_TEMPLATE_TYPE = "Capacity Model List";
-	public static final String RESTAURANT_LIST = "restaurant list";
-	public static final String ORDER_TEMPLATE = "order template";
-	
+	public static final String RESTAURANT_LIST = "Restaurants";
+	public static final String ORDER_TEMPLATE = "Order Template";
+
 	public static final String CAPACITY_CHANNEL_WITH_CHANNELID = "/capacity-channel/{channelId}";
 	public static final String CAPACITY_CHANNEL_DELETED = " deleted successfully";
 	public static final String RESTAURANTS_CACHE = "restaurants";
@@ -321,7 +323,7 @@ public class CapacityConstants {
 	public static final String CAPACITY_MODEL_CACHE = "capacityModels";
 	public static final String CAPACITY_MODEL_CACHE_KEY = "#modelId";
 	public static final String CONCEPTS_CACHE = "concepts";
-	
+
 	public static final String MAPTOCAPACITYCHANNELENTITY = "mapToCapacityChannelEntity";
 	public static final String MAPTOCAPACITYCHANNELENTITYLIST = "mapToCapacityChannelEntityList";
 	public static final String MAPTOCAPACITYMODELANDLOCATIONENTITYLIST = "mapToCapacityModelAndLocationEntityList";
@@ -357,26 +359,26 @@ public class CapacityConstants {
 	public static final String CAPACITY_CHANNELS_LOADED_SUCCESSFULLY = "Capacity channels loaded successfully";
 	public static final String FAILED_TO_ADD_DATA_TO_AUDIT = "failed to add data to audit";
 	public static final String IS_CAPACITY_MODEL_DATA_REQ_FALSE = "?isCapacityModelDataReq=false";
-	
+
 	public static final String CHANNEL_WAS_UPDATED = "Channel was updated";
 	public static final String CONCEPT_ID_CACHE_KEY = "#conceptId";
 	public static final String PATTERN_ALPHANUMERIC_GLOBAL_SPL_CHARACTERS = "^[a-zA-Z0-9- @ # $ ! & _ . * ( ) + , < > / ? ' % s]*+$";
-	
+
 	//foh capacity template controller
 	public static final String MSG_REFERENCE_DATA_LOADED_SUCESSFULLY = "reference data loaded sucessfully";
 	public static final String UA_CAPACITY_MANAGER_SLOTS_VIEW = "CapacityManager.Slots.View";
 	public static final String PATH_SLASH = "/";
 	public static final String PATH_FOH_CAPACITY_TEMPLATES = PATH_SLASH+"foh-capacity-templates";
 	public static final String PATH_FOH_REFERENCEDATA = PATH_SLASH+"foh-referencedata";
-	
+
 	public static final String SLOT_UPDATE = "/slots";
-	
+
 	public static final String SLOT_UPDATE_RESPONSE = "Capacity slot updated successfully";
-	
+
 	public static final String CAPACITY_SLOT_EDIT = "CapacityManager.Slots.Edit";
-	
+
 	public static final String SLOT_UPDATED = "Slot updated";
-	
+
 	private CapacityConstants() {
 
 	}
