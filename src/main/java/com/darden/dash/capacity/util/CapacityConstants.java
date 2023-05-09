@@ -378,7 +378,27 @@ public class CapacityConstants {
 	public static final String CAPACITY_SLOT_EDIT = "CapacityManager.Slots.Edit";
 
 	public static final String SLOT_UPDATED = "Slot updated";
+	
+	//BOH Capacity Template Controller
+	public static final String PATH_RESTAURANT_CAPACITY_TEMPLATES = PATH_SLASH+"restaurant-capacity-templates";
 
+	public static final String RESTAURANT_CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY = "restaurant capacity template loaded successfully";
+
+	public static final String PATH_BOH_REFERENCEDATA = PATH_SLASH+"boh-referencedata";
+
+	public static final String REFERENCE_DATA_LOADED_SUCESSFULLY = "reference data loaded sucessfully";
+
+	public static final String RESTAURANT_CAPACITY_TEMPLATE = "/restaurant-capacity-template";
+
+	public static final String RESTAURANT_CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY = "restaurant capacity template created successfully";
+
+	public static final String RESTAURANT_CAPACITY_TEMPLATE_WITH_ID = "/restaurant-capacity-template/{templateId}";
+	
+	public static final String RESTAURANT_CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY = "restaurant capacity template updated successfully";
+
+	public static final String RESTAURANT_CAPACITY_TEMPLATE_DELETED = " deleted successfully";
+
+	
 	private CapacityConstants() {
 
 	}
