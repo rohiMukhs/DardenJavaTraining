@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -427,7 +428,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 		List<SlotChannel> slotChannelList = templateRequest.getSlotChannels();
 		
 		//fetching the reference entity.
-		Optional<ReferenceEntity> reference = referenceRepository.findById(BigInteger.TEN);
+		Map<String, ReferenceEntity> statusReferenceEntitiesMap =  referenceRepository.findByConceptId(new BigInteger(RequestContext.getConcept()))
+		.stream()
+		.collect(Collectors.toMap(ReferenceEntity::getReferenceNm, Function.identity()));
+		
+		Optional<CapacitySlotTypeEntity> capacitySlotTypeEntityOpt = capacitySlotTypeRepository
+		.findAll()
+		.stream()
+		.findAny();
 		
 		List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannelEntityList = new ArrayList<>();
 		
@@ -451,23 +459,14 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			List<SlotDetail> responseDetail = new ArrayList<>();
 			List<SlotDetail> slotDetailList = t.getSlotDetails();
 			
-			Map<String, Optional<CapacitySlotTypeEntity>> capacitySlotTypeMap = new HashMap<>();
-			
 			List<CapacitySlotEntity> capacitySlotEntityList = new ArrayList<>();
 			
 			//For each slot creating the entity.
 			slotDetailList.stream().forEach(s -> {
 				
-				//Adding capacitySlotTypeEntity to map if not present.
-				if(!capacitySlotTypeMap.containsKey(s.getSlotTypeId())) {
-					Optional<CapacitySlotTypeEntity> slotTypeEntity = capacitySlotTypeRepository
-							.findById(new BigInteger(s.getSlotTypeId()));
-					capacitySlotTypeMap.put(s.getSlotTypeId(), slotTypeEntity);
-				}
-				
 				//mapping the requested data to capacity slot entity.
-				CapacitySlotEntity slotEntity = capacityTemplateMapper.mapToSlot(createdTemplateEntity, reference,
-						capacitySlotTypeMap.get(s.getSlotTypeId()), channelEntity, t, s, createdBy);
+				CapacitySlotEntity slotEntity = capacityTemplateMapper.mapToSlot(createdTemplateEntity, statusReferenceEntitiesMap.get(s.getSlotStatusName()),
+						capacitySlotTypeEntityOpt, channelEntity, t, s, createdBy);
 				
 				//Adding CapacitySlotEntity to list.
 				capacitySlotEntityList.add(slotEntity);
@@ -946,6 +945,15 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 			CapacityTemplateEntity existingTemplate) {
 		List<CapacityTemplateAndCapacityChannelEntity> capacityTemplateAndCapacityChannelEntityList = new ArrayList<>();
 		MultiValuedMap<BigInteger, SlotDetail> channelSlotDetails = new ArrayListValuedHashMap<>();
+		Map<String, ReferenceEntity> statusReferenceEntitiesMap =  referenceRepository.findByConceptId(new BigInteger(RequestContext.getConcept()))
+				.stream()
+				.collect(Collectors.toMap(ReferenceEntity::getReferenceNm, Function.identity()));
+		
+		Optional<CapacitySlotTypeEntity> capacitySlotTypeEntityOpt = capacitySlotTypeRepository
+				.findAll()
+				.stream()
+				.findAny();
+		
 		if (CollectionUtils.isNotEmpty(templateRequest.getSlotChannels())) {
 			
 			//Creating the capacity slot entities and saving.
@@ -979,7 +987,7 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 						
 						//Mapping data to capacity slot entity.
 						CapacitySlotEntity capacitySlotEntity = mapSlotEntity(createdBy, dateTime, existingTemplate,
-								channelEntity, slotDetailReq);
+								channelEntity, slotDetailReq, statusReferenceEntitiesMap, capacitySlotTypeEntityOpt);
 						
 						//Adding to list.
 						newSlotEntities.add(capacitySlotEntity);
@@ -1013,18 +1021,11 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	 */
 	private CapacitySlotEntity mapSlotEntity(String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate, Optional<CapacityChannelEntity> channelEntity,
-			SlotDetail slotDetailReq) {
-		//Fetching CapacitySlotTypeEntity by slot type id.
-		Optional<CapacitySlotTypeEntity> capacitySlotTypeEntity = capacitySlotTypeRepository
-				.findById(new BigInteger(slotDetailReq.getSlotTypeId()));
-		
-		//Fetching ReferenceEntity by reference id.
-		Optional<ReferenceEntity> reference = referenceRepository
-				.findById(CapacityConstants.BIG_INT_CONSTANT);
+			SlotDetail slotDetailReq, Map<String, ReferenceEntity> statusReferenceEntitiesMap,Optional<CapacitySlotTypeEntity> capacitySlotTypeEntityOpt ) {
 		
 		//Mapping data to capacitySlotEntity and return.
 		return capacityTemplateMapper.mapToCapacitySlotEntity(createdBy, dateTime, existingTemplate,
-				channelEntity, slotDetailReq, capacitySlotTypeEntity, reference);
+				channelEntity, slotDetailReq, capacitySlotTypeEntityOpt, statusReferenceEntitiesMap.get(slotDetailReq.getSlotStatusName()));
 	}
 	
 	/**

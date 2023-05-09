@@ -20,7 +20,8 @@ public class SlotDetail implements Serializable{
 	private String startTime;
 	private String endTime;
 	private Integer capacityCount;
-	private String slotTypeId;
+	private String slotStatusName;
 	private String isDeletedFlg;
+	private String slotTypeId;
 
 }
