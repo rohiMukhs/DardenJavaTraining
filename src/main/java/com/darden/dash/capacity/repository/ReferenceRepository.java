@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.darden.dash.capacity.entity.ReferenceEntity;
+import java.util.List;
 
 /**
  * 
@@ -21,5 +22,7 @@ import com.darden.dash.capacity.entity.ReferenceEntity;
 @Transactional
 @Repository
 public interface ReferenceRepository extends JpaRepository<ReferenceEntity, BigInteger>{
+	
+	List<ReferenceEntity> findByConceptId(BigInteger conceptid);
 
 }

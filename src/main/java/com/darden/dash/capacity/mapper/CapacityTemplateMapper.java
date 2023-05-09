@@ -199,7 +199,7 @@ public interface CapacityTemplateMapper {
 	 */
 	@Named(CapacityConstants.MAP_TO_SLOT_ENTITY)
 	default CapacitySlotEntity mapToSlot(CapacityTemplateEntity createdTemplateEntity,
-			Optional<ReferenceEntity> reference, Optional<CapacitySlotTypeEntity> slotTypeEntity,
+			ReferenceEntity reference, Optional<CapacitySlotTypeEntity> slotTypeEntity,
 			Optional<CapacityChannelEntity> channelEntity, SlotChannel t, SlotDetail s, String createdBy) {
 		Instant dateTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		CapacitySlotEntity slotEntity = new CapacitySlotEntity();
@@ -208,7 +208,7 @@ public interface CapacityTemplateMapper {
 		slotEntity.setCreatedDatetime(dateTime);
 		slotEntity.setLastModifiedBy(createdBy);
 		slotEntity.setLastModifiedDatetime(dateTime);
-		reference.ifPresent(slotEntity::setReference);
+		slotEntity.setReference(reference);
 		channelEntity.ifPresent(slotEntity::setCapacityChannel);
 		slotEntity.setStartTime(LocalTime.parse(s.getStartTime()));
 		slotEntity.setEndTime(LocalTime.parse(s.getEndTime()));
@@ -300,7 +300,7 @@ public interface CapacityTemplateMapper {
 		responseSlot.setEndTime(savedSlot.getEndTime().toString());
 		responseSlot.setStartTime(savedSlot.getStartTime().toString());
 		responseSlot.setSlotId(savedSlot.getCapacitySlotId());
-		responseSlot.setSlotTypeId(s.getSlotTypeId());
+		responseSlot.setSlotStatusName(s.getSlotStatusName());
 		return responseSlot;
 	}
 	
@@ -350,7 +350,7 @@ public interface CapacityTemplateMapper {
 	default SlotDetail mapToUpdateCapacityTemplateSlots(CapacitySlotEntity cs) {
 		SlotDetail slotDetail = new SlotDetail();
 		slotDetail.setSlotId(cs.getCapacitySlotId());
-		slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
+		slotDetail.setSlotStatusName(String.valueOf(cs.getReference().getReferenceNm()));
 		slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
 		slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
 		slotDetail.setCapacityCount(cs.getCapacityCnt());
@@ -452,7 +452,7 @@ public interface CapacityTemplateMapper {
 	default CapacitySlotEntity mapToCapacitySlotEntity(String createdBy, Instant dateTime,
 			CapacityTemplateEntity existingTemplate, Optional<CapacityChannelEntity> channelEntity,
 			SlotDetail slotDetailReq, Optional<CapacitySlotTypeEntity> capacitySlotTypeEntity,
-			Optional<ReferenceEntity> reference) {
+			ReferenceEntity reference) {
 		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
 		channelEntity.ifPresent(capacitySlotEntity::setCapacityChannel);
 		capacitySlotEntity.setStartTime(LocalTime.parse(slotDetailReq.getStartTime()));
@@ -465,7 +465,7 @@ public interface CapacityTemplateMapper {
 		capacitySlotEntity.setLastModifiedDatetime(dateTime);
 		capacitySlotEntity.setCapacityTemplate(existingTemplate);
 		capacitySlotEntity.setConceptId(new BigInteger(RequestContext.getConcept()));
-		reference.ifPresent(capacitySlotEntity::setReference);
+		capacitySlotEntity.setReference(reference);
 		return capacitySlotEntity;
 	}
 	
@@ -538,7 +538,8 @@ public interface CapacityTemplateMapper {
 			channelNames.put(channelId, cs.getCapacityChannel().getCapacityChannelNm());
 			SlotDetail slotDetail = new SlotDetail();
 			slotDetail.setSlotId(cs.getCapacitySlotId());
-			slotDetail.setSlotTypeId(String.valueOf(cs.getCapacitySlotType().getCapacitySlotTypeId()));
+			slotDetail.setSlotTypeId(String.valueOf(cs.getReference().getReferenceId()));
+			slotDetail.setSlotStatusName(cs.getReference().getReferenceNm());
 			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
 			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
 			slotDetail.setCapacityCount(cs.getCapacityCnt());

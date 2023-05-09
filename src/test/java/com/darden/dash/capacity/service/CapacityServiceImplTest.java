@@ -242,7 +242,11 @@ class CapacityServiceImplTest {
 	private List<CapacitySlotEntity> getCapacitySlots() {
 		List<CapacitySlotEntity> capacitySlotEntities = new ArrayList<>();
 		CapacitySlotEntity capacitySlotEntity = new CapacitySlotEntity();
+		ReferenceEntity reference = new ReferenceEntity();
+		reference.setReferenceId(BigInteger.ONE);
+		reference.setReferenceNm("OPNE");
 		capacitySlotEntity.setCapacityCnt(1);
+		capacitySlotEntity.setReference(reference);
 		CapacityTemplateEntity capacityTemplateEntity=new CapacityTemplateEntity();
 		capacityTemplateEntity.setCapacityTemplateId(BigInteger.ONE);
 		capacitySlotEntity.setCapacityTemplate(capacityTemplateEntity);
