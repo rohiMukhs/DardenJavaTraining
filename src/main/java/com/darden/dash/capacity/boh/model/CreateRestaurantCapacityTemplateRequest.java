@@ -31,7 +31,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CreateRestaurantCapacityTemplateRequest extends BaseModel {
+public class CreateRestaurantCapacityTemplateRequest{
 
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Length(max = 40, message = ErrorCodeConstants.EC_4002)
