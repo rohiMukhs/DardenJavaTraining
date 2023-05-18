@@ -62,7 +62,7 @@ public class RestaurantTemplateSlotEntity extends Audit implements Serializable 
 	// bi-directional many-to-one association to CapacityTemplate
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = CapacityConstants.RESTAURANT_TEMPLATE_ID)
-	private RestaurantTemplateEntity resstaurantTemplate;
+	private RestaurantTemplateEntity restaurantTemplate;
 
 	// bi-directional many-to-one association to Reference
 	@ManyToOne(fetch = FetchType.LAZY)

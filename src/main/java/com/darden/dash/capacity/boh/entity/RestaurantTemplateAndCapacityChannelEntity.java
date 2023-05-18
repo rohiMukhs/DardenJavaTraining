@@ -39,6 +39,9 @@ public class RestaurantTemplateAndCapacityChannelEntity extends Audit implements
 	@Column(name=CapacityConstants.CONCEPT_ID)
 	private BigInteger conceptId;
 	
+	@Column(name = CapacityConstants.LOCATION_ID)
+	private BigInteger locationId;
+	
 	//bi-directional many-to-one association to CapacityChannel
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name=CapacityConstants.CAPACITY_CHANNEL_ID,insertable=false, updatable=false)
@@ -46,8 +49,8 @@ public class RestaurantTemplateAndCapacityChannelEntity extends Audit implements
 
 	//bi-directional many-to-one association to CapacityTemplate
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name=CapacityConstants.CAPACITY_TEMPLATE_ID,insertable=false, updatable=false)
-	private RestaurantTemplateEntity capacityTemplate;
+	@JoinColumn(name=CapacityConstants.RESTAURANT_TEMPLATE_ID,insertable=false, updatable=false)
+	private RestaurantTemplateEntity restaurantTemplate;
 	
 
 	}
