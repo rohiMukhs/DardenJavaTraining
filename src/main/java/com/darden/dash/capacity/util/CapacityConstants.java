@@ -398,7 +398,41 @@ public class CapacityConstants {
 
 	public static final String RESTAURANT_CAPACITY_TEMPLATE_DELETED = " deleted successfully";
 
+	public static final String DAY_OF_WEEK_PLAN_MANAGER_TEMPLATE = "DAY_OF_WEEK_PLAN_ManagerTemplate";
+
+	//RESTAURANT_TEMPLATE
+	public static final String RESTAURANT_TEMPLATE = "restaurant_template";
 	
+	public static final String RESTAURANT_TEMPLATE_ID = "restaurant_template_id";
+	
+	public static final String RESTAURANT_TEMPLATE_NAME = "restaurant_template_nm";
+
+	public static final String RESTAURANT_TEMPLATE_TYPE_ID = "restaurant_template_type_id";
+	
+	public static final String RESTAURANT_TEMPLATE_AND_BUSINESS_DATE = "restaurant_template_and_business_date";
+
+	public static final String RESTAURANT_TEMPLATE_SLOT = "restaurant_template_slot";
+
+	public static final String RESTAURANT_TEMPLATE_SLOT_ID = "restaurant_template_slot_id";
+	
+	public static final String RESTAURANT_TEMPLATE_SLOT_TYPE = "restaurant_template_slot_type";
+
+	public static final String RESTAURANT_TEMPLATE_SLOT_TYPE_ID = "restaurant_template_slot_type_id";
+
+	public static final String RESTAURANT_TEMPLATE_SLOT_TYPE_NAME = "restaurant_template_slot_type_nm";
+
+	public static final String RESTAURANT_TEMPLATE_TYPE2 = "restaurantTemplateSlotType";
+
+	public static final String RESTAURANT_TEMPLATE_TYPE = "restaurant_template_type";
+	
+	public static final String RESTAURANT_TEMPLATE_TYPE_NAME = "restaurant_template_type_nm";
+	
+	public static final String RESTAURANT_TEMPLATE_TYPE3 = "restaurantTemplateType";
+
+	public static final String RESTAURANT_TEMPLATE2 = "restaurantTemplate";
+
+	public static final String RESTAURANT_TEMPLATE_SLOT_STATUS_REF_ID = "restaurant_template_slot_status_ref_id";
+
 	private CapacityConstants() {
 
 	}
