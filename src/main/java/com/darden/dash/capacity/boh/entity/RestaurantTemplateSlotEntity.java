@@ -35,7 +35,7 @@ public class RestaurantTemplateSlotEntity extends Audit implements Serializable 
 
 	@Id
 	@Column(name = CapacityConstants.RESTAURANT_TEMPLATE_SLOT_ID)
-	private BigInteger capacitySlotId;
+	private BigInteger restaurantSlotId;
 
 	@Column(name = CapacityConstants.CAPACITY_CNT)
 	private Integer capacityCnt;

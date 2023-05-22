@@ -1,8 +1,11 @@
 package com.darden.dash.capacity.boh.service;
 
+import java.math.BigInteger;
+
 import javax.validation.Valid;
 
 import com.darden.dash.capacity.boh.model.CreateRestaurantCapacityTemplateRequest;
+import com.darden.dash.capacity.boh.model.RestaurantCapacityTemplate;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
 import com.darden.dash.capacity.model.CapacityResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,5 +37,12 @@ public interface RestaurantCapacityTemplateService {
 	 */
 
 	 public CapacityResponse getAllCapacityTemplates(Boolean assignedTemplate, String conceptId);
+
+	 /**
+	  * This method is used to get restaurant template by restaurantTemplateId
+	  * @param bigTemplateId
+	  * @return restaurantTemplate
+	  */
+	public RestaurantCapacityTemplate getRestaurantCapacityTempalteById(BigInteger bigTemplateId);
 
 }

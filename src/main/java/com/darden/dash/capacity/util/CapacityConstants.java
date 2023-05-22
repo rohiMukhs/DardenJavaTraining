@@ -432,6 +432,14 @@ public class CapacityConstants {
 	public static final String RESTAURANT_TEMPLATE2 = "restaurantTemplate";
 
 	public static final String RESTAURANT_TEMPLATE_SLOT_STATUS_REF_ID = "restaurant_template_slot_status_ref_id";
+	
+	public static final String RESTAURANT_CHANNELS = "restaurantChannels";
+	
+	public static final String RESTAURANT_SLOT_CHANNELS = "restaurantSlotChannels";
+	
+	public static final String RESTUARANT_TEMPLATE_LOADED_SUCESSFULLY = "One restaurant capacity template loading successfully";
+	
+	public static final String RESTAURANT_TEMPLATE_AND_CAPACITY_CHANNEL = "restaurant_template_and_capacity_channel";
 
 	private CapacityConstants() {
 

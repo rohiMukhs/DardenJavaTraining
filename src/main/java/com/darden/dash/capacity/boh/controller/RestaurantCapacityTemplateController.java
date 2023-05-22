@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,27 +15,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.darden.dash.capacity.boh.model.CreateRestaurantCapacityTemplateRequest;
-import com.darden.dash.capacity.foh.service.CapacityManagementFOHService;
-import com.darden.dash.capacity.model.CapacityModelRequest;
-import com.darden.dash.capacity.model.CapacityModelResponse;
-import com.darden.dash.capacity.model.CapacityResponse;
-import com.darden.dash.capacity.model.CapacitySlotRequest;
-import com.darden.dash.capacity.model.CapacityTemplate;
-import com.darden.dash.capacity.model.CapacityTemplateResponse;
-import com.darden.dash.capacity.model.DeleteModelTemplateRequest;
-import com.darden.dash.capacity.model.ListOfCapacityTemplateIds;
-import com.darden.dash.capacity.model.ListOfModelResponse;
-import com.darden.dash.capacity.model.ReferenceDatum;
-import com.darden.dash.capacity.model.ViewCapacityChannels;
-import com.darden.dash.capacity.service.CapacityChannelService;
+import com.darden.dash.capacity.boh.model.RestaurantCapacityTemplate;
+import com.darden.dash.capacity.boh.model.RestaurantCapacityTemplateResponse;
+import com.darden.dash.capacity.boh.service.RestaurantCapacityTemplateService;
+import com.darden.dash.capacity.boh.validator.RestaurantCapacityTemplateValidator;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.enums.OperationConstants;
 import com.darden.dash.common.model.ErrorResponse;
 import com.darden.dash.common.model.ServiceResponse;
@@ -51,7 +38,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 /**
  * 
- * @author vlsowjan
+ * @author gunsaik
  * 
  *         This controller is used to manage the different activities related
  *         capacity template for BOH.
@@ -65,6 +52,8 @@ public class RestaurantCapacityTemplateController {
 
 	private final JwtUtils jwtUtils;
 
+	private final RestaurantCapacityTemplateService restaurantCapacityTemplateService;
+	private final RestaurantCapacityTemplateValidator restaurantCapacityTemplateValidator;
 	/**
 	 * Autowiring required properties.
 	 * 
@@ -73,11 +62,16 @@ public class RestaurantCapacityTemplateController {
 	 * @param capacityChannelService
 	 */
 	@Autowired
-	public RestaurantCapacityTemplateController(JwtUtils jwtUtils) {
+	public RestaurantCapacityTemplateController(JwtUtils jwtUtils,
+			RestaurantCapacityTemplateService restaurantCapacityTemplateService,
+			RestaurantCapacityTemplateValidator restaurantCapacityTemplateValidator) {
 		super();
 		this.jwtUtils = jwtUtils;
+		this.restaurantCapacityTemplateService = restaurantCapacityTemplateService;
+		this.restaurantCapacityTemplateValidator = restaurantCapacityTemplateValidator;
 
 	}
+
 
 	/**
 	 * This method is to get list of Capacity Templates from database along with
@@ -229,7 +223,7 @@ public class RestaurantCapacityTemplateController {
 	 */
 	@GetMapping(value = CapacityConstants.RESTAURANT_CAPACITY_TEMPLATE_WITH_ID, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.RESTAURANT_CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ServiceResponse.class))),
+			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_SUCCESS, description = CapacityConstants.RESTAURANT_CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = RestaurantCapacityTemplateResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_400, description = CapacityConstants.BAD_REQUEST, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = CapacityConstants.STATUS_CODE_405, description = CapacityConstants.METHOD_NOT_ALLOWED, content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))) })
 	public ResponseEntity<Object> getCapacityTempalteId(@PathVariable String templateId,
@@ -237,8 +231,16 @@ public class RestaurantCapacityTemplateController {
 			@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId)
 			throws JsonProcessingException {
 		jwtUtils.findUserDetail(accessToken);
+		restaurantCapacityTemplateValidator.validate(null, OperationConstants.OPERATION_GET.getCode());
+		RestaurantCapacityTemplate restaurantCapacityTemplate = null;
+		BigInteger bigTemplateId = new BigInteger(templateId);
+		if (!templateId.isEmpty()) {
+			restaurantCapacityTemplate = restaurantCapacityTemplateService
+					.getRestaurantCapacityTempalteById(bigTemplateId);
+		}
+		return new RestaurantCapacityTemplateResponse(restaurantCapacityTemplate).build(
+				CapacityConstants.RESTUARANT_TEMPLATE_LOADED_SUCESSFULLY , CapacityConstants.STATUS_CODE_200);
 
-		return null;
 	}
 
 	/**

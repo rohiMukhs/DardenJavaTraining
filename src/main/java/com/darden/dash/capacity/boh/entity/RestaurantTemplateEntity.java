@@ -38,7 +38,7 @@ public class RestaurantTemplateEntity extends Audit implements Serializable {
 
 	@Id
 	@Column(name = CapacityConstants.RESTAURANT_TEMPLATE_ID)
-	private BigInteger resturantTemplateId;
+	private BigInteger restaurantTemplateId;
 
 	@Column(name = CapacityConstants.RESTAURANT_TEMPLATE_NAME)
 	private String resturantTemplateNm;
