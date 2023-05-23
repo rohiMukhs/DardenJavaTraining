@@ -382,11 +382,11 @@ public class CapacityConstants {
 	//BOH Capacity Template Controller
 	public static final String PATH_RESTAURANT_CAPACITY_TEMPLATES = PATH_SLASH+"restaurant-capacity-templates";
 
-	public static final String RESTAURANT_CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY = "restaurant capacity template loaded successfully";
+	public static final String RESTAURANT_CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY = "Restaurant capacity template loaded successfully";
 
 	public static final String PATH_BOH_REFERENCEDATA = PATH_SLASH+"boh-referencedata";
 
-	public static final String REFERENCE_DATA_LOADED_SUCESSFULLY = "reference data loaded sucessfully";
+	public static final String REFERENCE_DATA_LOADED_SUCESSFULLY = "Reference data loaded sucessfully";
 
 	public static final String RESTAURANT_CAPACITY_TEMPLATE = "/restaurant-capacity-template";
 
