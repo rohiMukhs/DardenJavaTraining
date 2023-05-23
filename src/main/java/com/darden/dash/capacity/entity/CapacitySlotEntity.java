@@ -3,6 +3,7 @@ package com.darden.dash.capacity.entity;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.LocalTime;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,9 +13,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.darden.dash.capacity.util.CapacityConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -69,4 +72,8 @@ public class CapacitySlotEntity extends Audit implements Serializable {
 	@JoinColumn(name=CapacityConstants.CAPACITY_SLOT_STATUS_REF_ID)
 	private ReferenceEntity reference;
 
+	@JsonBackReference
+	@OneToMany(mappedBy="capacitySlotEntity")
+	private List<CapacitySlotTransactionEntity> capacitySlotTransactionEntities;
+	
 }

@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.model;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import lombok.Getter;
@@ -16,7 +17,11 @@ import lombok.Setter;
 @Setter
 public class CapacitySlotRequest {
 
-	private Integer capacitytemplateId;
-
-	private List<CapacitySlotCount> slots;
+	private String capacitySlotType;
+	private Integer capacityCount;
+	private String currentDate;
+    private BigInteger locationId;
+    private BigInteger channelId;
+	private List<CapacitySlotTransaction> slots;
+	
 }

@@ -25,6 +25,7 @@ import com.darden.dash.capacity.model.CapacityChannel;
 import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacitySlotRequest;
 import com.darden.dash.capacity.model.CapacitySlotTypeRefModel;
+import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.common.RequestContext;
@@ -72,9 +73,9 @@ class CapacityTemplateControllerTest {
 	
 	@Test
 	void getAllCapacityTemplates() throws Exception {
-		CapacityResponse capacityResponse = new CapacityResponse();
+		List<SlotChannel> capacityResponse = new ArrayList<>();
 		Mockito.when(jwtUtils.isActionCodeExists(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
-		Mockito.when(capacityManagementService.getAllCapacityTemplatesBasedOnDate(Mockito.anyBoolean(), Mockito.any(), Mockito.any()))
+		Mockito.when(capacityManagementFOHService.getChannelAndSlotForDateWithPopulatingSlots(Mockito.anyString()))
 				.thenReturn(capacityResponse);
 		
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/foh-capacity-templates")
@@ -101,7 +102,6 @@ class CapacityTemplateControllerTest {
 	@Test
 	void testUpdateCapacityManagementSlots() throws Exception {
 		CapacitySlotRequest capacitySlotRequest = new CapacitySlotRequest();
-		capacitySlotRequest.setCapacitytemplateId(1);
 		capacitySlotRequest.setSlots(new ArrayList<>());
 
 		Mockito.when(jwtUtils.isActionCodeExists(Mockito.any(), Mockito.any())).thenReturn(true);
@@ -115,7 +115,6 @@ class CapacityTemplateControllerTest {
 	@Test
 	void testUpdateCapacityManagementSlotsFalse() throws Exception {
 		CapacitySlotRequest capacitySlotRequest = new CapacitySlotRequest();
-		capacitySlotRequest.setCapacitytemplateId(1);
 		capacitySlotRequest.setSlots(new ArrayList<>());
 
 		Mockito.when(jwtUtils.isActionCodeExists(Mockito.any(), Mockito.any())).thenReturn(false);

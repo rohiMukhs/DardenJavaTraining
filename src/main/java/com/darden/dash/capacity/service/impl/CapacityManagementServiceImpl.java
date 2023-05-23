@@ -1,7 +1,6 @@
 package com.darden.dash.capacity.service.impl;
 
 import java.math.BigInteger;
-import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -9,7 +8,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -174,7 +172,37 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 	@Override
 	@Cacheable(value = CapacityConstants.CAPACITY_TEMPLATE_CACHE, key= CapacityConstants.COMBINE_CAPACITY_TEMPLATE_CACHE_KEY)
 	public CapacityResponse getAllCapacityTemplates(Boolean isRefDataReq, String conceptId ) {
-		return getAllCapacityTemplatesBasedOnDate(isRefDataReq, conceptId, null);
+		BigInteger concepId = new BigInteger(conceptId);
+
+		// fetching the list of capacity template entities within the concept.
+		List<CapacityTemplateEntity> capacityTemplateEntities = capacityTemplateRepo.findByConceptId(concepId);
+		List<CapacityTemplate> capacityTemplates = new ArrayList<>();
+		capacityTemplateEntities.stream().filter(Objects::nonNull).forEach(capacityTemplateEntity -> {
+			
+			//mapping the channels related to capacityTemplateEntity to model class channels. 
+			List<Channel> channels = capacityTemplateMapper.getCapacityTemplateChannels(capacityTemplateEntity);
+			
+			//fetching all the capacity slots related to capacity template entity. 
+			List<CapacitySlotEntity> capacitySlots = capacityTemplateEntity.getCapacitySlots();
+			MultiValuedMap<String, SlotDetail> channelSlotDetails = new ArrayListValuedHashMap<>();
+			Set<String> channelIds = new HashSet<>();
+			Map<String, String> channelNames = new HashMap<>();
+			
+			//mapping capacity channel and slot details related to capacityTemplateEntity to channelSlotDetails and group it based on 
+			//channel id.
+			capacityTemplateMapper.mapCapacitySlots(capacitySlots, channelSlotDetails, channelIds, channelNames);
+			
+			//mapping all capacity channels and slots related to capacityTemplateEntity to list of slotChannels model class.
+			List<SlotChannel> slotChannels = capacityTemplateMapper.mapSlotChannels(channelSlotDetails, channelIds, channelNames);
+			
+			//mapping the capacityTemplateEntity data to CapacityTemplate model class and adding it to list.
+			mapCapacityTemplateModel(capacityTemplates, capacityTemplateEntity, channels, slotChannels);
+		});
+		//fetching all the capacityChannels based on the isRefDataReq flag.
+		List<ReferenceDatum> referenceData = getReferenceDataBasedOnIsRefDataReq(isRefDataReq);
+		
+		//Setting the list of capacityTemplate and reference data to CapacityResponse model class.
+		return new CapacityResponse(capacityTemplates, referenceData);
 	}
 	/**
 	 * Method is used to get the CapacityTemplate buy id for the respective
@@ -1345,111 +1373,6 @@ public class CapacityManagementServiceImpl implements CapacityManagementService 
 				}
 			}));
 		return capacityModelList;
-	}
-	
-	/**
-	 * This method is to get list of Capacity Templates from database along with
-	 * list of channel data from CapacityTemplate,
-	 * CapacityTemplateAndCapacityChannel , CapacitySlot ,CapacityChannel entities
-	 * and mapping the capacity channel mapper for reference data based on
-	 * specified date.
-	 * 
-	 * @param isRefDataReq conatins flag for reference data.
-	 * 
-	 * @param date contains data for which date template should be displayed.
-	 * 
-	 * @param conceptId contains data of concept id.
-	 * 
-	 * @return ResponseEntity response containing all list of 
-	 * 							capacity Template.
-	 * 
-	 */
-	@Override
-	public CapacityResponse getAllCapacityTemplatesBasedOnDate(Boolean isRefDataReq, String conceptId, String date) {
-		BigInteger concepId = new BigInteger(conceptId);
-
-		// fetching the list of capacity template entities within the concept.
-		List<CapacityTemplateEntity> capacityTemplateEntities = null;
-		if(date == null)
-			capacityTemplateEntities = capacityTemplateRepo.findByConceptId(concepId);
-		else
-			capacityTemplateEntities = basedOnDate(date);
-		List<CapacityTemplate> capacityTemplates = new ArrayList<>();
-		capacityTemplateEntities.stream().filter(Objects::nonNull).forEach(capacityTemplateEntity -> {
-			
-			//mapping the channels related to capacityTemplateEntity to model class channels. 
-			List<Channel> channels = capacityTemplateMapper.getCapacityTemplateChannels(capacityTemplateEntity);
-			
-			//fetching all the capacity slots related to capacity template entity. 
-			List<CapacitySlotEntity> capacitySlots = capacityTemplateEntity.getCapacitySlots();
-			MultiValuedMap<String, SlotDetail> channelSlotDetails = new ArrayListValuedHashMap<>();
-			Set<String> channelIds = new HashSet<>();
-			Map<String, String> channelNames = new HashMap<>();
-			
-			//mapping capacity channel and slot details related to capacityTemplateEntity to channelSlotDetails and group it based on 
-			//channel id.
-			capacityTemplateMapper.mapCapacitySlots(capacitySlots, channelSlotDetails, channelIds, channelNames);
-			
-			//mapping all capacity channels and slots related to capacityTemplateEntity to list of slotChannels model class.
-			List<SlotChannel> slotChannels = capacityTemplateMapper.mapSlotChannels(channelSlotDetails, channelIds, channelNames);
-			
-			//mapping the capacityTemplateEntity data to CapacityTemplate model class and adding it to list.
-			mapCapacityTemplateModel(capacityTemplates, capacityTemplateEntity, channels, slotChannels);
-		});
-		//fetching all the capacityChannels based on the isRefDataReq flag.
-		List<ReferenceDatum> referenceData = getReferenceDataBasedOnIsRefDataReq(isRefDataReq);
-		
-		//Setting the list of capacityTemplate and reference data to CapacityResponse model class.
-		return new CapacityResponse(capacityTemplates, referenceData);
-	}
-	
-	/**
-	 * This method is to filterout capacity template based on date.
-	 * 
-	 * @param date String contains data of date.
-	 * 
-	 * @return List<CapacityTemplateEntity> returns the capacity template data.
-	 */
-	private List<CapacityTemplateEntity> basedOnDate(String date) {
-		LocalDate requestedLocalDate = DateUtil.convertStringtoLocalDate(date);
-		Date requestedDate = DateUtil.stringToDate(date);
-		List<CapacityTemplateEntity> capacityTemplates = new ArrayList<>();
-		if(requestedLocalDate.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.MONDAY.toString())) {
-			capacityTemplates = capacityTemplateRepo.findByMonFlg(CapacityConstants.Y);
-		}
-		else if(requestedLocalDate.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.TUESDAY.toString())) {
-			capacityTemplates = capacityTemplateRepo.findByTueFlg(CapacityConstants.Y);
-		}
-		else if(requestedLocalDate.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.WEDNESDAY.toString())) {
-			capacityTemplates = capacityTemplateRepo.findByWedFlg(CapacityConstants.Y);
-		}
-		else if(requestedLocalDate.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.THURSDAY.toString())) {
-			capacityTemplates = capacityTemplateRepo.findByThuFlg(CapacityConstants.Y);
-		}
-		else if(requestedLocalDate.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.FRIDAY.toString())) {
-			capacityTemplates = capacityTemplateRepo.findByFriFlg(CapacityConstants.Y);
-		}
-		else if(requestedLocalDate.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SATURDAY.toString())) {
-			capacityTemplates = capacityTemplateRepo.findBySatFlg(CapacityConstants.Y);
-		}
-		else if(requestedLocalDate.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SUNDAY.toString())) {
-			capacityTemplates = capacityTemplateRepo.findBySunFlg(CapacityConstants.Y);
-		}
-		
-		if(!capacityTemplates.isEmpty()) {
-			 List<CapacityTemplateEntity> templateByWeekDay = capacityTemplates
-			.stream()
-			.filter(template -> template.getEffectiveDate() != null && template.getEffectiveDate().before(requestedDate))
-			.filter(template -> template.getExpiryDate() == null || template.getExpiryDate().after(requestedDate))
-			.collect(Collectors.toList());
-			 if(!templateByWeekDay.isEmpty()) {
-				 return templateByWeekDay;
-			 }
-		}
-		Optional<CapacityTemplateAndBusinessDateEntity> templateByBussinessDate = capacityTemplateAndBusinessDateRepository.findByIdBusinessDate(requestedDate);
-		if(templateByBussinessDate.isPresent())
-			return Collections.singletonList(templateByBussinessDate.get().getCapacityTemplate());
-		return new ArrayList<>();
 	}
 
 	/**

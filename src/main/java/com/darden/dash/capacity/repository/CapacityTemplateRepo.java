@@ -68,7 +68,7 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findByMonFlg(String monFlg);
+	List<CapacityTemplateEntity> findByMonFlgAndConceptId(String monFlg, BigInteger conceptId);
 	
 	/**
 	 * This method is to fetch capacity templates by Tuesday flag.
@@ -78,7 +78,7 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findByTueFlg(String tueFlg);
+	List<CapacityTemplateEntity> findByTueFlgAndConceptId(String tueFlg, BigInteger conceptId);
 	
 	/**
 	 * This method is to fetch capacity templates by Wednesday flag.
@@ -88,7 +88,7 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findByWedFlg(String wedFlg);
+	List<CapacityTemplateEntity> findByWedFlgAndConceptId(String wedFlg, BigInteger conceptId);
 	
 	/**
 	 * This method is to fetch capacity templates by Thursday flag.
@@ -98,7 +98,7 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findByThuFlg(String thuFlg);
+	List<CapacityTemplateEntity> findByThuFlgAndConceptId(String thuFlg, BigInteger conceptId);
 	
 	/**
 	 * This method is to fetch capacity templates by Friday flag.
@@ -108,7 +108,7 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findByFriFlg(String friFlg);
+	List<CapacityTemplateEntity> findByFriFlgAndConceptId(String friFlg, BigInteger conceptId);
 	
 	/**
 	 * This method is to fetch capacity templates by Saturday flag.
@@ -118,7 +118,7 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findBySatFlg(String satFlg);
+	List<CapacityTemplateEntity> findBySatFlgAndConceptId(String satFlg, BigInteger conceptId);
 	
 	/**
 	 * This method is to fetch capacity templates by Sunday flag.
@@ -128,6 +128,6 @@ public interface CapacityTemplateRepo extends JpaRepository<CapacityTemplateEnti
 	 * @return List<CapacityTemplateEntity> List of Capacity Template entity class retrieved 
 	 * 									   based on the parameters passed.
 	 */
-	List<CapacityTemplateEntity> findBySunFlg(String sunFlg);
+	List<CapacityTemplateEntity> findBySunFlgAndConceptId(String sunFlg, BigInteger conceptId);
 	
 }

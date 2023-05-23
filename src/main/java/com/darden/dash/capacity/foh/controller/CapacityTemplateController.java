@@ -19,15 +19,16 @@ import org.springframework.web.server.ResponseStatusException;
 import com.darden.dash.capacity.foh.service.CapacityManagementFOHService;
 import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.model.CapacitySlotRequest;
+import com.darden.dash.capacity.model.ChannelAndSlotResponse;
 import com.darden.dash.capacity.model.ReferenceDatum;
 import com.darden.dash.capacity.model.ViewCapacityChannels;
 import com.darden.dash.capacity.service.CapacityChannelService;
 import com.darden.dash.capacity.service.CapacityManagementService;
 import com.darden.dash.capacity.util.CapacityConstants;
-import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.model.ErrorResponse;
 import com.darden.dash.common.model.ServiceResponse;
 import com.darden.dash.common.util.JwtUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -100,7 +101,8 @@ public class CapacityTemplateController {
 		if(!jwtUtils.isActionCodeExists(accessToken, CapacityConstants.UA_CAPACITY_MANAGER_SLOTS_VIEW)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
-		return capacityManagementService.getAllCapacityTemplatesBasedOnDate(isRefDataReq, RequestContext.getConcept(), date).build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
+		return new ChannelAndSlotResponse(capacityManagementFOHService.getChannelAndSlotForDateWithPopulatingSlots(date))
+				.build(CapacityConstants.CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY, CapacityConstants.STATUS_CODE_200);
 	}
 	
 	/**
