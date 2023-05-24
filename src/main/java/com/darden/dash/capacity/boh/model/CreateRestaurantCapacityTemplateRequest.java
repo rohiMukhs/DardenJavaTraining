@@ -12,35 +12,32 @@ import org.hibernate.validator.constraints.Length;
 
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacitySlotCount;
-import com.darden.dash.capacity.model.SlotChannel;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.constant.CommonConstants;
 import com.darden.dash.common.constant.ErrorCodeConstants;
-import com.darden.dash.common.model.BaseEntity;
-import com.darden.dash.common.model.BaseModel;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- *  @author vraviran
+ * @author vraviran
  *
- * This Model class is written for the purpose of showing the
- *  values of Create Request for Capacity Template
+ *         This Model class is written for the purpose of showing the values of
+ *         Create Request for Capacity Template
  */
 @Getter
 @Setter
-public class CreateRestaurantCapacityTemplateRequest{
+public class CreateRestaurantCapacityTemplateRequest {
 
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Length(max = 40, message = ErrorCodeConstants.EC_4002)
 	@Pattern(regexp = CommonConstants.PATTERN_BEFORE_AFTER_SPACE, message = ErrorCodeConstants.EC_4014)
 	@Pattern(regexp = CapacityConstants.PATTERN_ALPHANUMERIC_GLOBAL_SPL_CHARACTERS, message = ErrorCodeConstants.EC_4003)
 	@Schema(description = "Capacity Template Name", example = "Template1")
-    private String capacityTemplateName;
+	private String capacityTemplateName;
 	@Schema(description = "Effective Date", example = "2023-05-25")
-    private String effectiveDate;
+	private String effectiveDate;
 	@Schema(description = "Expiry Date", example = "2023-05-25")
 	private String expiryDate;
 	@Schema(description = "Concept Id", example = "1")
@@ -67,7 +64,7 @@ public class CreateRestaurantCapacityTemplateRequest{
 	private List<BusinessDate> businessDates;
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Schema(description = "Slot StartTime", example = "11:15")
-    private String slotStartTime;
+	private String slotStartTime;
 	@NotBlank(message = ErrorCodeConstants.EC_4001)
 	@Schema(description = "Slot EndTime", example = "11:30")
 	private String slotEndTime;

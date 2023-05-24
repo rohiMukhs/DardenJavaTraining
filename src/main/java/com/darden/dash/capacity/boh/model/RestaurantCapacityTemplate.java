@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.darden.dash.capacity.model.BusinessDate;
-import com.darden.dash.capacity.model.Channel;
-import com.darden.dash.capacity.model.SlotChannel;
 
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -20,7 +18,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = false)
 @Generated
 public class RestaurantCapacityTemplate implements Serializable {
-	
+
 	/**
 	 * 
 	 */

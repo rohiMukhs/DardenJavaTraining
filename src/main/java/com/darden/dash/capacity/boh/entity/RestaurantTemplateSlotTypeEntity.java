@@ -21,7 +21,8 @@ import lombok.Setter;
 
 
 /**@author vlsowjan
- * The persistent class for the restaurant_template_slot_type database table.
+ * 
+ * The persistent class for the restaurant_template_slot_Type database table.
  * 
  */
 @Getter

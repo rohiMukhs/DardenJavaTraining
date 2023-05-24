@@ -15,9 +15,6 @@ import lombok.Setter;
 @Setter
 public class RestaurantSlotChannel implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@NotNull(message = ErrorCodeConstants.EC_4001)

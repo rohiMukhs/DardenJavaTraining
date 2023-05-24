@@ -14,6 +14,7 @@ import lombok.Setter;
 
 /**
  * @author vlsowjan
+ * 
  * The primary key class for the Restaurant Template And BusinessDate database table.
  * 
  */
@@ -22,7 +23,6 @@ import lombok.Setter;
 @Embeddable
 public class RestaurantTemplateAndBusinessDatePK implements Serializable {
 
-	//default serial version id, required for serializable classes.
 	private static final long serialVersionUID = 1L;
 
 	@Column(name=CapacityConstants.RESTAURANT_TEMPLATE_ID, insertable=false, updatable=false)

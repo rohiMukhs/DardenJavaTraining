@@ -20,6 +20,7 @@ import lombok.Setter;
 
 /**
  * @author vlsowjan
+ * 
  * The persistent class for the RESTAURANT_TEMPLATE_AND_BUSINESS_DATE database table.
  * 
  */

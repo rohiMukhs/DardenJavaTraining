@@ -17,6 +17,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class RestaurantCapacityTemplateResponse extends ServiceResponse implements Serializable {
+	
 	private static final long serialVersionUID = 1L;
 
 	private RestaurantCapacityTemplate restuarantTemplate;

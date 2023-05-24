@@ -21,7 +21,8 @@ import lombok.Setter;
 
 /**
  * @author gunsaik
- * The persistent class for the restaurant_template_and_capacity_channel database table.
+ * 
+ * The persistent class for the Restaurant_template_and_capacity_channel database table.
  * 
  */
 @Getter

@@ -13,6 +13,7 @@ import lombok.Setter;
 
 /**
  * @author vlsowjan
+ * 
  * The primary key class for the restaurant_template_and_capacity_channel database table.
  * 
  */
@@ -21,7 +22,6 @@ import lombok.Setter;
 @Embeddable
 public class RestaurantTemplateAndCapacityChannelPK implements Serializable {
 
-	//default serial version id, required for serializable classes.
 	private static final long serialVersionUID = 1L;
 
 	@Column(name=CapacityConstants.CAPACITY_CHANNEL_ID)

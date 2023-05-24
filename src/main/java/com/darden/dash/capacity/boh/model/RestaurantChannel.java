@@ -10,9 +10,6 @@ import lombok.Setter;
 @Setter
 public class RestaurantChannel implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private BigInteger restaurantChannelId;
 	private String restaurantChannelName;

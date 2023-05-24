@@ -8,11 +8,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RestaurantSlotDetail implements Serializable{
+public class RestaurantSlotDetail implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private BigInteger slotId;
 	private String startTime;
