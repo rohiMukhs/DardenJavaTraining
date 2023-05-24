@@ -1,5 +1,6 @@
 package com.darden.dash.capacity.repository;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.Optional;
 
@@ -41,6 +42,6 @@ public interface CapacityTemplateAndBusinessDateRepository extends JpaRepository
 	 * 
 	 * @return Optional<CapacityTemplateAndBusinessDateEntity>
 	 */
-	Optional<CapacityTemplateAndBusinessDateEntity> findByIdBusinessDate(Date date);
+	Optional<CapacityTemplateAndBusinessDateEntity> findByIdBusinessDateAndConceptId(Date date, BigInteger conceptId);
 	
 }

@@ -1,13 +1,14 @@
 package com.darden.dash.capacity.repository;
 
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.darden.dash.capacity.entity.ReferenceEntity;
-import java.util.List;
 
 /**
  * 
@@ -24,5 +25,7 @@ import java.util.List;
 public interface ReferenceRepository extends JpaRepository<ReferenceEntity, BigInteger>{
 	
 	List<ReferenceEntity> findByConceptId(BigInteger conceptid);
+	
+	Optional<ReferenceEntity> findByReferenceNmAndConceptId(String referenceNm, BigInteger conceptid);
 
 }
