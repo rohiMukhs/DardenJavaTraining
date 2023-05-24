@@ -21,23 +21,25 @@ import com.darden.dash.capacity.util.CapacityConstants;
 import lombok.Getter;
 import lombok.Setter;
 
-
-/**@author skashala
- * The persistent class for the capacity_slot database table.
+/**
  * 
+ * @author vraviran
+ * 
+ * The persistent class for the capacity slot transaction database table
+ *
  */
 @Getter
 @Setter
 @Entity
-@Table(name="capacity_slot_transaction")
+@Table(name=CapacityConstants.CAPACITY_SLOT_TRANSACTION)
 public class CapacitySlotTransactionEntity extends Audit implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GenericGenerator(name = "generator", strategy = "uuid2", parameters = {})
-	@GeneratedValue(generator = "generator")
-	@Column(name="capacity_slot_transaction_id")
+	@GenericGenerator(name = CapacityConstants.GENERATOR, strategy = CapacityConstants.UUID2, parameters = {})
+	@GeneratedValue(generator = CapacityConstants.GENERATOR)
+	@Column(name=CapacityConstants.CAPACITY_SLOT_TRANSACTION_ID)
 	private String capacitySlotTransactionId;
 
 	@Column(name=CapacityConstants.CAPACITY_CNT)
@@ -52,10 +54,10 @@ public class CapacitySlotTransactionEntity extends Audit implements Serializable
 	@Column(name=CapacityConstants.CONCEPT_ID)
 	private BigInteger conceptId;
 	
-	@Column(name="location_id")
+	@Column(name=CapacityConstants.LOCATION_ID)
 	private BigInteger locationId;
 	
-	@Column(name="business_date")
+	@Column(name=CapacityConstants.BUSINESS_DATE)
 	private LocalDate businessDate;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -63,17 +65,17 @@ public class CapacitySlotTransactionEntity extends Audit implements Serializable
 	private ReferenceEntity capacitySlotStatusReferenceEntity;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="calculation_type_ref_id")
+	@JoinColumn(name=CapacityConstants.CALCULATION_TYPE_REF_ID)
 	private ReferenceEntity calculationTypeReference;
 	
-	@Column(name="revision_nbr")
+	@Column(name=CapacityConstants.REVISION_NBR)
 	private BigInteger revisionNbr;
 	
-	@Column(name="is_modified_flg")
+	@Column(name=CapacityConstants.IS_MODIFIED_FLG)
 	private String isModifiedFlg;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="capacity_slot_id")
+	@JoinColumn(name=CapacityConstants.CAPACITY_SLOT_ID)
 	private CapacitySlotEntity capacitySlotEntity;
 	
 	@ManyToOne(fetch=FetchType.LAZY)

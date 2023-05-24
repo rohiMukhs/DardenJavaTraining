@@ -441,6 +441,17 @@ public class CapacityConstants {
 	
 	public static final String RESTAURANT_TEMPLATE_AND_CAPACITY_CHANNEL = "restaurant_template_and_capacity_channel";
 
+	//capacity slot transaction entity constants
+	public static final String IS_MODIFIED_FLG = "is_modified_flg";
+	public static final String REVISION_NBR = "revision_nbr";
+	public static final String CALCULATION_TYPE_REF_ID = "calculation_type_ref_id";
+	public static final String CAPACITY_SLOT_TRANSACTION_ID = "capacity_slot_transaction_id";
+	public static final String UUID2 = "uuid2";
+	public static final String GENERATOR = "generator";
+	public static final String CAPACITY_SLOT_TRANSACTION = "capacity_slot_transaction";
+	
+	public static final String CAPACITY_SLOT_ENTITY = "capacitySlotEntity";
+
 	private CapacityConstants() {
 
 	}

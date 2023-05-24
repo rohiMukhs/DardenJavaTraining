@@ -256,6 +256,14 @@ public class CapacityManagementFOHServiceImpl implements CapacityManagementFOHSe
 		return new ArrayList<>();
 	}
 
+	/**
+	 * This method is to get channel and slot date from database and populates default
+	 * slots for base channel.
+	 * 
+	 * @param currentDate String contains date.
+	 * 
+	 * @return List<SlotChannel> contains slot and channel data.
+	 */
 	@Override
 	public List<SlotChannel> getChannelAndSlotForDateWithPopulatingSlots(String currentDate) {
 
@@ -337,6 +345,16 @@ public class CapacityManagementFOHServiceImpl implements CapacityManagementFOHSe
 		
 	}
 	
+	/**
+	 * This method is to map default data to capacity slot transaction model class
+	 * 
+	 * @param start contains start time data.
+	 * 
+	 * @param capacityChannelEntity entity contains channel data.
+	 * 
+	 * @param capacitySlotTransaction model class to be mapped.
+	 * 
+	 */
 	private void mapDefaultSlot(LocalTime start, CapacityChannelEntity capacityChannelEntity,
 			CapacitySlotTransaction capacitySlotTransaction) {
 		capacitySlotTransaction.setSlotStatusName("UNLIMITED");
@@ -344,6 +362,16 @@ public class CapacityManagementFOHServiceImpl implements CapacityManagementFOHSe
 		capacitySlotTransaction.setEndTime(start.plusMinutes(capacityChannelEntity.getInterval()).minusSeconds(1).toString());
 	}
 
+	/**
+	 * This method is to map transaction slot to base channel.
+	 * 
+	 * @param transctionMappedForStartTime map contains slot transaction
+	 * 			for start time as key.
+	 * 
+	 * @param start contains start time data.
+	 * 
+	 * @param capacitySlotTransaction model class to be mapped to.
+	 */
 	private void mapTransactionSlotToPopulatedSlot(
 			Map<LocalTime, CapacitySlotTransactionEntity> transctionMappedForStartTime, LocalTime start,
 			CapacitySlotTransaction capacitySlotTransaction) {
@@ -358,6 +386,16 @@ public class CapacityManagementFOHServiceImpl implements CapacityManagementFOHSe
 			capacitySlotTransaction.setCapacityCount(0);
 	}
 
+	/**
+	 * This method is to map data to capacity slot transaction model class.
+	 * 
+	 * @param cs entity class contains data for capacity slot data.
+	 * 
+	 * @param slotDetail model class to be mapped to.
+	 * 
+	 * @param capacitySlotTransactionEntityOpt entity class contains slot 
+	 * 			transaction data.
+	 */
 	private void mapToCapacitySlotTransaction(CapacitySlotEntity cs, CapacitySlotTransaction slotDetail,
 			Optional<CapacitySlotTransactionEntity> capacitySlotTransactionEntityOpt) {
 		if(capacitySlotTransactionEntityOpt.isPresent()) {

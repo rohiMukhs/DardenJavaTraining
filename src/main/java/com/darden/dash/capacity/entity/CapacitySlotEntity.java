@@ -73,7 +73,7 @@ public class CapacitySlotEntity extends Audit implements Serializable {
 	private ReferenceEntity reference;
 
 	@JsonBackReference
-	@OneToMany(mappedBy="capacitySlotEntity")
+	@OneToMany(mappedBy=CapacityConstants.CAPACITY_SLOT_ENTITY)
 	private List<CapacitySlotTransactionEntity> capacitySlotTransactionEntities;
 	
 }
