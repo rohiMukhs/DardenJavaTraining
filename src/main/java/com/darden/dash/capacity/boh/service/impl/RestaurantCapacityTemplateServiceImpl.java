@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import com.darden.dash.capacity.boh.entity.RestaurantTemplateEntity;
 import com.darden.dash.capacity.boh.entity.RestaurantTemplateSlotEntity;
 import com.darden.dash.capacity.boh.mapper.RestaurantCapacityTemplateMapper;
-import com.darden.dash.capacity.boh.model.CreateRestaurantCapacityTemplateRequest;
 import com.darden.dash.capacity.boh.model.RestaurantCapacityTemplate;
 import com.darden.dash.capacity.boh.model.RestaurantChannel;
 import com.darden.dash.capacity.boh.model.RestaurantSlotChannel;
@@ -25,30 +24,27 @@ import com.darden.dash.capacity.boh.model.RestaurantSlotDetail;
 import com.darden.dash.capacity.boh.model.ViewRestaurantCapacityTemplate;
 import com.darden.dash.capacity.boh.repository.RestaurantTemplateRepository;
 import com.darden.dash.capacity.boh.service.RestaurantCapacityTemplateService;
-import com.darden.dash.capacity.entity.CapacityTemplateEntity;
-import com.darden.dash.capacity.model.CapacityResponse;
 import com.darden.dash.capacity.util.CapacityConstants;
 import com.darden.dash.common.RequestContext;
 import com.darden.dash.common.constant.ErrorCodeConstants;
 import com.darden.dash.common.error.ApplicationErrors;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * 
  * @author gunsaik
  * 
  *
- *       Service Implementation class which holds method definitions which deals
- *       with Capacity Management for BOH or any business logic related to
- *       Capacity Management
+ *         Service Implementation class which holds method definitions which
+ *         deals with Capacity Management for BOH or any business logic related
+ *         to Capacity Management
  */
 @Service
-public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacityTemplateService{
-	
-	
+public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacityTemplateService {
+
 	private RestaurantTemplateRepository restaurantTemplateRepository;
-	
-	private final RestaurantCapacityTemplateMapper restaurantTemplateMapper = Mappers.getMapper(RestaurantCapacityTemplateMapper.class);
+
+	private final RestaurantCapacityTemplateMapper restaurantTemplateMapper = Mappers
+			.getMapper(RestaurantCapacityTemplateMapper.class);
 
 	@Autowired
 	public RestaurantCapacityTemplateServiceImpl(RestaurantTemplateRepository restaurantTemplateRepository) {
@@ -56,12 +52,12 @@ public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacity
 		this.restaurantTemplateRepository = restaurantTemplateRepository;
 	}
 
-	
-	 /**
-	  * This method is used to get restaurant template by restaurantTemplateId
-	  * @param bigTemplateId
-	  * @return restaurantTemplate
-	  */
+	/**
+	 * This method is used to get restaurant template by restaurantTemplateId
+	 * 
+	 * @param bigTemplateId
+	 * @return restaurantTemplate
+	 */
 
 	@Override
 	public RestaurantCapacityTemplate getRestaurantCapacityTempalteById(BigInteger bigTemplateId) {
@@ -76,7 +72,8 @@ public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacity
 		RestaurantTemplateEntity template = new RestaurantTemplateEntity();
 		if (findByRestaurantTemplateIdAndConceptId.isPresent())
 			template = findByRestaurantTemplateIdAndConceptId.get();
-		List<RestaurantChannel> capacityTemplateChannels = restaurantTemplateMapper.getRestaurantTemplateChannels(template);
+		List<RestaurantChannel> capacityTemplateChannels = restaurantTemplateMapper
+				.getRestaurantTemplateChannels(template);
 
 		List<RestaurantTemplateSlotEntity> capacitySlots = template.getRestaurantSlots();
 		MultiValuedMap<String, RestaurantSlotDetail> channelSlotDetails = new ArrayListValuedHashMap<>();
@@ -85,19 +82,20 @@ public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacity
 
 		restaurantTemplateMapper.mapCapacitySlots(capacitySlots, channelSlotDetails, channelIds, channelNames);
 
-		List<RestaurantSlotChannel> slotChannels = restaurantTemplateMapper.mapSlotChannels(channelSlotDetails, channelIds,
-				channelNames);
+		List<RestaurantSlotChannel> slotChannels = restaurantTemplateMapper.mapSlotChannels(channelSlotDetails,
+				channelIds, channelNames);
 
 		return mapTemplateModel(template, capacityTemplateChannels, slotChannels);
 
 	}
-	 /**
-	  * This method is used to get restaurant template by restaurantTemplateId
-	  * @param bigTemplateId
-	  * @return restaurantTemplate
-	  */
 
-	
+	/**
+	 * This method is used to get restaurant template by restaurantTemplateId
+	 * 
+	 * @param bigTemplateId
+	 * @return restaurantTemplate
+	 */
+
 	private RestaurantCapacityTemplate mapTemplateModel(RestaurantTemplateEntity capacityTemplateEntity,
 			List<RestaurantChannel> channels, List<RestaurantSlotChannel> slotChannels) {
 
@@ -106,7 +104,8 @@ public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacity
 		capacityTemplateModel.setCapacityTemplateType(
 				capacityTemplateEntity.getRestaurantTemplateType().getRestaurantTemplateTypeNm());
 
-		if (capacityTemplateEntity.getRestaurantTemplateType().getRestaurantTemplateTypeNm().equals(CapacityConstants.DAYS)) {
+		if (capacityTemplateEntity.getRestaurantTemplateType().getRestaurantTemplateTypeNm()
+				.equals(CapacityConstants.DAYS)) {
 			restaurantTemplateMapper.mapToCapacityRestaurantTemplateFromEntity(capacityTemplateEntity,
 					capacityTemplateModel);
 		}

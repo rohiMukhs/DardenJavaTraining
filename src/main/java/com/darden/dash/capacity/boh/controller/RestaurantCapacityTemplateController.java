@@ -89,7 +89,7 @@ public class RestaurantCapacityTemplateController {
 	public ResponseEntity<Object> getAllRestaurantCapacityTemplates(
 			@RequestHeader(name = CapacityConstants.HEADER_CONCEPT_ID, required = true) String conceptId,
 			@Parameter @RequestHeader(name = CapacityConstants.AUTHORIZATION, defaultValue = CapacityConstants.BEARER_ACCESS_TOKEN, required = true) String accessToken)
-			throws JsonProcessingException {
+			throws GeneralSecurityException {
 		jwtUtils.findUserDetail(accessToken);
 		List<ViewRestaurantCapacityTemplate> capacityTemplateEntity = restaurantCapacityTemplateService
 				.getAllCapacityTemplates(new BigInteger(RequestContext.getConcept()));
