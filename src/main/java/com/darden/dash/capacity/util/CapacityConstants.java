@@ -398,8 +398,6 @@ public class CapacityConstants {
 
 	public static final String RESTAURANT_CAPACITY_TEMPLATE_DELETED = " deleted successfully";
 
-	public static final String DAY_OF_WEEK_PLAN_MANAGER_TEMPLATE = "DAY_OF_WEEK_PLAN_ManagerTemplate";
-
 	//RESTAURANT_TEMPLATE
 	public static final String RESTAURANT_TEMPLATE = "restaurant_template";
 	
