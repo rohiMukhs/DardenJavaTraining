@@ -440,7 +440,7 @@ public class CapacityConstants {
 	public static final String RESTUARANT_TEMPLATE_LOADED_SUCESSFULLY = "One restaurant capacity template loading successfully";
 	
 	public static final String RESTAURANT_TEMPLATE_AND_CAPACITY_CHANNEL = "restaurant_template_and_capacity_channel";
-
+	
 	//capacity slot transaction entity constants
 	public static final String IS_MODIFIED_FLG = "is_modified_flg";
 	public static final String REVISION_NBR = "revision_nbr";
