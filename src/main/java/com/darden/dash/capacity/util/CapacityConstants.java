@@ -378,68 +378,6 @@ public class CapacityConstants {
 	public static final String CAPACITY_SLOT_EDIT = "CapacityManager.Slots.Edit";
 
 	public static final String SLOT_UPDATED = "Slot updated";
-	
-	//BOH Capacity Template Controller
-	public static final String PATH_RESTAURANT_CAPACITY_TEMPLATES = PATH_SLASH+"restaurant-capacity-templates";
-
-	public static final String RESTAURANT_CAPACITY_TEMPLATE_LOADED_SUCCESSFULLY = "Restaurant capacity template loaded successfully";
-
-	public static final String PATH_BOH_REFERENCEDATA = PATH_SLASH+"boh-referencedata";
-
-	public static final String REFERENCE_DATA_LOADED_SUCESSFULLY = "Reference data loaded sucessfully";
-
-	public static final String RESTAURANT_CAPACITY_TEMPLATE = "/restaurant-capacity-template";
-
-	public static final String RESTAURANT_CAPACITY_TEMPLATE_CREATED_SUCCESSFULLY = "restaurant capacity template created successfully";
-
-	public static final String RESTAURANT_CAPACITY_TEMPLATE_WITH_ID = "/restaurant-capacity-template/{templateId}";
-	
-	public static final String RESTAURANT_CAPACITY_TEMPLATE_UPDATED_SUCCESSFULLY = "restaurant capacity template updated successfully";
-
-	public static final String RESTAURANT_CAPACITY_TEMPLATE_DELETED = " deleted successfully";
-
-	public static final String DAY_OF_WEEK_PLAN_MANAGER_TEMPLATE = "DAY_OF_WEEK_PLAN_ManagerTemplate";
-
-	//RESTAURANT_TEMPLATE
-	public static final String RESTAURANT_TEMPLATE = "restaurant_template";
-	
-	public static final String RESTAURANT_TEMPLATE_ID = "restaurant_template_id";
-	
-	public static final String RESTAURANT_TEMPLATE_NAME = "restaurant_template_nm";
-
-	public static final String RESTAURANT_TEMPLATE_TYPE_ID = "restaurant_template_type_id";
-	
-	public static final String RESTAURANT_TEMPLATE_AND_BUSINESS_DATE = "restaurant_template_and_business_date";
-
-	public static final String RESTAURANT_TEMPLATE_SLOT = "restaurant_template_slot";
-
-	public static final String RESTAURANT_TEMPLATE_SLOT_ID = "restaurant_template_slot_id";
-	
-	public static final String RESTAURANT_TEMPLATE_SLOT_TYPE = "restaurant_template_slot_type";
-
-	public static final String RESTAURANT_TEMPLATE_SLOT_TYPE_ID = "restaurant_template_slot_type_id";
-
-	public static final String RESTAURANT_TEMPLATE_SLOT_TYPE_NAME = "restaurant_template_slot_type_nm";
-
-	public static final String RESTAURANT_TEMPLATE_TYPE2 = "restaurantTemplateSlotType";
-
-	public static final String RESTAURANT_TEMPLATE_TYPE = "restaurant_template_type";
-	
-	public static final String RESTAURANT_TEMPLATE_TYPE_NAME = "restaurant_template_type_nm";
-	
-	public static final String RESTAURANT_TEMPLATE_TYPE3 = "restaurantTemplateType";
-
-	public static final String RESTAURANT_TEMPLATE2 = "restaurantTemplate";
-
-	public static final String RESTAURANT_TEMPLATE_SLOT_STATUS_REF_ID = "restaurant_template_slot_status_ref_id";
-	
-	public static final String RESTAURANT_CHANNELS = "restaurantChannels";
-	
-	public static final String RESTAURANT_SLOT_CHANNELS = "restaurantSlotChannels";
-	
-	public static final String RESTUARANT_TEMPLATE_LOADED_SUCESSFULLY = "One restaurant capacity template loading successfully";
-	
-	public static final String RESTAURANT_TEMPLATE_AND_CAPACITY_CHANNEL = "restaurant_template_and_capacity_channel";
 
 	private CapacityConstants() {
 
