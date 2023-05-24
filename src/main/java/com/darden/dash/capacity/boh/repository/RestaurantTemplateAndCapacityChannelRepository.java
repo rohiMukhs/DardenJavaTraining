@@ -9,8 +9,7 @@ import com.darden.dash.capacity.boh.entity.RestaurantTemplateAndCapacityChannelP
 
 /**
  * 
- * @author vraviran
- * @date 19-May-2022
+ * @author vlsowjan
  * 
  * 
  *       The purpose of this RestaurantTemplateAndCapacityChannelRepository

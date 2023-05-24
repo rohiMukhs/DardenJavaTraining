@@ -8,9 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.darden.dash.capacity.boh.entity.RestaurantTemplateEntity;
-
+/**
+ * 
+ * @author vlsowjan
+ * The purpose of this RestaurantTemplateRepository
+ *         interface is to extend the properties of JpaRepository to perform the
+ *         CRUD operation on the Restaurant Template table in
+ *         database using the entity class.
+ */
 @Repository
-public interface RestaurantTemplateRepository extends JpaRepository<RestaurantTemplateEntity, Integer> {
+public interface RestaurantTemplateRepository extends JpaRepository<RestaurantTemplateEntity, BigInteger> {
 
 	/**
 	 * This method is used to get capacity template based on value of template Id 
