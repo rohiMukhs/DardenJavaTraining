@@ -30,5 +30,6 @@ public class SlotChannel implements Serializable{
 	private String channelName;
 	private String isSelectedFlag;
 	private List<SlotDetail> slotDetails = new ArrayList<>();
+	private List<CapacitySlotTransaction> fohSlots;
 
 }

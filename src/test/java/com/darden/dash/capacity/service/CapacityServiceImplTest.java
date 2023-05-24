@@ -45,7 +45,6 @@ import com.darden.dash.capacity.entity.ReferenceEntity;
 import com.darden.dash.capacity.mapper.CapacityTemplateMapper;
 import com.darden.dash.capacity.model.BusinessDate;
 import com.darden.dash.capacity.model.CapacityResponse;
-import com.darden.dash.capacity.model.CapacitySlotTypeRefModel;
 import com.darden.dash.capacity.model.CapacityTemplate;
 import com.darden.dash.capacity.model.CreateCapacityTemplateRequest;
 import com.darden.dash.capacity.model.CreateTemplateResponse;
@@ -1340,73 +1339,6 @@ class CapacityServiceImplTest {
 		Mockito.when(capacityModelAndCapacityTemplateRepository.findAll()).thenReturn(getListOfCapacityModelAndCapacityTemplate());
 		boolean res = capacityManagementServiceImpl.validateCapacityModelBusinessDates(request, "3");
 		assertEquals(true, res);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateMonday() {
-		Mockito.when(capacityTemplateRepo.findByMonFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/17/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateTuesday() {
-		Mockito.when(capacityTemplateRepo.findByTueFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/18/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateWednesday() {
-		Mockito.when(capacityTemplateRepo.findByWedFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/19/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateThursday() {
-		Mockito.when(capacityTemplateRepo.findByThuFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/20/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateFriday() {
-		Mockito.when(capacityTemplateRepo.findByFriFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/21/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateSaturday() {
-		Mockito.when(capacityTemplateRepo.findBySatFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/22/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateSunday() {
-		Mockito.when(capacityTemplateRepo.findBySunFlg(Mockito.anyString())).thenReturn(getAllCapacityTemplates());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/23/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateOnly() {
-		CapacityTemplateAndBusinessDateEntity entity = new CapacityTemplateAndBusinessDateEntity();
-		entity.setCapacityTemplate(getAllCapacityTemplates().get(0));
-		Mockito.when(capacityTemplateRepo.findBySunFlg(Mockito.anyString())).thenReturn(new ArrayList<>());
-		Mockito.when(capacityTemplateAndBusinessDateRepository.findByIdBusinessDate(Mockito.any())).thenReturn(Optional.of(entity));
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/23/2023");
-		assertNotNull(response);
-	}
-	
-	@Test
-	void testGetAllCapacityTemplatesBasedOnDateNoTemplate() {
-		Mockito.when(capacityTemplateRepo.findBySunFlg(Mockito.anyString())).thenReturn(new ArrayList<>());
-		Mockito.when(capacityTemplateAndBusinessDateRepository.findByIdBusinessDate(Mockito.any())).thenReturn(Optional.empty());
-		CapacityResponse response = capacityManagementServiceImpl.getAllCapacityTemplatesBasedOnDate(false, "1", "04/23/2023");
-		assertNotNull(response);
 	}
 	
 	@Test

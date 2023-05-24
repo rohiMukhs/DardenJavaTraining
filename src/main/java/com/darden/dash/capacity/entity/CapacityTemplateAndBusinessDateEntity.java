@@ -37,7 +37,7 @@ public class CapacityTemplateAndBusinessDateEntity extends Audit implements Seri
 	private BigInteger conceptId; 
 
 	//bi-directional many-to-one association to CapacityTemplate
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name=CapacityConstants.CAPACITY_TEMPLATE_ID,insertable=false, updatable=false)
 	private CapacityTemplateEntity capacityTemplate;
 

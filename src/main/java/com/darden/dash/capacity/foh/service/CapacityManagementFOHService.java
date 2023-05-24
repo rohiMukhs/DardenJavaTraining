@@ -1,6 +1,9 @@
 package com.darden.dash.capacity.foh.service;
 
+import java.util.List;
+
 import com.darden.dash.capacity.model.CapacitySlotRequest;
+import com.darden.dash.capacity.model.SlotChannel;
 
 /**
  * 
@@ -21,4 +24,15 @@ public interface CapacityManagementFOHService {
 	 * 
 	 */
 	void updateCapacitySlot(CapacitySlotRequest capacitySlotRequest, String userName);
+	
+	/**
+	 * This method is to get channel and slot date from database and populates default
+	 * slots for base channel.
+	 * 
+	 * @param currentDate String contains date.
+	 * 
+	 * @return List<SlotChannel> contains slot and channel data.
+	 */
+	List<SlotChannel> getChannelAndSlotForDateWithPopulatingSlots(String currentDate);
+	
 }
