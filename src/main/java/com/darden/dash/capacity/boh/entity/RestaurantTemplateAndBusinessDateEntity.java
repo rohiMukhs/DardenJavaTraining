@@ -36,6 +36,9 @@ public class RestaurantTemplateAndBusinessDateEntity extends Audit implements Se
 	
 	@Column(name=CapacityConstants.CONCEPT_ID)
 	private BigInteger conceptId; 
+	
+	@Column(name = CapacityConstants.LOCATION_ID)
+	private BigInteger locationId;
 
 	//bi-directional many-to-one association to CapacityTemplate
 	@ManyToOne(fetch=FetchType.LAZY)

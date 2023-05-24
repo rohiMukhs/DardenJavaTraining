@@ -10,7 +10,6 @@ import java.util.Set;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import com.darden.dash.capacity.boh.entity.RestaurantTemplateAndCapacityChannelEntity;
@@ -20,43 +19,12 @@ import com.darden.dash.capacity.boh.model.RestaurantCapacityTemplate;
 import com.darden.dash.capacity.boh.model.RestaurantChannel;
 import com.darden.dash.capacity.boh.model.RestaurantSlotChannel;
 import com.darden.dash.capacity.boh.model.RestaurantSlotDetail;
+import com.darden.dash.capacity.boh.model.ViewRestaurantCapacityTemplate;
 import com.darden.dash.capacity.util.CapacityConstants;
 
 @Mapper
 public interface RestaurantCapacityTemplateMapper {
-	
-	@Mapping(target = CapacityConstants.RESTAURANT_CHANNELS, ignore = true)
-	@Mapping(target = CapacityConstants.RESTAURANT_SLOT_CHANNELS, ignore = true)
-	//@Mapping(target = CapacityConstants.SLOT_END_TIME, ignore = true)
-	//@Mapping(target = CapacityConstants.SLOT_START_TIME, ignore = true)
-	@Mapping(target = CapacityConstants.MAP_EFFECTIVE_DATE, ignore = true)
-	@Mapping(target = CapacityConstants.MAP_EXPIRY_DATE, ignore = true)
-	@Mapping(target = CapacityConstants.CAPACITYTEMPLATETYPE, ignore = true)
-	@Mapping(target = CapacityConstants.BUSINESSDATE, ignore = true)
-	@Mapping(target = CapacityConstants.SUN_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.MON_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.TUE_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.WED_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.THU_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.FRI_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.SAT_DAY, ignore = true)
-	@Mapping(source = "resturantTemplateNm", target = CapacityConstants.TEMPLATE_NAME)
-	RestaurantCapacityTemplate map(RestaurantTemplateEntity capacityTemplate);
-	
-	@Mapping(target = CapacityConstants.RESTAURANT_CHANNELS, ignore = true)
-	@Mapping(target = CapacityConstants.RESTAURANT_SLOT_CHANNELS, ignore = true)
-	@Mapping(target = CapacityConstants.MAP_EFFECTIVE_DATE, ignore = true)
-	@Mapping(target = CapacityConstants.MAP_EXPIRY_DATE, ignore = true)
-	@Mapping(target = CapacityConstants.CAPACITYTEMPLATETYPE, ignore = true)
-	@Mapping(target = CapacityConstants.BUSINESSDATE, ignore = true)
-	@Mapping(target = CapacityConstants.SUN_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.MON_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.TUE_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.WED_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.THU_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.FRI_DAY, ignore = true)
-	@Mapping(target = CapacityConstants.SAT_DAY, ignore = true)
-	@Mapping(source = "resturantTemplateNm", target = CapacityConstants.TEMPLATE_NAME)
+
 	RestaurantCapacityTemplate mapRestaurantTemplate(RestaurantTemplateEntity capacityTemplate);
 
 	default List<RestaurantChannel> getRestaurantTemplateChannels(RestaurantTemplateEntity capacityTemplateEntity) {
@@ -82,14 +50,15 @@ public interface RestaurantCapacityTemplateMapper {
 			channelNames.put(channelId, cs.getCapacityChannel().getCapacityChannelNm());
 			RestaurantSlotDetail slotDetail = new RestaurantSlotDetail();
 			slotDetail.setSlotId(cs.getRestaurantSlotId());
-			slotDetail.setSlotTypeId(String.valueOf(cs.getRestaurantTemplateSlotType().getRestaurantTemplateSlotTypeId()));
+			slotDetail.setSlotTypeId(
+					String.valueOf(cs.getRestaurantTemplateSlotType().getRestaurantTemplateSlotTypeId()));
 			slotDetail.setStartTime(String.valueOf(cs.getStartTime()));
 			slotDetail.setEndTime(String.valueOf(cs.getEndTime()));
 			slotDetail.setCapacityCount(cs.getCapacityCnt());
 			channelSlotDetails.put(String.valueOf(cs.getCapacityChannel().getCapacityChannelId()), slotDetail);
 		});
 	}
-	
+
 	@Named(CapacityConstants.MAPSLOTCHANNELS)
 	default List<RestaurantSlotChannel> mapSlotChannels(MultiValuedMap<String, RestaurantSlotDetail> channelSlotDetails,
 			Set<String> channelIds, Map<String, String> channelNames) {
@@ -105,7 +74,7 @@ public interface RestaurantCapacityTemplateMapper {
 		});
 		return slotChannels;
 	}
-	
+
 	default void mapToCapacityRestaurantTemplateFromEntity(RestaurantTemplateEntity capacityTemplateEntity,
 			RestaurantCapacityTemplate capacityTemplateModel) {
 		capacityTemplateModel.setSunDay(capacityTemplateEntity.getSunFlg());
@@ -115,5 +84,35 @@ public interface RestaurantCapacityTemplateMapper {
 		capacityTemplateModel.setThuDay(capacityTemplateEntity.getThuFlg());
 		capacityTemplateModel.setFriDay(capacityTemplateEntity.getFriFlg());
 		capacityTemplateModel.setSatDay(capacityTemplateEntity.getSatFlg());
+	}
+
+	/**
+	 * This Mapper class is written for the purpose of mapping the values of
+	 * RestaurantCpacityTemplateEntity to RestaurantCapacityTemplate Modal Class
+	 */
+	@Named("getMappToCapacityTemplate")
+	default List<ViewRestaurantCapacityTemplate> getMappToCapacityTemplate(
+			List<RestaurantTemplateEntity> restaurantTemplateEntityList) {
+
+		List<ViewRestaurantCapacityTemplate> restaurantTemplateResposeList = new ArrayList<>();
+
+		for (RestaurantTemplateEntity restaurantTemplateEntity : restaurantTemplateEntityList) {
+
+			ViewRestaurantCapacityTemplate restaurantResp = new ViewRestaurantCapacityTemplate();
+
+			restaurantResp.setTemplateName(restaurantTemplateEntity.getResturantTemplateNm());
+			restaurantResp.setTemplateType(
+					restaurantTemplateEntity.getRestaurantTemplateType().getRestaurantTemplateTypeNm());
+			if (restaurantTemplateEntity.getEffectiveDate() != null) {
+				restaurantResp.setEffectiveDate(restaurantTemplateEntity.getEffectiveDate().toString());
+			}
+			if (restaurantTemplateEntity.getExpiryDate() != null) {
+				restaurantResp.setExpiryDate(restaurantTemplateEntity.getExpiryDate().toString());
+			}
+
+			restaurantTemplateResposeList.add(restaurantResp);
+		}
+
+		return restaurantTemplateResposeList;
 	}
 }

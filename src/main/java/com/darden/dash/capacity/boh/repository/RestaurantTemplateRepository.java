@@ -1,6 +1,7 @@
 package com.darden.dash.capacity.boh.repository;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,5 +25,15 @@ public interface RestaurantTemplateRepository extends JpaRepository<RestaurantTe
 	 */
 	Optional<RestaurantTemplateEntity> findByRestaurantTemplateIdAndConceptId(BigInteger bigTemplateId,
 			BigInteger bigInteger);
+	
+	/**
+	 * This method is used to get Restaurant template using provided concept Id.
+	 * 
+	 * @param conceptId ConceptId of the Capacity Template Entity.
+	 * 
+	 * @return List<RestaurantCapacityTemplateEntity> List of Capacity Template entity class
+	 *         retrieved based on the parameters passed.
+	 */
+	List<RestaurantTemplateEntity> findByConceptId(BigInteger conceptId);
 
 }

@@ -22,6 +22,7 @@ import com.darden.dash.capacity.boh.model.RestaurantCapacityTemplate;
 import com.darden.dash.capacity.boh.model.RestaurantChannel;
 import com.darden.dash.capacity.boh.model.RestaurantSlotChannel;
 import com.darden.dash.capacity.boh.model.RestaurantSlotDetail;
+import com.darden.dash.capacity.boh.model.ViewRestaurantCapacityTemplate;
 import com.darden.dash.capacity.boh.repository.RestaurantTemplateRepository;
 import com.darden.dash.capacity.boh.service.RestaurantCapacityTemplateService;
 import com.darden.dash.capacity.entity.CapacityTemplateEntity;
@@ -55,19 +56,12 @@ public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacity
 		this.restaurantTemplateRepository = restaurantTemplateRepository;
 	}
 
-	@Override
-	public CapacityTemplateEntity createTemplate(
-			CreateRestaurantCapacityTemplateRequest createRestaurantCapacityTemplateRequest, String user)
-			throws JsonProcessingException {
-		
-		return null;
-	}
-
-	@Override
-	public CapacityResponse getAllCapacityTemplates(Boolean assignedTemplate, String conceptId) {
 	
-		return null;
-	}
+	 /**
+	  * This method is used to get restaurant template by restaurantTemplateId
+	  * @param bigTemplateId
+	  * @return restaurantTemplate
+	  */
 
 	@Override
 	public RestaurantCapacityTemplate getRestaurantCapacityTempalteById(BigInteger bigTemplateId) {
@@ -97,6 +91,12 @@ public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacity
 		return mapTemplateModel(template, capacityTemplateChannels, slotChannels);
 
 	}
+	 /**
+	  * This method is used to get restaurant template by restaurantTemplateId
+	  * @param bigTemplateId
+	  * @return restaurantTemplate
+	  */
+
 	
 	private RestaurantCapacityTemplate mapTemplateModel(RestaurantTemplateEntity capacityTemplateEntity,
 			List<RestaurantChannel> channels, List<RestaurantSlotChannel> slotChannels) {
@@ -119,5 +119,24 @@ public class RestaurantCapacityTemplateServiceImpl implements RestaurantCapacity
 		return capacityTemplateModel;
 	}
 
+	/**
+	 * @author TuhinM
+	 *
+	 *         This serviceImpl function is written for the purpose of fetching
+	 *         Entity and calling the Restaurant mapper class
+	 * 
+	 */
+	/**
+	 * This method is used for get All capacity Template records.
+	 * 
+	 * @return List<ViewRestaurantCapacityTemplate> get list containing all list of
+	 *         restaurant Template.
+	 */
+	@Override
+	public List<ViewRestaurantCapacityTemplate> getAllCapacityTemplates(BigInteger conceptId) {
+		List<RestaurantTemplateEntity> restaurantTemplateEntity = restaurantTemplateRepository
+				.findByConceptId(conceptId);
+		return restaurantTemplateMapper.getMappToCapacityTemplate(restaurantTemplateEntity);
 
+	}
 }

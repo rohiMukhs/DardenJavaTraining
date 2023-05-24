@@ -4,6 +4,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.math.BigInteger;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -27,6 +30,7 @@ import com.darden.dash.capacity.boh.entity.RestaurantTemplateSlotEntity;
 import com.darden.dash.capacity.boh.entity.RestaurantTemplateSlotTypeEntity;
 import com.darden.dash.capacity.boh.entity.RestaurantTemplateTypeEntity;
 import com.darden.dash.capacity.boh.mapper.RestaurantCapacityTemplateMapper;
+import com.darden.dash.capacity.boh.model.ViewRestaurantCapacityTemplate;
 import com.darden.dash.capacity.boh.repository.RestaurantTemplateRepository;
 import com.darden.dash.capacity.entity.CapacityChannelAndCombinedChannelEntity;
 import com.darden.dash.capacity.entity.CapacityChannelEntity;
@@ -101,6 +105,17 @@ class RestaurantCapacityTemplateServiceImplTest {
 	
 	@Mock
 	private RestaurantTemplateRepository restaurantTemplateRepository;
+	
+	@Mock
+	RestaurantTemplateTypeEntity restaurantTemplateTypeEntity;
+	
+	
+	@Mock
+	RestaurantCapacityTemplateMapper restaurantTemplateMapper = Mappers.getMapper(RestaurantCapacityTemplateMapper.class);
+	
+	public static final String ACCESS_TOKEN = "7TeL7QMI9tSbvx38:k20boY/U/dAEM13LBKgS+oaT0v3gTSxnMmfVudUPFbnkLG+YgOIQ8i49iT1ooTzS55gZUdqW2XajNbhkDtq40rJh9jVltkBfhY/JTpwAIRJW4Ebn+M6X9xjXwNub0U4wz4nUHK7VIHNoF61xrLiAMdUcxb1GrHaDvXEzPtcWNG/ngoz5L9KOJFwwdBvS/c76k7rVO1Rn3Y0MJHY9I6wQAGa3MHmcuIxCmmkQEI59sYVsoazwRfFd5s2KYxccqWG+EJK3zJ4yTueQstPGcsJ/wPXG0jPtVwgy7Ms61Ww3ydm1R4SjUIYemITvXr/v3uVBs5qizR7PWEBSZNKPBsNctMN1PoKrAs7PEkqh791fnfK4Txjg6/jSazZYCELAD/EjR/1pkn6cEKLH2L7cLA/n8WzkPg6bD3UwRp6MgTL9PhuE+juJu3mc0pR7LI7l6A9TYwnStsGiJm+R0JOZzIn/xjCCPDpTBXvC9rPMvg2rF1MWV78jVYSMWugQnhU3tP5HjMF3fK5NXFwZyRPt9Hm4MPNHLiY0/fKcoP/e2cPAcTxuJeOBM6BmIVPYu10kMLBzIMkCbcYTptv2WNgTVPJOi4W/Rl76+HJS62szMY4DPcf3fTqVnuXTj4R7vfuzS2RZOKCYER3JF1H80KAUa4VFTv2xIAVMALMuQesjobfz6r9o0qaWFbZDXLsMQ9denalcKMwDXeBPe1QilEwDbO6gtiRb6lD1w8mJ4mWrH57hAFwN4pE/uFmI/kvqRCjF/ca7hu5i30NAlAEcp9Y45H+Bo6lwx9VUeYrfTWlDTEUuRZ0+PEKGMOjnNj+kzHCOj3Smz4vt4NW+DG0bW/GS9++4lAOtwm3bRpEYYVycjhO7pwYB/qFpfvPkiHXwDRVTty5xiNNYeHxYdBvzeUFzphAAgAFEyRGrLJVO5dWshysu";
+	
+	
 	
 	
 	RestaurantTemplateEntity capacityList = new RestaurantTemplateEntity();
@@ -219,5 +234,23 @@ class RestaurantCapacityTemplateServiceImplTest {
 		return capacitySlotTypeEntity;
 	}
 
-
+	@Test
+	void testGetAllRestaurantTemplates() throws ParseException {
+		RequestContext.setConcept("1");
+		List<RestaurantTemplateEntity> list = new ArrayList<>();
+		RestaurantTemplateEntity entity = new RestaurantTemplateEntity();
+		Date date1= new SimpleDateFormat("dd/MM/yyyy").parse("26/12/2022");
+		entity.setEffectiveDate(date1);
+		entity.setExpiryDate(date1);
+		entity.setResturantTemplateNm("tuhin");
+		entity.setRestaurantTemplateType(restaurantTemplateTypeEntity);
+		entity.setCreatedBy("uou");
+		entity.setCreatedDatetime(Instant.now());
+		entity.setLastModifiedBy("uouo");
+		entity.setLastModifiedDatetime(Instant.now());
+		list.add(entity);
+		Mockito.when(restaurantTemplateRepository.findByConceptId(Mockito.any())).thenReturn(list);
+		List<ViewRestaurantCapacityTemplate> res = restaurantCapacityTemplateServiceImpl.getAllCapacityTemplates(new BigInteger(RequestContext.getConcept()));
+		assertNotNull(res);
+	}
 }

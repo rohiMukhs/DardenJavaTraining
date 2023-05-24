@@ -2,6 +2,9 @@ package com.darden.dash.capacity.boh.controller;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.darden.dash.capacity.boh.model.RestaurantCapacityTemplate;
+import com.darden.dash.capacity.boh.model.ViewRestaurantCapacityTemplate;
 import com.darden.dash.capacity.boh.service.RestaurantCapacityTemplateService;
 import com.darden.dash.capacity.boh.validator.RestaurantCapacityTemplateValidator;
 import com.darden.dash.common.RequestContext;
@@ -64,5 +68,16 @@ class RestaurantCapacityTemplateControllerTest {
 				.headers(getHeaders())
 				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk());
+	}
+	
+	@Test
+	void getAllCapacityTemplates() throws Exception {
+		List<ViewRestaurantCapacityTemplate> restaurantResponse = new ArrayList<ViewRestaurantCapacityTemplate>();
+		Mockito.when(jwtUtils.isActionCodeExists(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+		Mockito.when(restaurantCapacityTemplateService.getAllCapacityTemplates(Mockito.any()))
+				.thenReturn(restaurantResponse);
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/restaurant-capacity-templates").headers(getHeaders())
+				.param("isRefDataReq", "false").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
 	}
 }
